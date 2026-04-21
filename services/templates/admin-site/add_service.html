@@ -1,0 +1,111 @@
+{% extends 'admin-site/admin_base.html' %}
+
+{% block content %}
+<div class="card form-card" style="max-width: 820px; margin: 0 auto;">
+    <h2>{{ title }}</h2>
+    <p>Fill in all the required details below</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Service Name</label>
+            <input type="text" name="name" value="{{ service.name|default:'' }}" placeholder="Enter service name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" placeholder="Enter service description" required rows="4">{{ service.description|default:'' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Service Charges</label>
+            <input type="number" name="charges" value="{{ service.charges|default:'0.00'|stringformat:'.2f' }}" placeholder="Enter charges amount" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
+            <label>Documents Required</label>
+            <textarea name="documents_required" placeholder="List the documents required" rows="3">{{ service.documents_required|default:'' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>YouTube Tutorial Link</label>
+            <input type="url" name="tutorial_link" value="{{ service.tutorial_link|default:'' }}" placeholder="https://youtube.com/...">
+        </div>
+
+        <div class="form-group">
+            <label>Apply Now Link</label>
+            <input type="url" name="apply_link" value="{{ service.apply_link|default:'' }}" placeholder="https://example.com/apply">
+        </div>
+
+        <div class="form-group">
+            <label>Assign to Page (Optional)</label>
+            <select name="page" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px;">
+                <option value="" {% if not service.page_id and not preselect_page_id %}selected{% endif %}>Select a page to restrict this service to that page only. Leave empty for global access.</option>
+                {% for p in pages %}
+                    <option value="{{ p.id }}" {% if service.page_id == p.id or p.id|stringformat:"s" == preselect_page_id %}selected{% endif %}>{{ p.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button type="submit" class="btn">Submit</button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-cancel" style="text-decoration: none; display: inline-block; text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .card {
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+        margin-top: 0;
+        color: #0f172a;
+        font-size: 24px;
+    }
+
+    .card p {
+        color: #64748b;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-family: Arial;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: #f0f7ff;
+    }
+
+    small {
+        font-size: 12px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'admin-site/admin_base.html' %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin: 0;">User Management</h2>
+            <p style="color: #64748b; margin-top: 5px;">Manage system access, roles, and account permissions.</p>
+        </div>
+        <button class="btn" onclick="document.getElementById('addUserModal').classList.add('show')">+ Add User</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
+                    <th style="padding: 15px;">Username</th>
+                    <th style="padding: 15px;">Full Name</th>
+                    <th style="padding: 15px;">Email</th>
+                    <th style="padding: 15px;">Mobile</th>
+                    <th style="padding: 15px;">Role</th>
+                    <th style="padding: 15px;">Joined</th>
+                    <th style="padding: 15px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 15px; font-weight: 600;">{{ u.username }}</td>
+                    <td style="padding: 15px;">{{ u.get_full_name|default:"---" }}</td>
+                    <td style="padding: 15px;">{{ u.email }}</td>
+                    <td style="padding: 15px;">{{ u.mobile|default:"---" }}</td>
+                    <td style="padding: 15px;"><span class="badge status-{{ u.role|lower }}">{{ u.role }}</span></td>
+                    <td style="padding: 15px; color: #64748b; font-size: 13px;">{{ u.date_joined|date:"M d, Y" }}</td>
+                    <td style="padding: 15px;">
+                        <div style="display: flex; gap: 8px;">
+                            <a href="{% url 'edit_user' u.id %}" class="btn btn-small" style="font-size: 12px; padding: 5px 10px; background-color: #2563eb; text-decoration: none; color: white;">✏️ Edit</a>
+                            <a href="{% url 'delete_user' u.id %}" class="btn btn-small" style="font-size: 12px; padding: 5px 10px; background-color: #ef4444; text-decoration: none; color: white;" onclick="return confirm('Confirm deletion of user: {{ u.username }}?')">🗑️ Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div id="addUserModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add New User</h2>
+            <button class="close-btn" onclick="document.getElementById('addUserModal').classList.remove('show')">&times;</button>
+        </div>
+        <form method="post" action="{% url 'user_details' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter username" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label>Mobile Number</label>
+                <input type="text" name="mobile" placeholder="Enter mobile number">
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <select name="role" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px;">
+                    <option value="USER">User</option>
+                    <option value="AGENT1">Agent 1</option>
+                    <option value="AGENT2">Agent 2</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter password" required>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_password" placeholder="Confirm password" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="document.getElementById('addUserModal').classList.remove('show')">Cancel</button>
+                <button type="submit" class="btn">Create User</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

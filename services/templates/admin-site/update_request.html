@@ -1,0 +1,43 @@
+{% extends 'admin-site/admin_base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2>Update Request #{{ req.id }}</h2>
+    <p style="color: #64748b; margin-bottom: 25px;">Update status or upload final result for {{ req.service.name }}.</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Current Status</label>
+            <select name="status" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                <option value="Pending" {% if req.status == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Under Review" {% if req.status == 'Under Review' %}selected{% endif %}>🔵 Under Review</option>
+                <option value="In Progress" {% if req.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                <option value="Approved" {% if req.status == 'Approved' %}selected{% endif %}>🟢 Approved</option>
+                <option value="Rejected" {% if req.status == 'Rejected' %}selected{% endif %}>🔴 Rejected</option>
+                <option value="Completed" {% if req.status == 'Completed' %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Remarks / Notes</label>
+            <textarea name="remarks" rows="4" placeholder="Enter processing notes..." style="width: 100%;">{{ req.remarks }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Final Result File (Upload on Completion)</label>
+            <input type="file" name="completed_file" style="padding: 10px; border: 1px dashed #cbd5e1; width: 100%;">
+            {% if req.completed_file %}
+                <div style="margin-top: 10px; font-size: 13px;">
+                    Current File: <a href="{{ req.completed_file.url }}" target="_blank">View existing result</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button type="submit" class="btn">Save Changes</button>
+            <a href="{% url 'apply_details' %}" class="btn btn-cancel" style="text-decoration: none; text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

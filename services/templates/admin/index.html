@@ -1,0 +1,16 @@
+{% extends "admin/index.html" %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module">
+        <h2>E-Service Dashboard</h2>
+        <p>Access the custom admin dashboard for service management.</p>
+        <ul>
+            <li><a href="{% url 'admin_dashboard' %}">📊 Admin Dashboard</a></li>
+            <li><a href="{% url 'add_service' %}">➕ Add Service</a></li>
+            <li><a href="{% url 'services' %}">🔍 View Services</a></li>
+        </ul>
+    </div>
+</div>
+{{ block.super }}
+{% endblock %}

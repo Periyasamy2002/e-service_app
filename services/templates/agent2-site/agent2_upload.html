@@ -1,0 +1,20 @@
+{% extends 'agent2-site/base-agent2.html' %}
+
+{% block content %}
+<div class="card form-card" style="max-width: 680px; margin: 0 auto;">
+    <h2>Upload Completed Work</h2>
+    <p>Submit your review documents or attachments for the assigned request.</p>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Task Identifier</label>
+            <input type="text" name="task_id" placeholder="Task ID">
+        </div>
+        <div class="form-group">
+            <label>Choose File</label>
+            <input type="file" name="file">
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+</div>
+{% endblock %}

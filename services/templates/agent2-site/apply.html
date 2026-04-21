@@ -1,0 +1,105 @@
+{% extends 'user-base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 40px auto; padding: 40px;">
+    <h2 style="margin-bottom: 10px; color: #1e293b;">Apply for: {{ service.name }}</h2>
+    <p style="color: #64748b; margin-bottom: 30px;">Please provide the required information and upload necessary documents.</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Applicant Full Name</label>
+                <input type="text" name="full_name" placeholder="As per Aadhaar" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Date of Birth</label>
+                <input type="date" name="dob" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Email Address</label>
+                <input type="email" name="email" placeholder="you@example.com" value="{{ user.email }}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Mobile Number</label>
+                <input type="text" name="mobile" placeholder="10-digit number" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Aadhaar Card Number</label>
+            <input type="text" name="aadhaar" placeholder="1234 5678 9012" maxlength="12" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Residential Address</label>
+            <textarea name="address" placeholder="Enter your full address" rows="3" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;"></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            {% if "Passport Size Photo" in service.documents_required %}
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Passport Size Photo (JPG/PNG)</label>
+                <input type="file" name="photo" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
+            </div>
+            {% endif %}
+            
+            {% if "Aadhaar Card" in service.documents_required %}
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Aadhaar Card (PDF/JPG)</label>
+                <input type="file" name="aadhaar_card" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            {% if "Signature" in service.documents_required %}
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Applicant Signature (JPG/PNG)</label>
+                <input type="file" name="signature" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
+            </div>
+            {% endif %}
+
+            {% if "Address Proof" in service.documents_required %}
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Address Proof (PDF/JPG)</label>
+                <input type="file" name="address_proof" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;" required>
+            </div>
+            {% endif %}
+
+            {% if "PAN Card" in service.documents_required %}
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">PAN Card (Optional)</label>
+                <input type="file" name="pan_card" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Additional Remarks (Optional)</label>
+            <textarea name="description" placeholder="Any specific instructions..." rows="2" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+            <button type="submit" class="btn" style="flex: 2; background: #2563eb; padding: 14px; font-weight: 700; border-radius: 8px;">Submit Application</button>
+            <a href="{% url 'services' %}" class="btn" style="flex: 1; background: #f1f5f9; color: #475569; padding: 14px; text-align: center; text-decoration: none; border-radius: 8px;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-group input:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        transition: all 0.2s;
+    }
+</style>
+{% endblock %}

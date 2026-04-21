@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.status-review { background: #e0f2fe; color: #0369a1; }
+.status-progress { background: #e0e7ff; color: #3730a3; }
+.status-completed { background: #dcfce7; color: #166534; }
+
+.action-btn {
+    display: block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    text-decoration: none;
+    margin-bottom: 5px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* TOP NAVBAR */
+.navbar {
+    background: #1e293b;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 20px;
+    align-items: center;
+}
+
+.nav-left {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-left a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* DROPDOWN */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background: white;
+    color: black;
+    top: 30px;
+    min-width: 160px;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+}
+
+.dropdown-content a:hover {
+    background: #f1f5f9;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* RIGHT USER */
+.nav-right {
+    font-weight: bold;
+}
+
+/* LAYOUT */
+.container {
+    display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: #334155;
+    color: white;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.sidebar a:hover {
+    background: #3b82f6;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP NAVBAR -->
+<div class="navbar">
+
+    <div class="nav-left">
+        <a href="{% url 'agent1_dashboard' %}">Dashboard</a>
+
+        <div class="dropdown">
+            <a href="#">Apply Details ⬇</a>
+            <div class="dropdown-content">
+                <a href="{% url 'apply_details' %}">All Applications</a>
+            </div>
+        </div>
+
+        <a href="{% url 'agent1_completed' %}">History</a>
+    </div>
+
+    <div class="nav-right">
+        👤 {{ user.get_full_name }}
+    </div>
+
+</div>
+
+<!-- PAGE LAYOUT -->
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <a href="{% url 'agent1_dashboard' %}?status=Under+Review">🆕 New Requests</a>
+        <a href="{% url 'agent1_dashboard' %}">📑 All Assigned</a>
+        <a href="{% url 'agent1_dashboard' %}?status=In+Progress">⏳ In Progress</a>
+        <a href="{% url 'agent1_dashboard' %}?status=Completed">✅ Completed</a>
+        <a href="{% url 'logout' %}">🚪 Logout</a>
+
+        <!-- CUSTOM PAGES LIST -->
+        <div style="margin-top: 20px; border-top: 1px solid #475569; padding-top: 10px;">
+            <h4 style="color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">📄 Services</h4>
+            {% if pages %}
+                {% for p in pages %}
+                    <a href="{% url 'view_custom_page' p.id %}" style="font-size: 14px; padding: 8px;">{{ p.title }}</a>
+                {% endfor %}
+            {% else %}
+                <p style="color: #94a3b8; font-size: 13px; margin: 5px 10px;">No pages created</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+        {% block content %}
+        <div class="filter-bar">
+            <form method="GET" action="{% url 'agent1_dashboard' %}" style="display: flex; gap: 15px; width: 100%;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color: #64748b; display: block;">Filter by Status</label>
+                    <select name="status" onchange="this.form.submit()" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                        <option value="">All Statuses</option>
+                        <option value="Under Review" {% if status_filter == 'Under Review' %}selected{% endif %}>Under Review</option>
+                        <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+                        <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color: #64748b; display: block;">Filter by Service</label>
+                    <select name="service" onchange="this.form.submit()" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                        <option value="">All Services</option>
+                        {% for s in services %}
+                        <option value="{{ s.id }}" {% if service_filter == s.id|stringformat:"i" %}selected{% endif %}>{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="display: flex; align-items: flex-end;">
+                    <a href="{% url 'agent1_dashboard' %}" style="padding: 8px 15px; background: #94a3b8; color: white; text-decoration: none; border-radius: 4px;">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Applicant</th>
+                        <th style="padding: 12px; text-align: left;">Service</th>
+                        <th style="padding: 12px; text-align: left;">Contact</th>
+                        <th style="padding: 12px; text-align: left;">Documents</th>
+                        <th style="padding: 12px; text-align: left;">Status</th>
+                        <th style="padding: 12px; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px;"><strong>{{ req.full_name }}</strong><br><small style="color: #64748b;">Aadhaar: {{ req.aadhaar_number }}</small></td>
+                        <td style="padding: 12px;">{{ req.service.name }}</td>
+                        <td style="padding: 12px;">{{ req.mobile }}<br><small style="color: #64748b;">{{ req.email }}</small></td>
+                        <td style="padding: 12px;">
+                            <div style="line-height: 1.8;">
+                                {% if req.aadhaar_card %}<small>Aadhaar:</small> <a href="{{ req.aadhaar_card.url }}" target="_blank" title="View">👁️</a> <a href="{{ req.aadhaar_card.url }}" download title="Download">⬇️</a><br>{% endif %}
+                                {% if req.pan_card %}<small>PAN:</small> <a href="{{ req.pan_card.url }}" target="_blank" title="View">👁️</a> <a href="{{ req.pan_card.url }}" download title="Download">⬇️</a><br>{% endif %}
+                                {% if req.photo %}<small>Photo:</small> <a href="{{ req.photo.url }}" target="_blank" title="View">👁️</a> <a href="{{ req.photo.url }}" download title="Download">⬇️</a><br>{% endif %}
+                                {% if req.signature %}<small>Sign:</small> <a href="{{ req.signature.url }}" target="_blank" title="View">👁️</a> <a href="{{ req.signature.url }}" download title="Download">⬇️</a>{% endif %}
+                            </div>
+                        </td>
+                        <td style="padding: 12px;">
+                            <span class="status-badge {% if req.status == 'Under Review' %}status-review{% elif req.status == 'In Progress' %}status-progress{% elif req.status == 'Completed' %}status-completed{% endif %}">
+                                {{ req.status|default:"Assigned" }}
+                            </span>
+                        </td>
+                        <td style="padding: 12px; vertical-align: middle;">
+                            <a href="{% url 'agent1_request_detail' req.id %}" class="action-btn" style="background: #2563eb; color: white;">
+                                {% if req.status == 'Under Review' %}⚡ Start Process{% else %}📂 View & Finish{% endif %}
+                            </a>
+                            <a href="{% url 'agent1_download_report' req.id %}" class="action-btn" style="background: #10b981; color: white;">
+                                📋 Download Report
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" style="padding: 20px; text-align: center; color: #94a3b8;">No requests found matching filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endblock %}
+    </div>
+
+</div>
+
+</body>
+</html>

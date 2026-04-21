@@ -1,0 +1,337 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'services/css/style.css' %}">
+
+    <style>
+        body { margin: 0; font-family: Arial; }
+
+        /* TOP NAVBAR */
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            padding: 15px 30px;
+            color: white;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a, .nav-links button {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover, .nav-links button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* LAYOUT */
+        .dashboard-container {
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            background: #0f172a;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-menu h4 {
+            margin: 15px 0 10px 0;
+            color: #64748b;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .sidebar-menu a, .sidebar-menu button {
+            display: block;
+            color: #cbd5f5;
+            padding: 10px 0;
+            text-decoration: none;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu button:hover {
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background: #f1f5f9;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #0f172a;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-family: Arial;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: #f0f7ff;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔝 TOP NAVBAR -->
+<div class="top-navbar">
+    <div class="nav-links">
+        <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+        <a href="{% url 'apply_details' %}">Apply Details</a>
+        <a href="{% url 'user_details' %}">User Handling</a>
+        <button onclick="document.getElementById('addPageModal').classList.add('show')">+ Add Page</button>
+        <a href="{% url 'add_service' %}"  style="background: #059669; padding: 8px 12px; border: none; color: white; border-radius: 4px; cursor: pointer;">+ Add Service</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+
+    <div style="white-space: nowrap;">
+        👤 {{ user.username }}
+    </div>
+</div>
+
+<div class="dashboard-container">
+
+    <!-- 📂 SIDEBAR -->
+    <aside class="sidebar">
+        <h3>Menu</h3>
+
+        <!-- DASHBOARD MENU -->
+        {% if request.resolver_match.url_name == 'admin_dashboard' %}
+        <div class="sidebar-menu">
+            <a href="#">Overview</a>
+            <a href="#">Reports</a>
+        </div>
+        {% endif %}
+
+        <!-- ADD PAGE MENU -->
+        {% if request.resolver_match.url_name == 'add_page' %}
+        <div class="sidebar-menu">
+            <button class="btn">+ New Page</button>
+        </div>
+        {% endif %}
+
+        <!-- APPLY DETAILS MENU -->
+        {% if request.resolver_match.url_name == 'apply_details' %}
+        <div class="sidebar-menu">
+            <a href="#">Apply Details</a>
+            <a href="#">Completed</a>
+            <a href="#">Pending</a>
+        </div>
+        {% endif %}
+
+        <!-- USER DETAILS MENU -->
+        {% if request.resolver_match.url_name == 'user_details' %}
+        <div class="sidebar-menu">
+            <a href="{% url 'user_details' %}">All Users</a>
+            <a href="{% url 'user_details' %}?role=AGENT1">Agent 1</a>
+            <a href="{% url 'user_details' %}?role=AGENT2">Agent 2</a>
+            <a href="{% url 'user_details' %}?role=USER">Users</a>
+        </div>
+        {% endif %}
+
+        <!-- CUSTOM PAGES LIST -->
+        <div class="sidebar-menu" style="margin-top: 20px; border-top: 1px solid #1e293b; padding-top: 10px;">
+            <h4>📄 Created Pages</h4>
+            {% if pages %}
+                {% for p in pages %}
+                    <a href="{% url 'view_custom_page' p.id %}">{{ p.title }}</a>
+                {% endfor %}
+            {% else %}
+                <p style="color: #64748b; font-size: 13px; margin: 5px 0;">No pages created yet</p>
+            {% endif %}
+        </div>
+
+    </aside>
+
+    <!-- 📄 MAIN CONTENT -->
+    <div class="main-content">
+        {% block content %}
+        <h2>Welcome to Admin Dashboard</h2>
+        {% endblock %}
+    </div>
+
+</div>
+
+<!-- ADD PAGE MODAL -->
+<div id="addPageModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Page</h2>
+            <button class="close-btn" onclick="document.getElementById('addPageModal').classList.remove('show')">&times;</button>
+        </div>
+        <form method="post" action="{% url 'add_page' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Page Title</label>
+                <input type="text" name="title" placeholder="Enter page name" required>
+            </div>
+            <div class="form-group">
+                <label>Page Description</label>
+                <textarea name="description" placeholder="Enter page content" rows="6" required></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="document.getElementById('addPageModal').classList.remove('show')">Cancel</button>
+                <button type="submit" class="btn">Create Page</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- CLOSE MODAL WHEN CLICKING OUTSIDE -->
+<script>
+    const pageModal = document.getElementById('addPageModal');
+    const userModal = document.getElementById('addUserModal');
+    
+    window.onclick = function(event) {
+        if (event.target === pageModal) {
+            pageModal.classList.remove('show');
+        }
+        if (userModal && event.target === userModal) {
+            userModal.classList.remove('show');
+        }
+    }
+</script>
+
+</body>
+</html>

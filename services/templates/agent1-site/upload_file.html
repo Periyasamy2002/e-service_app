@@ -1,0 +1,20 @@
+{% extends 'agent1-site/base-agent1.html' %}
+
+{% block content %}
+<div class="card form-card" style="max-width: 680px; margin: 0 auto;">
+    <h2>Upload Supporting Files</h2>
+    <p>Upload any documents or file attachments required to complete the task.</p>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Request ID</label>
+            <input type="text" name="request_id" placeholder="Request ID">
+        </div>
+        <div class="form-group">
+            <label>Upload File</label>
+            <input type="file" name="file">
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,244 @@
+
+
+<style>
+    /* --- 1. CORE ANIMATIONS --- */
+    @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+        100% { transform: translateY(0px) rotate(0deg); }
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* --- 2. LAYOUT STYLES --- */
+    body {
+        background: #0f172a; /* Deep professional dark blue */
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        overflow: hidden; /* Keeps the professional feel clean */
+    }
+
+    .page-wrapper {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        position: relative;
+    }
+
+    /* --- 3. TOP NAVIGATION --- */
+    .top-nav {
+        position: absolute;
+        top: 30px;
+        right: 40px;
+        display: flex;
+        gap: 15px;
+        animation: slideInUp 0.8s ease;
+    }
+
+    .btn-nav {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 12px;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s;
+        font-weight: 500;
+    }
+
+    .btn-nav:hover {
+        background: #6366f1;
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        transform: translateY(-2px);
+    }
+
+    /* --- 4. MAIN ADMIN CARD --- */
+    .admin-card {
+        display: flex;
+        width: 1000px;
+        height: 600px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 30px;
+        backdrop-filter: blur(20px);
+        overflow: hidden;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+        animation: slideInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Left: Login Side */
+    .login-side {
+        width: 50%;
+        padding: 60px;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Right: Visual Side */
+    .visual-side {
+        width: 50%;
+        background: linear-gradient(-45deg, #4f46e5, #7c3aed, #2563eb);
+        background-size: 400% 400%;
+        animation: gradientShift 10s ease infinite;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        padding: 40px;
+        position: relative;
+    }
+
+    /* --- 5. FORM ELEMENTS --- */
+    .form-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 10px;
+    }
+
+    .form-subtitle {
+        color: #64748b;
+        margin-bottom: 35px;
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 100%;
+        padding: 16px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        border-radius: 12px;
+        font-size: 15px;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
+
+    input:focus {
+        border-color: #6366f1;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+        background: #4f46e5;
+        transform: scale(1.02);
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+    }
+
+    /* --- 6. BACK BUTTON --- */
+    .btn-back {
+        margin-top: 40px;
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: 0.3s;
+        text-align: center;
+    }
+
+    .btn-back:hover {
+        color: #6366f1;
+        transform: translateX(-5px);
+    }
+
+    /* --- 7. DECORATIVE ELEMENTS --- */
+    .floating-icon {
+        font-size: 80px;
+        animation: float 4s ease-in-out infinite;
+        margin-bottom: 20px;
+    }
+
+    .glass-circle {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        top: -50px;
+        right: -50px;
+    }
+</style>
+
+<div class="page-wrapper">
+
+    <div class="admin-card">
+        
+        <div class="login-side">
+            <h1 class="form-title">System Admin</h1>
+            <p class="form-subtitle">Enter your credentials to manage the platform.</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="padding: 10px; margin-bottom: 15px; border-radius: 8px; background: {% if message.tags == 'error' %}#fee2e2; color: #dc2626;{% else %}#d1fae5; color: #059669;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'admin_login' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" name="username" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-submit">Sign In to Dashboard</button>
+            </form>
+
+            <button onclick="history.back()" class="btn-back">← Return to Portal</button>
+        </div>
+
+        <div class="visual-side">
+            <div class="glass-circle"></div>
+            <div class="floating-icon">🛡️</div>
+            <h2 style="font-size: 32px; margin-bottom: 15px;">Enterprise Control</h2>
+            <p style="opacity: 0.8; max-width: 300px;">Secure, high-performance management interface for system administrators.</p>
+            
+            <div style="margin-top: 40px; display: flex; gap: 10px;">
+                <div style="width: 8px; height: 8px; background: white; border-radius: 50%; opacity: 1;"></div>
+                <div style="width: 8px; height: 8px; background: white; border-radius: 50%; opacity: 0.4;"></div>
+                <div style="width: 8px; height: 8px; background: white; border-radius: 50%; opacity: 0.4;"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

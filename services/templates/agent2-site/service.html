@@ -1,0 +1,113 @@
+{% extends 'agent2-site/base-agent2.html' %}
+
+{% block content %}
+<style>
+    .agent2-service-hero {
+        background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+        color: white;
+        padding: 40px 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .agent2-service-hero h1 { margin: 0 0 10px 0; font-size: 28px; }
+    .agent2-service-hero p { margin: 0; opacity: 0.9; }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+
+    .service-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #e2e8f0;
+    }
+
+    .service-card-header {
+        background: #f8fafc;
+        padding: 20px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .service-card-header h3 { margin: 0; font-size: 18px; color: #1e293b; }
+    .service-badge { background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+
+    .service-card-body { padding: 20px; flex-grow: 1; }
+    .service-card-body p { color: #64748b; font-size: 14px; line-height: 1.6; margin: 0 0 15px 0; }
+
+    .doc-req-box {
+        background: #f1f5f9;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #475569;
+    }
+    .doc-req-box strong { display: block; margin-bottom: 5px; color: #1e293b; font-size: 12px; text-transform: uppercase; }
+</style>
+
+<div class="agent2-service-hero">
+    <h1>Service Catalog Reference</h1>
+    <p>View details and requirements for all available services in the system.</p>
+</div>
+
+<div class="filter-bar" style="margin-bottom: 25px;">
+    <form method="get" action="{% url 'agent2_service' %}" style="display: flex; gap: 15px; width: 100%; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 200px;">
+            <input type="text" name="search_services" placeholder="Search services..." 
+                   value="{{ search_query_services|default:'' }}"
+                   style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <select name="page_filter" onchange="this.form.submit()" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: white;">
+                <option value="">All Categories</option>
+                {% for p in pages %}
+                    <option value="{{ p.id }}" {% if page_filter_id|stringformat:"s" == p.id|stringformat:"s" %}selected{% endif %}>{{ p.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button type="submit" class="btn btn-primary" style="padding: 8px 15px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">Search</button>
+            {% if search_query_services or page_filter_id %}
+                <a href="{% url 'agent2_service' %}" style="padding: 8px 15px; background: #94a3b8; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; display: flex; align-items: center;">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="services-grid">
+    {% for service in services %}
+    <div class="service-card">
+        <div class="service-card-header">
+            <h3>{{ service.name }}</h3>
+            <div class="service-badge">₹{{ service.charges }}</div>
+        </div>
+        <div class="service-card-body">
+            <p>{{ service.description }}</p>
+            
+            {% if service.documents_required %}
+            <div class="doc-req-box">
+                <strong>📋 Documents Required</strong>
+                {{ service.documents_required|linebreaksbr }}
+            </div>
+            {% endif %}
+        </div>
+        <div style="padding: 15px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 10px;">
+            <a href="{% url 'agent2_apply' service.id %}" style="flex: 1; text-align: center; background: #2563eb; color: white; text-decoration: none; padding: 8px; border-radius: 6px; font-size: 0.9rem; font-weight: 600;">📝 Apply Now</a>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; background: white; border-radius: 12px; color: #94a3b8;">
+        No services found matching your criteria.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

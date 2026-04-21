@@ -1,0 +1,312 @@
+{% extends 'user-base.html' %}
+
+{% block content %}
+<style>
+.service-hero {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    padding: 100px 20px;
+    text-align: center;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.service-hero h1 {
+    font-size: 44px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.service-hero p {
+    font-size: 18px;
+    opacity: 0.95;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.service-cta {
+    display: inline-block;
+    background: white;
+    color: #2563eb;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.service-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.services-section {
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.services-title {
+    font-size: 32px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 50px;
+    color: #0f172a;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+    margin-bottom: 60px;
+}
+
+.service-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    animation: slideUp 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+}
+
+.service-header {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.service-header h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.service-header .charges {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-top: 10px;
+}
+
+.service-body {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.service-description {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+}
+
+.service-section {
+    margin-bottom: 16px;
+}
+
+.service-section h4 {
+    font-size: 13px;
+    color: #1e293b;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+}
+
+.service-section-content {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+    padding-left: 16px;
+    border-left: 2px solid #e2e8f0;
+}
+
+.service-features {
+    list-style: none;
+    margin-bottom: 16px;
+}
+
+.service-features li {
+    padding: 6px 0;
+    padding-left: 24px;
+    position: relative;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.service-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: 700;
+}
+
+.service-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.service-btn {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    background: #2563eb;
+    color: white;
+    flex: 1;
+    min-width: 120px;
+}
+
+.service-btn:hover {
+    background: #1d4ed8;
+    transform: scale(1.02);
+}
+
+.service-btn-secondary {
+    background: #f1f5f9;
+    color: #2563eb;
+    border: 1px solid #cbd5e1;
+}
+
+.service-btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.info-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 40px 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.info-section h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 16px;
+}
+
+.info-section p {
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto 20px;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .service-hero h1 {
+        font-size: 32px;
+    }
+    .services-title {
+        font-size: 24px;
+    }
+}
+</style>
+
+<section class="service-hero">
+    <span style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 20px;">🎯 Available Services</span>
+    <h1>Browse Our Service Catalog</h1>
+    <p>Explore our range of services and submit your request. Our team will process and complete your request efficiently.</p>
+    <a href="{% url 'register' %}" class="service-cta">Get Started Today</a>
+</section>
+
+<div class="services-section">
+    <h2 class="services-title">Popular Services</h2>
+    
+    <div class="services-grid">
+        {% for service in services %}
+        <div class="service-card">
+            <div class="service-header">
+                <h3>{{ service.name }}</h3>
+                {% if service.charges > 0 %}
+                <div class="charges">💰 ₹ {{ service.charges }}</div>
+                {% endif %}
+            </div>
+            <div class="service-body">
+                <p class="service-description">{{ service.description }}</p>
+                
+                {% if service.documents_required %}
+                <div class="service-section">
+                    <h4>📋 Documents Required</h4>
+                    <div class="service-section-content">
+                        {{ service.documents_required }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <ul class="service-features">
+                    <li>Expert processing</li>
+                    <li>Quick turnaround</li>
+                    <li>Quality assurance</li>
+                </ul>
+
+                <div class="service-actions">
+                    <a href="{% url 'apply_service' service.id %}" class="service-btn" style="width: 100%; display: block;">📝 Apply Now</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="service-card">
+            <div class="service-header">
+                <h3>🚧 Services Coming Soon</h3>
+            </div>
+            <div class="service-body">
+                <p class="service-description">We're currently setting up our services. Check back soon!</p>
+                <button class="service-btn" disabled>Coming Soon</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="info-section">
+        {% if user.is_authenticated %}
+            <h3>Welcome, {{ user.get_full_name|default:user.username }}!</h3>
+            <p>You're now logged in and can apply for services. Click "Apply Now" on any service to submit your request. Track your requests from your dashboard.</p>
+            <a href="{% url 'user_dashboard' %}" class="service-btn" style="display: inline-block; margin-top: 16px; max-width: 200px; text-decoration: none;">Go to Dashboard</a>
+        {% else %}
+            <h3>How to Apply for Services</h3>
+            <p>Browse the services above and click "Apply Now" to submit your request. Our team will review your request and process it according to our standard workflow. You can track the status from your personal dashboard.</p>
+            <a href="{% url 'login' %}" class="service-btn" style="display: inline-block; margin-top: 16px; max-width: 200px; text-decoration: none;">Login to Apply</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

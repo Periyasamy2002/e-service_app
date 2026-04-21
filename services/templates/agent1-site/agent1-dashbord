@@ -1,0 +1,103 @@
+{% extends 'agent1-site/base-agent1.html' %}
+
+{% block content %}
+ <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2 class="topbar-title">Assigned Requests</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="user-dropdown">
+                    <div class="user-avatar">{{ user.first_name|first }}</div>
+                    <span>{{ user.get_full_name }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            {% if request.GET.view == 'completed' %}
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">✅ Completed Requests History</h2>
+                        <span style="color: #64748b; font-size: 14px;">{{ completed_requests.count }} requests</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th>Completed File</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in completed_requests %}
+                                <tr>
+                                    <td><strong>{{ req.user.get_full_name }}</strong></td>
+                                    <td>{{ req.service.name }}</td>
+                                    <td><span class="badge status-{{ req.status|lower|slugify }}">{{ req.status }}</span></td>
+                                    <td>{{ req.created_at|date:'M d, Y' }}</td>
+                                    <td>
+                                        {% if req.completed_file %}
+                                            <a href="{{ req.completed_file.url }}" target="_blank" style="color: #10b981; text-decoration: none;">Download</a>
+                                        {% else %}
+                                            <span style="color: #94a3b8;">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><a href="{% url 'agent1_request_detail' req.id %}" class="btn btn-primary btn-sm" style="text-decoration: none;">View Details</a></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">
+                                        No completed requests yet.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📬 My Work Queue (Under Review)</h2>
+                        <span style="color: #64748b; font-size: 14px;">{{ requests.count }} requests</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in requests %}
+                                <tr>
+                                    <td><strong>{{ request.user.get_full_name }}</strong></td>
+                                    <td>{{ request.service.name }}</td>
+                                    <td><span class="badge status-{{ request.status|lower|slugify }}">{{ request.status }}</span></td>
+                                    <td>{{ request.created_at|date:'M d, Y' }}</td>
+                                    <td><a href="{% url 'agent1_request_detail' request.id %}" class="btn btn-primary btn-sm" style="text-decoration: none;">View & Process</a></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 30px; color: #64748b;">
+                                        No requests available yet. Check back soon!
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

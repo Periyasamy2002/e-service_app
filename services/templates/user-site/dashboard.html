@@ -1,0 +1,121 @@
+{% extends 'user-base.html' %}
+
+{% block content %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 40px;
+    }
+    .dashboard-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+    }
+    .dashboard-card h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .request-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f8fafc;
+    }
+    .request-item:last-child {
+        border-bottom: none;
+    }
+    .request-info {
+        flex-grow: 1;
+    }
+    .request-info strong {
+        color: #1e293b;
+    }
+    .request-info span {
+        font-size: 13px;
+        color: #64748b;
+    }
+</style>
+<section class="hero" style="background: linear-gradient(135deg, #1f4b87 0%, #276890 45%, #6ab9db 100%);">
+    <div class="hero-inner">
+        <div>
+            <span class="badge">User Dashboard</span>
+            <h1>Manage your service applications from a single place.</h1>
+            <p>Browse services, apply quickly, and track every request as it moves through review and completion.</p>
+        </div>
+    </div>
+</section>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <h3>Available Services</h3>
+        <div style="flex-grow: 1;">
+            {% if services %}
+            <ul class="feature-list" style="list-style: none; padding: 0;">
+                {% for service in services %}
+                <li style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex-grow: 1;">
+                        <strong style="color: #0f172a;">{{ service.name }}</strong><br>
+                        <span style="font-size: 13px; color: #64748b;">{{ service.description|truncatewords:10 }}</span>
+                    </div>
+                    <a class="btn btn-small" href="{% url 'apply_service' service.id %}" style="text-decoration: none; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px;">Apply</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p style="color: #64748b; font-style: italic;">No services available yet.</p>
+            {% endif %}
+        </div>
+        <a href="{% url 'services' %}" class="btn" style="text-decoration: none; margin-top: 20px; text-align: center; background: #f1f5f9; color: #475569;">View All Services</a>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>My Recent Requests</h3>
+        <div style="flex-grow: 1;">
+            {% if my_requests %}
+            {% for request in my_requests %}
+            <div class="request-item">
+                <div class="request-info">
+                    <strong>{{ request.service.name }}</strong><br>
+                    <span>Submitted: {{ request.created_at|date:'M d, Y' }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="status-pill status-{{ request.status|lower|slugify }}" style="font-size: 11px; padding: 4px 8px; border-radius: 20px;">{{ request.status }}</span>
+                    <a href="{% url 'user_request_detail' request.id %}" class="btn btn-small" style="text-decoration: none; background: #6366f1; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px;">View</a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p style="color: #64748b; font-style: italic;">You haven't submitted any requests yet.</p>
+            {% endif %}
+        </div>
+        {% if my_requests %}
+        <a href="{% url 'user_dashboard' %}" class="btn" style="text-decoration: none; margin-top: 20px; text-align: center; background: #f1f5f9; color: #475569;">View All My Requests</a>
+        {% endif %}
+    </div>
+</div>
+
+<section class="card-grid" style="display: none;">
+    <div class="card">
+        <h3>Available Services (Old)</h3>
+        <ul class="feature-list" style="list-style: none; padding: 0;">
+            {% for service in services %}
+            <li>
+                <strong>{{ service.name }}</strong><br>
+                <span>{{ service.description }}</span><br>
+                <a class="btn" href="{% url 'apply_service' service.id %}">Apply Now</a>
+            </li>
+            {% endfor %}
+        </ul>
+</section>
+{% endblock %}

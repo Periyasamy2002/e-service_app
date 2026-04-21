@@ -1,0 +1,175 @@
+{% extends 'user-base.html' %}
+
+{% block content %}
+<style>
+.about-hero {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.about-hero h1 {
+    font-size: 44px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.about-hero p {
+    font-size: 18px;
+    opacity: 0.95;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.about-section {
+    background: white;
+    padding: 50px 20px;
+    margin: 40px 0;
+}
+
+.section-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.role-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.role-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 32px;
+    border-radius: 12px;
+    border-left: 4px solid #2563eb;
+    transition: all 0.3s ease;
+    animation: slideIn 0.4s ease-out;
+}
+
+.role-card:nth-child(2) { border-left-color: #10b981; }
+.role-card:nth-child(3) { border-left-color: #f59e0b; }
+.role-card:nth-child(4) { border-left-color: #ef4444; }
+
+.role-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+
+.role-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #0f172a;
+}
+
+.role-card p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.feature-list {
+    list-style: none;
+    margin: 30px 0;
+}
+
+.feature-list li {
+    padding: 14px 0;
+    padding-left: 32px;
+    position: relative;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.feature-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .about-hero h1 {
+        font-size: 32px;
+    }
+}
+</style>
+
+<div class=\"about-hero\">
+    <h1>About the E-Service System</h1>
+    <p>A modern, secure platform for efficient service request management with role-based workflows.</p>
+</div>
+
+<div class=\"about-section\">
+    <div class=\"section-content\">
+        <h2 style=\"font-size: 28px; margin-bottom: 20px; color: #0f172a;\">Our Mission</h2>
+        <p style=\"font-size: 16px; color: #64748b; line-height: 1.8; margin-bottom: 20px;\">
+            The E-Service System streamlines service request management by connecting users, administrators, and agents in a transparent, traceable workflow. We believe efficient service delivery starts with clear processes and role-based access.
+        </p>
+    </div>
+</div>
+
+<div class=\"about-section\" style=\"background: #f8fafc;\">
+    <div class=\"section-content\">
+        <h2 style=\"font-size: 28px; margin-bottom: 30px; color: #0f172a;\">User Roles & Responsibilities</h2>
+        
+        <div class=\"role-cards\">
+            <div class=\"role-card\">
+                <h3>👤 User</h3>
+                <p>Submit service requests, track progress in real-time, view request history, and receive status updates at every stage.</p>
+            </div>
+            <div class=\"role-card\">
+                <h3>🛡️ Admin</h3>
+                <p>Manage all services, monitor requests, assign work to agents, and maintain system visibility. Full workflow control.</p>
+            </div>
+            <div class=\"role-card\">
+                <h3>✓ Agent2</h3>
+                <p>Review incoming requests from users, validate information, provide feedback, and forward to Agent1 for processing.</p>
+            </div>
+            <div class=\"role-card\">
+                <h3>⚡ Agent1</h3>
+                <p>Process assigned requests, add completion remarks, handle complex cases, and close requests with final status.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class=\"about-section\">
+    <div class=\"section-content\">
+        <h2 style=\"font-size: 28px; margin-bottom: 20px; color: #0f172a;\">Why Choose E-Service System?</h2>
+        
+        <ul class=\"feature-list\">
+            <li><strong>Role-Based Security:</strong> Each user sees only what they need based on their role.</li>
+            <li><strong>Real-Time Tracking:</strong> Monitor requests from submission to completion with status updates.</li>
+            <li><strong>Transparent Workflow:</strong> Clear process steps ensure nothing gets lost in communication.</li>
+            <li><strong>Efficient Processing:</strong> Streamlined workflows reduce delays and improve delivery times.</li>
+            <li><strong>Secure Access:</strong> Protected authentication and encrypted data handling throughout.</li>
+            <li><strong>Mobile-Friendly:</strong> Access your account anytime, anywhere from any device.</li>
+            <li><strong>Detailed Reporting:</strong> Track metrics and improve service delivery continuously.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'agent2-site/base-agent2.html' %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px;">
+        <div>
+            <h2 style="margin: 0; color: #1e293b;">Application Review</h2>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">Reviewing request #{{ req.id }} for {{ req.service.name }}</p>
+        </div>
+        <span class="status-badge 
+            {% if req.status == 'Pending' %}status-pending
+            {% elif req.status == 'In Progress' %}status-progress
+            {% elif req.status == 'Completed' %}status-completed
+            {% else %}status-review{% endif %}">
+            {{ req.status }}
+        </span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div class="info-group">
+            <h4 style="color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Applicant Information</h4>
+            <p><strong>Name:</strong> {{ req.full_name }}</p>
+            <p><strong>Aadhaar:</strong> {{ req.aadhaar_number }}</p>
+            <p><strong>Mobile:</strong> {{ req.mobile }}</p>
+            <p><strong>Email:</strong> {{ req.email }}</p>
+            <p><strong>Address:</strong> {{ req.address }}</p>
+        </div>
+
+        <div class="info-group">
+            <h4 style="color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Uploaded Documents</h4>
+            <ul style="list-style: none; padding: 0;">
+                {% if req.aadhaar_card %}<li style="margin-bottom: 10px;">🪪 Aadhaar Card: <a href="{{ req.aadhaar_card.url }}" target="_blank">View</a> | <a href="{{ req.aadhaar_card.url }}" download>Download</a></li>{% endif %}
+                {% if req.pan_card %}<li style="margin-bottom: 10px;">💳 PAN Card: <a href="{{ req.pan_card.url }}" target="_blank">View</a> | <a href="{{ req.pan_card.url }}" download>Download</a></li>{% endif %}
+                {% if req.photo %}<li style="margin-bottom: 10px;">🖼️ Photo: <a href="{{ req.photo.url }}" target="_blank">View</a> | <a href="{{ req.photo.url }}" download>Download</a></li>{% endif %}
+                {% if req.signature %}<li style="margin-bottom: 10px;">✍️ Signature: <a href="{{ req.signature.url }}" target="_blank">View</a> | <a href="{{ req.signature.url }}" download>Download</a></li>{% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+        <h4 style="color: #475569;">Remarks / Description</h4>
+        <p style="background: #f8fafc; padding: 15px; border-radius: 8px; color: #334155;">{{ req.description|default:"No additional remarks provided." }}</p>
+    </div>
+
+    <div style="margin-top: 30px; display: flex; gap: 15px;">
+        <a href="{% url 'agent2_forward' req.id %}" class="btn" style="background: #10b981; padding: 10px 20px; font-weight: 600;">✅ Validate & Forward to Agent 1</a>
+        <a href="{% url 'agent2_dashboard' %}" class="btn" style="background: #94a3b8; padding: 10px 20px; font-weight: 600;">🔙 Back to Queue</a>
+    </div>
+</div>
+{% endblock %}

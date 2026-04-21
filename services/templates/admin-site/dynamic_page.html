@@ -1,0 +1,81 @@
+{% extends 'admin-site/admin_base.html' %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 30px;">
+    <div class="flex items-center justify-between">
+        <h2>{{ page.title }}</h2>
+        <small style="color: #64748b;">Created: {{ page.created_at|date:"M d, Y" }}</small>
+    </div>
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+    <div class="content-body">
+        {{ page.description|linebreaks }}
+    </div>
+</div>
+
+<!-- Display Services Assigned to this Page -->
+<div style="margin-top: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0; color: #0f172a;">🛠️ Services in this Category</h3>
+        {% if user.role == 'ADMIN' %}
+            <a href="{% url 'add_service' %}?page_id={{ page.id }}" class="btn btn-small" style="text-decoration: none;">+ Add Service</a>
+        {% endif %}
+    </div>
+
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+        <form method="get" action="{% url 'view_custom_page' page.id %}" style="display: flex; gap: 10px; width: 100%;">
+            <input type="text" name="search_services" placeholder="Search services by name or description..."
+                   value="{{ search_query_services|default:'' }}"
+                   style="flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            <button type="submit" class="btn btn-small" style="background-color: #2563eb;">Search</button>
+            {% if search_query_services %}
+                <a href="{% url 'view_custom_page' page.id %}" class="btn btn-small btn-cancel" style="text-decoration: none;">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    {% if services %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for service in services %}
+        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; border-top: 4px solid #2563eb; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+             onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.05)';">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <h3 style="margin: 0; color: #0f172a; font-size: 1.15rem; font-weight: 800; line-height: 1.3;">{{ service.name }}</h3>
+                <span style="background: #2563eb; color: white; font-weight: 700; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);">₹{{ service.charges }}</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <span style="font-size: 0.75rem; color: #2563eb; background: #eff6ff; padding: 2px 8px; border-radius: 20px; font-weight: 600;">{{ service.page.title|default:"General" }}</span>
+                <span style="font-size: 0.75rem; color: #94a3b8;">• {{ service.created_at|date:"M d, Y" }}</span>
+            </div>
+            
+            <p style="color: #475569; font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;">{{ service.description|truncatewords:20 }}</p>
+
+            {% if service.documents_required %}
+            <details style="background: #f8fafc; padding: 12px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #e2e8f0; cursor: pointer; transition: all 0.3s;">
+                <summary style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                    <span>📋 Documents Required</span>
+                    <span style="font-size: 10px; color: #94a3b8;">▼</span>
+                </summary>
+                <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #1e293b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 10px;">{{ service.documents_required|linebreaksbr }}</p>
+            </details>
+            {% endif %}
+
+            <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                {% if service.apply_link %}<a href="{{ service.apply_link }}" target="_blank" style="flex: 1; text-align: center; background: #10b981; color: white; text-decoration: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">🔗 Apply</a>{% endif %}
+                {% if service.tutorial_link %}<a href="{{ service.tutorial_link }}" target="_blank" style="flex: 1; text-align: center; background: #f59e0b; color: white; text-decoration: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">🎥 Tutorial</a>{% endif %}
+            </div>
+
+            <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+                <a href="{% url 'edit_service' service.id %}" class="btn" style="background: #2563eb; color: white; text-decoration: none; font-size: 13px; padding: 8px 12px; flex: 1; text-align: center;">✏️ Edit</a>
+                <a href="{% url 'delete_service' service.id %}" class="btn" style="background: #ef4444; color: white; text-decoration: none; font-size: 13px; padding: 8px 12px; flex: 1; text-align: center;" onclick="return confirm('Are you sure?');">🗑️ Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color: #64748b; font-style: italic;">No services have been assigned to this page yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

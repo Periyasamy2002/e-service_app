@@ -1,0 +1,26 @@
+{% extends 'agent1-site/base-agent1.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 760px; margin: 0 auto;">
+    <h2>Request Details</h2>
+    <div class="feature-list" style="margin-top: 16px;">
+        <li><strong>User:</strong> {{ request.user.username }}</li>
+        <li><strong>Service:</strong> {{ request.service.name }}</li>
+        <li><strong>Description:</strong> {{ request.description }}</li>
+        <li><strong>Status:</strong> <span class="status-pill status-{{ request.status|lower|slugify }}">{{ request.status }}</span></li>
+    </div>
+    <form method="post" style="margin-top: 28px;" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="remarks">Remarks</label>
+            <textarea id="remarks" name="remarks" placeholder="Add completion notes..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label>Final Completed Document (PDF/JPG)</label>
+            <input type="file" name="completed_file" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
+        </div>
+        <button type="submit">Mark as Completed</button>
+    </form>
+    <p style="margin-top: 18px;"><a href="{% url 'agent1_dashboard' %}">Back to Dashboard</a></p>
+</div>
+{% endblock %}
