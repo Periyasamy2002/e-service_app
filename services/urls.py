@@ -25,6 +25,7 @@ urlpatterns = [
     path('adminsite/delete-service/<int:service_id>/', views.delete_service, name='delete_service'),
     path('adminsite/assign-request/<int:request_id>/', views.assign_request, name='assign_request'),
     path('adminsite/update-status/<int:request_id>/', views.update_request_status, name='update_request_status'),
+    path('download-all-docs/<int:req_id>/', views.download_all_docs, name='download_all_docs'),
 
     # User URLs
     path('user/dashboard/', views.user_dashboard, name='user_dashboard'),
@@ -42,6 +43,8 @@ urlpatterns = [
     path('agent2/service/', views.agent2_service, name='agent2_service'), # Ensure this line is present
     path('agent2/apply/<int:service_id>/', views.agent2_apply, name='agent2_apply'),
     path('agent2/upload/', views.agent2_upload, name='agent2_upload'),
+    path('agent2/apply-details/', views.agent2_apply_details, name='agent2_apply_details'),
+    path('agent2/complete-details/', views.agent2_complete_details, name='agent2_complete_details'),
 
     # Agent1 URLs
     path('agent1-login/', views.agent1_login, name='agent1_login'),

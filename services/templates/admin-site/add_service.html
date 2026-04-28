@@ -10,102 +10,316 @@
         
         <div class="form-group">
             <label>Service Name</label>
-            <input type="text" name="name" value="{{ service.name|default:'' }}" placeholder="Enter service name" required>
+            <input type="text" name="name" value="{{ service.name|default:'' }}" required>
         </div>
 
         <div class="form-group">
             <label>Description</label>
-            <textarea name="description" placeholder="Enter service description" required rows="4">{{ service.description|default:'' }}</textarea>
+            <textarea name="description" rows="4" required>{{ service.description|default:'' }}</textarea>
         </div>
 
         <div class="form-group">
             <label>Service Charges</label>
-            <input type="number" name="charges" value="{{ service.charges|default:'0.00'|stringformat:'.2f' }}" placeholder="Enter charges amount" step="0.01" min="0">
+            <input type="number" name="charges" value="{{ service.charges|default:'0.00'|stringformat:'.2f' }}" step="0.01">
         </div>
 
+        <!-- ✅ NEW DOCUMENT SELECTOR -->
         <div class="form-group">
             <label>Documents Required</label>
-            <textarea name="documents_required" placeholder="List the documents required" rows="3">{{ service.documents_required|default:'' }}</textarea>
+
+            <!-- All Docs -->
+            <div class="doc-list" id="docList"></div>
+
+            <!-- Selected Tags -->
+            <div class="tag-container" id="tagBox">
+                <input type="text" id="customInput" placeholder="Add extra document & press Enter">
+            </div>
+
+            <!-- Hidden field -->
+            <input type="hidden" name="documents_required" id="finalDocs"
+                   value="{{ service.documents_required|default:'' }}">
         </div>
 
         <div class="form-group">
             <label>YouTube Tutorial Link</label>
-            <input type="url" name="tutorial_link" value="{{ service.tutorial_link|default:'' }}" placeholder="https://youtube.com/...">
+            <input type="url" name="tutorial_link" value="{{ service.tutorial_link|default:'' }}">
         </div>
 
         <div class="form-group">
             <label>Apply Now Link</label>
-            <input type="url" name="apply_link" value="{{ service.apply_link|default:'' }}" placeholder="https://example.com/apply">
+            <input type="url" name="apply_link" value="{{ service.apply_link|default:'' }}">
         </div>
 
         <div class="form-group">
-            <label>Assign to Page (Optional)</label>
-            <select name="page" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px;">
-                <option value="" {% if not service.page_id and not preselect_page_id %}selected{% endif %}>Select a page to restrict this service to that page only. Leave empty for global access.</option>
+            <label>Assign to Page</label>
+            <select name="page">
+                <option value="">Select Page</option>
                 {% for p in pages %}
-                    <option value="{{ p.id }}" {% if service.page_id == p.id or p.id|stringformat:"s" == preselect_page_id %}selected{% endif %}>{{ p.title }}</option>
+                    <option value="{{ p.id }}" {% if service.page_id == p.id %}selected{% endif %}>
+                        {{ p.title }}
+                    </option>
                 {% endfor %}
             </select>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 25px;">
-            <button type="submit" class="btn">Submit</button>
-            <a href="{% url 'admin_dashboard' %}" class="btn btn-cancel" style="text-decoration: none; display: inline-block; text-align: center;">Cancel</a>
-        </div>
+        <button type="submit" class="btn">Submit</button>
     </form>
 </div>
 
 <style>
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+.form-group { margin-bottom: 20px; }
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* DOC LIST */
+.doc-list span {
+    display: inline-block;
+    background: #eee;
+    padding: 6px 10px;
+    margin: 5px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.doc-list span:hover {
+    background: #2563eb;
+    color: white;
+}
+
+/* TAG BOX */
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.tag {
+    background: #e0f0ff;
+    color: #0073b1;
+    padding: 5px 10px;
+    border-radius: 20px;
+    margin: 4px;
+    font-size: 13px;
+}
+
+.tag span {
+    margin-left: 8px;
+    cursor: pointer;
+    color: red;
+}
+
+.tag-container input {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 150px;
+}
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 768px) {
     .card {
-        background: white;
-        border-radius: 8px;
-        padding: 30px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 15px;
+        margin: 10px;
     }
-
-    .card h2 {
-        margin-top: 0;
-        color: #0f172a;
-        font-size: 24px;
-    }
-
-    .card p {
-        color: #64748b;
-        margin-bottom: 25px;
-    }
-
+    
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        color: #1e293b;
-        font-weight: 600;
-        font-size: 14px;
+    
+    input, textarea, select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px 10px;
     }
-
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        font-family: Arial;
-        font-size: 14px;
-        box-sizing: border-box;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #2563eb;
-        background: #f0f7ff;
-    }
-
-    small {
+    
+    .doc-list span {
+        padding: 8px 12px;
+        margin: 3px;
         font-size: 12px;
     }
+    
+    .tag {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 12px;
+        margin: 5px;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .doc-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .doc-list span {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+}
 </style>
+
+<script>
+let allDocs = [
+    "Aadhaar Card",
+    "Passport Size Photo",
+    "PAN Card",
+    "10th Marksheet",
+    "12th Marksheet",
+    "Degree Certificate",
+    "Transfer Certificate (TC)",
+    "Income Certificate",
+    "Community Certificate",
+    "EWS Certificate",
+    "Ration Card",
+    "Voter ID",
+    "Driving License",
+    "Bank Passbook",
+    "Cancelled Cheque",
+    "Passport",
+    "Birth Certificate",
+    "Residence Certificate",
+    "Disability Certificate",
+    "Experience Certificate",
+    "Marriage Certificate",
+    "Hospital Records",
+    "Police Clearance Certificate",
+    "Signature",
+    "Address Proof",
+];
+
+let selectedDocs = [];
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initDocumentSelector();
+});
+
+function initDocumentSelector() {
+    // Load existing documents from hidden field
+    const hiddenField = document.getElementById('finalDocs');
+    let existing = hiddenField.value;
+    
+    if (existing) {
+        selectedDocs = existing.split(",").map(d => d.trim()).filter(d => d);
+    }
+    
+    // Render document list
+    renderDocList();
+    
+    // Render existing tags
+    renderTags();
+}
+
+function renderDocList() {
+    let docListDiv = document.getElementById("docList");
+    docListDiv.innerHTML = "";
+    
+    allDocs.forEach(doc => {
+        let span = document.createElement("span");
+        span.textContent = doc;
+        span.onclick = () => addDoc(doc);
+        
+        // Highlight if already selected
+        if (selectedDocs.includes(doc)) {
+            span.style.background = "#2563eb";
+            span.style.color = "white";
+        }
+        
+        docListDiv.appendChild(span);
+    });
+}
+
+/* ADD */
+function addDoc(doc) {
+    if (!selectedDocs.includes(doc)) {
+        selectedDocs.push(doc);
+        renderDocList(); // Re-render to show selection
+        renderTags();
+    }
+}
+
+/* REMOVE */
+function removeDoc(doc) {
+    selectedDocs = selectedDocs.filter(d => d !== doc);
+    renderDocList(); // Re-render to remove highlight
+    renderTags();
+}
+
+/* RENDER TAGS */
+function renderTags() {
+    let tagBox = document.getElementById("tagBox");
+    let customInput = document.getElementById("customInput");
+    let hiddenField = document.getElementById("finalDocs");
+    
+    // Clear tag box but keep the input
+    tagBox.innerHTML = "";
+    
+    selectedDocs.forEach(doc => {
+        let tag = document.createElement("div");
+        tag.className = "tag";
+        tag.innerHTML = doc + ' <span onclick="removeDoc(\'' + doc.replace(/'/g, "\\'") + '\')">&times;</span>';
+        tagBox.appendChild(tag);
+    });
+    
+    // Add custom input back
+    tagBox.appendChild(customInput);
+    
+    // Update hidden field
+    hiddenField.value = selectedDocs.join(",");
+}
+
+/* CUSTOM INPUT */
+let input = document.getElementById("customInput");
+input.addEventListener("keydown", function(e){
+    if(e.key === "Enter" && input.value.trim() !== ""){
+        e.preventDefault();
+        let value = input.value.trim();
+
+        if (!selectedDocs.includes(value)) {
+            selectedDocs.push(value);
+            renderDocList();
+            renderTags();
+        }
+
+        input.value = "";
+    }
+});
+
+/* INIT - Run immediately in case DOMContentLoaded already fired */
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDocumentSelector);
+} else {
+    initDocumentSelector();
+}
+</script>
+
 {% endblock %}

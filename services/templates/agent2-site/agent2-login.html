@@ -113,6 +113,23 @@
         animation: float 5s ease-in-out infinite;
         margin-bottom: 20px;
     }
+
+    /* RESPONSIVE MEDIA QUERIES */
+
+    /* Tablet View (Tap View) */
+    @media (max-width: 1024px) {
+        .admin-card { width: 90%; height: auto; flex-direction: column; margin: 20px 0; }
+        .login-side, .visual-side { width: 100%; padding: 40px; box-sizing: border-box; }
+        .visual-side { order: -1; min-height: 250px; }
+        body { height: auto; padding: 40px 0; }
+    }
+
+    /* Mobile View */
+    @media (max-width: 768px) {
+        .admin-card { width: 95%; }
+        .login-side, .visual-side { padding: 25px; }
+        .form-title { font-size: 24px; }
+    }
 </style>
 
 <div class="admin-card">

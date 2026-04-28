@@ -86,12 +86,24 @@
                     </td>
                     <td style="padding: 15px;">
                         <div style="display: flex; flex-direction: column; gap: 4px; font-size: 12px;">
-                            {% if req.photo %}<a href="{{ req.photo.url }}" target="_blank" style="color: #2563eb; text-decoration: none;">🖼️ Photo</a>{% endif %}
-                            {% if req.aadhaar_card %}<a href="{{ req.aadhaar_card.url }}" target="_blank" style="color: #2563eb; text-decoration: none;">🪪 Aadhaar</a>{% endif %}
-                            {% if req.signature %}<a href="{{ req.signature.url }}" target="_blank" style="color: #2563eb; text-decoration: none;">✍️ Signature</a>{% endif %}
-                            {% if req.pan_card %}<a href="{{ req.pan_card.url }}" target="_blank" style="color: #2563eb; text-decoration: none;">💳 PAN</a>{% endif %}
-                            {% if req.address_proof %}<a href="{{ req.address_proof.url }}" target="_blank" style="color: #2563eb; text-decoration: none;">🏠 Address Proof</a>{% endif %}
-                            {% if not req.photo and not req.aadhaar_card and not req.signature %}<span style="color: #94a3b8;">No Files</span>{% endif %}
+                            <!-- Fixed Model Fields -->
+                            {% if req.photo %}<a href="{{ req.photo.url }}" target="_blank" class="doc-link">🖼️ Photo</a>{% endif %}
+                            {% if req.aadhaar_card %}<a href="{{ req.aadhaar_card.url }}" target="_blank" class="doc-link">🪪 Aadhaar Card</a>{% endif %}
+                            {% if req.signature %}<a href="{{ req.signature.url }}" target="_blank" class="doc-link">✍️ Signature</a>{% endif %}
+                            {% if req.pan_card %}<a href="{{ req.pan_card.url }}" target="_blank" class="doc-link">💳 PAN Card</a>{% endif %}
+                            {% if req.address_proof %}<a href="{{ req.address_proof.url }}" target="_blank" class="doc-link">🏠 Address Proof</a>{% endif %}
+                            
+                            <!-- Dynamic Documents from JSON -->
+                            {% if req.dynamic_documents %}
+                                {% for doc_name, doc_path in req.dynamic_documents.items %}
+                                    <a href="/media/{{ doc_path }}" target="_blank" class="doc-link" title="Click to download">📄 {{ doc_name }}</a>
+                                {% endfor %}
+                            {% endif %}
+                            
+                            <!-- No Files Message -->
+                            {% if not req.photo and not req.aadhaar_card and not req.signature and not req.pan_card and not req.address_proof and not req.dynamic_documents %}
+                                <span style="color: #94a3b8;">No Files</span>
+                            {% endif %}
                         </div>
                     </td>
                     <td style="padding: 15px;">
@@ -115,7 +127,8 @@
                                 <button type="submit" class="btn btn-small" style="padding: 6px 12px; font-size: 11px; font-weight: 700;">Assign</button>
                             </form>
                             {% endif %}
-                        <a href="{% url 'update_request_status' req.id %}" class="btn btn-small" style="text-decoration: none; font-size: 12px; background-color: #6366f1; text-align: center; font-weight: 700;">📝 Update details</a>
+                        <a href="{% url 'update_request_status' req.id %}" class="btn btn-small" style="text-decoration: none; font-size: 12px; background-color: #6366f1; text-align: center; font-weight: 700; margin-right: 8px;">📝 Update details</a>
+                        <a href="{% url 'download_all_docs' req.id %}" class="btn btn-small" style="text-decoration: none; font-size: 12px; background-color: #10b981; text-align: center; font-weight: 700;">📦 Download ZIP</a>
                         </div>
                     </td>
                 </tr>

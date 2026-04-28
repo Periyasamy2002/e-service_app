@@ -16,10 +16,14 @@
         </span>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+    <div id="detailsDisplay" style="display: {% if edit_mode %}none{% else %}grid{% endif %}; grid-template-columns: 1fr 1fr; gap: 30px;">
         <div class="info-group">
-            <h4 style="color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Applicant Information</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;">
+                <h4 style="color: #475569; margin: 0;">Applicant Details</h4>
+                <button type="button" onclick="toggleEdit(true)" style="background: none; border: none; color: #2563eb; cursor: pointer; font-size: 13px; font-weight: 600;">✏️ Edit Details</button>
+            </div>
             <p><strong>Name:</strong> {{ req.full_name }}</p>
+            <p><strong>DOB:</strong> {{ req.dob|default:"N/A" }}</p>
             <p><strong>Aadhaar:</strong> {{ req.aadhaar_number }}</p>
             <p><strong>Mobile:</strong> {{ req.mobile }}</p>
             <p><strong>Email:</strong> {{ req.email }}</p>
@@ -29,12 +33,59 @@
         <div class="info-group">
             <h4 style="color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Uploaded Documents</h4>
             <ul style="list-style: none; padding: 0;">
+                {% if req.photo %}<li style="margin-bottom: 10px;">🖼️ Photo: <a href="{{ req.photo.url }}" target="_blank">View</a> | <a href="{{ req.photo.url }}" download>Download</a></li>{% endif %}
                 {% if req.aadhaar_card %}<li style="margin-bottom: 10px;">🪪 Aadhaar Card: <a href="{{ req.aadhaar_card.url }}" target="_blank">View</a> | <a href="{{ req.aadhaar_card.url }}" download>Download</a></li>{% endif %}
                 {% if req.pan_card %}<li style="margin-bottom: 10px;">💳 PAN Card: <a href="{{ req.pan_card.url }}" target="_blank">View</a> | <a href="{{ req.pan_card.url }}" download>Download</a></li>{% endif %}
-                {% if req.photo %}<li style="margin-bottom: 10px;">🖼️ Photo: <a href="{{ req.photo.url }}" target="_blank">View</a> | <a href="{{ req.photo.url }}" download>Download</a></li>{% endif %}
                 {% if req.signature %}<li style="margin-bottom: 10px;">✍️ Signature: <a href="{{ req.signature.url }}" target="_blank">View</a> | <a href="{{ req.signature.url }}" download>Download</a></li>{% endif %}
+                
+                {% if req.dynamic_documents %}
+                    {% for key, path in req.dynamic_documents.items %}
+                        <li style="margin-bottom: 10px;">📄 {{ key|title }}: <a href="/media/{{ path }}" target="_blank">View</a> | <a href="/media/{{ path }}" download>Download</a></li>
+                    {% endfor %}
+                {% endif %}
             </ul>
         </div>
+    </div>
+
+    <!-- Edit Mode (Hidden by default) -->
+    <div id="detailsEdit" style="display: {% if edit_mode %}block{% else %}none{% endif %}; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="edit_details" value="1">
+            <h4 style="color: #1e293b; margin-top: 0; margin-bottom: 20px;">Edit Applicant Details</h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Full Name</label>
+                    <input type="text" name="full_name" value="{{ req.full_name }}" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Date of Birth</label>
+                    <input type="date" name="dob" value="{{ req.dob|date:'Y-m-d' }}" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Aadhaar Number</label>
+                    <input type="text" name="aadhaar_number" value="{{ req.aadhaar_number }}" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Mobile</label>
+                    <input type="text" name="mobile" value="{{ req.mobile }}" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Email</label>
+                    <input type="email" name="email" value="{{ req.email }}" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Address</label>
+                    <textarea name="address" rows="2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical;">{{ req.address }}</textarea>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button type="submit" class="btn" style="background: #2563eb; padding: 8px 16px; font-size: 14px;">Save Changes</button>
+                <button type="button" onclick="toggleEdit(false)" class="btn" style="background: #94a3b8; padding: 8px 16px; font-size: 14px;">Cancel</button>
+            </div>
+        </form>
     </div>
 
     <div style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
@@ -47,4 +98,38 @@
         <a href="{% url 'agent2_dashboard' %}" class="btn" style="background: #94a3b8; padding: 10px 20px; font-weight: 600;">🔙 Back to Queue</a>
     </div>
 </div>
+
+<script>
+function toggleEdit(show) {
+    const display = document.getElementById('detailsDisplay');
+    const edit = document.getElementById('detailsEdit');
+    if (show) {
+        display.style.display = 'none';
+        edit.style.display = 'block';
+    } else {
+        display.style.display = 'grid';
+        edit.style.display = 'none';
+    }
+}
+</script>
+
+<style>
+    /* RESPONSIVE MEDIA QUERIES */
+    @media (max-width: 1024px) {
+        div[style*="grid-template-columns: 1fr 1fr"] {
+            gap: 20px !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+        div[style*="display: flex; gap: 15px"] {
+            flex-direction: column;
+        }
+        .card { padding: 15px !important; }
+        .status-badge { font-size: 10px; padding: 3px 6px; }
+    }
+</style>
 {% endblock %}

@@ -1,32 +1,27 @@
 from django.contrib import admin
-from django.urls import path
 from .models import User, Service, ServiceRequest, Page
-from . import views
 
-# Register your models here.
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'role', 'is_staff')
+    list_filter = ('role', 'is_staff')
+    search_fields = ('username', 'email')
 
-admin.site.register(User)
-admin.site.register(Service)
-admin.site.register(ServiceRequest)
-admin.site.register(Page)
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ('name', 'charges', 'page', 'created_at')
+    list_filter = ('page',)
+    search_fields = ('name', 'description')
 
-# Customize admin site appearance
-admin.site.site_header = "E-Service Administration"
-admin.site.site_title = "E-Service Admin"
-admin.site.index_title = "Welcome to E-Service Admin Panel"
-class CustomAdminSite(admin.AdminSite):
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
-        ]
-        return custom_urls + urls
+@admin.register(ServiceRequest)
+class ServiceRequestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'full_name', 'service', 'status', 'assigned_to', 'created_at')
+    list_filter = ('status', 'service', 'assigned_to')
+    search_fields = ('full_name', 'aadhaar_number', 'mobile', 'email')
+    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at',)
 
-# Create custom admin site instance
-custom_admin_site = CustomAdminSite(name='custom_admin')
-
-# Register models with custom admin
-custom_admin_site.register(User)
-custom_admin_site.register(Service)
-custom_admin_site.register(ServiceRequest)
-custom_admin_site.register(Page)
+@admin.register(Page)
+class PageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'created_at')
+    search_fields = ('title',)

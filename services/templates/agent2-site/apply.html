@@ -1,105 +1,581 @@
 {% extends 'user-base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="card" style="max-width: 800px; margin: 40px auto; padding: 40px;">
-    <h2 style="margin-bottom: 10px; color: #1e293b;">Apply for: {{ service.name }}</h2>
-    <p style="color: #64748b; margin-bottom: 30px;">Please provide the required information and upload necessary documents.</p>
+<link rel="stylesheet" href="{% static 'animations.css' %}">
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Applicant Full Name</label>
-                <input type="text" name="full_name" placeholder="As per Aadhaar" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-            </div>
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Date of Birth</label>
-                <input type="date" name="dob" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-            </div>
+<div class="container" style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
+    <!-- Header Section -->
+    <div style="animation: slideInDown 0.4s ease-in-out; margin-bottom: 40px; text-align: center;">
+        <h2 style="margin-bottom: 10px; color: #1e293b; font-size: 28px;">
+            📋 Apply for: <span style="color: #2563eb;">{{ service.name }}</span>
+        </h2>
+        <p style="color: #64748b; margin: 0; font-size: 15px;">
+            Please provide the required information and upload necessary documents.
+        </p>
+        {% if service.charges %}
+        <p style="color: #2563eb; margin-top: 8px; font-weight: 600;">
+            📌 Service Charges: ₹{{ service.charges }}
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- Messages/Alerts -->
+    {% if messages %}
+    <div style="margin-bottom: 20px; animation: slideInDown 0.3s ease-in-out;">
+        {% for message in messages %}
+        <div class="message-notification {% if 'error' in message.tags %}message-error{% elif 'success' in message.tags %}message-success{% else %}message-info{% endif %}">
+            {% if 'error' in message.tags %}❌ {% elif 'success' in message.tags %}✅ {% else %}ℹ️ {% endif %}
+            {{ message }}
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Email Address</label>
-                <input type="email" name="email" placeholder="you@example.com" value="{{ user.email }}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+    <!-- Main Form Card -->
+    <div class="card" style="
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.4s ease-in-out;
+    ">
+        <form id="applicationForm" method="post" action="{% url 'agent2_apply' service.id %}" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- Personal Information Section -->
+            <div style="margin-bottom: 35px;">
+                <h3 style="color: #1e293b; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                    👤 Personal Information
+                </h3>
+
+                <!-- Full Name & DOB -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">
+                            Full Name <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="full_name" 
+                            placeholder="As per Aadhaar"
+                            style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; transition: all 0.3s ease;"
+                            required
+                            aria-label="Full Name"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">
+                            Date of Birth <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            name="dob"
+                            style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; transition: all 0.3s ease;"
+                            required
+                            aria-label="Date of Birth"
+                        >
+                    </div>
+                </div>
+
+                <!-- Email & Mobile -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">
+                            Email Address <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            placeholder="you@example.com"
+                            value="{{ user.email }}"
+                            style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; transition: all 0.3s ease;"
+                            required
+                            aria-label="Email Address"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">
+                            Mobile Number <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input 
+                            type="tel" 
+                            name="mobile" 
+                            placeholder="10-digit number"
+                            maxlength="10"
+                            pattern="[0-9]{10}"
+                            style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; transition: all 0.3s ease;"
+                            required
+                            aria-label="Mobile Number"
+                            inputmode="numeric"
+                        >
+                    </div>
+                </div>
+
+                <!-- Aadhaar Number -->
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">
+                        Aadhaar Card Number <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        name="aadhaar_number" 
+                        placeholder="1234 5678 9012"
+                        maxlength="14"
+                        pattern="[0-9\s]{12,14}"
+                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: 'Courier New', monospace; transition: all 0.3s ease;"
+                        required
+                        aria-label="Aadhaar Number"
+                        inputmode="numeric"
+                    >
+                </div>
+
+                <!-- Address -->
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">
+                        Residential Address <span style="color: #ef4444;">*</span>
+                    </label>
+                    <textarea 
+                        name="address" 
+                        placeholder="Enter your complete residential address"
+                        rows="3"
+                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; transition: all 0.3s ease; resize: vertical;"
+                        required
+                        aria-label="Address"
+                    ></textarea>
+                </div>
             </div>
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Mobile Number</label>
-                <input type="text" name="mobile" placeholder="10-digit number" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+
+            <!-- Document Selection Section -->
+            <div style="margin-bottom: 35px;">
+                <h3 style="color: #1e293b; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                    📄 Select & Upload Documents
+                </h3>
+                <p style="color: #64748b; margin-bottom: 20px; font-size: 14px;">
+                    ✨ Select the documents you have by checking the boxes below. File upload fields will appear for selected documents.
+                </p>
+
+                <!-- Document Cards Grid - Dynamic Generation -->
+                <div id="docCardsContainer" class="doc-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 25px;">
+                    <!-- Cards will be generated by JavaScript -->
+                </div>
+
+                <script>
+                // Generate document cards dynamically from service.documents_required
+                (function() {
+                    const docsString = "{{ service.documents_required|escapejs }}";
+                    const documents = docsString.split(',').map(d => d.trim()).filter(d => d);
+                    const container = document.getElementById('docCardsContainer');
+                    
+                    const iconMap = {
+                        'Photo': '📸', 'Passport': '📸',
+                        'Aadhaar': '🪪',
+                        'Signature': '✍️',
+                        'Address': '🏠', 'Residence': '🏠',
+                        'PAN': '💳', 'Income': '💳',
+                        'Community': '👥',
+                        'Birth': '📅',
+                        'Caste': '📜', 'Certificate': '📜',
+                        'Ration': '🛒',
+                        'Voter': '🗳️',
+                        'Driving': '🚗',
+                        'Vehicle': '🛵'
+                    };
+                    
+                    function getIcon(docName) {
+                        for (const key in iconMap) {
+                            if (docName.includes(key)) return iconMap[key];
+                        }
+                        return '📄';
+                    }
+                    
+                    function slugify(text) {
+                        return text.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^-|-$)/g, '');
+                    }
+                    
+                    documents.forEach(function(docName) {
+                        const docId = slugify(docName);
+                        const icon = getIcon(docName);
+                        
+                        const cardHTML = `
+                            <div class="doc-card" data-doc="${docId}" style="
+                                background: white;
+                                border: 2px solid #e2e8f0;
+                                border-radius: 12px;
+                                padding: 20px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                position: relative;
+                            " onclick="toggleDocument('${docId}')">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" id="doc_${docId}" name="doc_selected" value="${docId}" style="width: 22px; height: 22px; cursor: pointer; accent-color: #2563eb;" onchange="toggleDocument('${docId}')">
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 28px; margin-bottom: 4px;">${icon}</div>
+                                        <div style="font-weight: 600; color: #1e293b; font-size: 15px;">${docName}</div>
+                                        <div style="color: #64748b; font-size: 12px; margin-top: 4px;">PDF, JPG, PNG • Max 10MB</div>
+                                    </div>
+                                </div>
+                                <div class="doc-upload-section" id="upload_${docId}" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e2e8f0;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #2563eb; font-size: 13px;">
+                                        📁 Upload ${docName}
+                                    </label>
+                                    <div class="file-input-wrapper">
+                                        <label class="file-input-label" for="${docId}_input" data-field="${docId}">
+                                            <div style="text-align: center; padding: 15px;">
+                                                <div style="font-size: 24px; margin-bottom: 6px;">📁</div>
+                                                <div style="color: #475569; font-size: 12px;">Click or drag to upload</div>
+                                            </div>
+                                        </label>
+                                        <input type="file" id="${docId}_input" name="${docId}" class="file-input" accept="application/pdf,image/jpeg,image/png" data-max-size="10485760">
+                                        <div id="${docId}_preview" class="file-preview"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += cardHTML;
+                    });
+                    
+                    // Add event listeners for dynamically created file inputs
+                    setTimeout(function() {
+                        const fileInputs = document.querySelectorAll('.file-input');
+                        fileInputs.forEach(function(input) {
+                            input.addEventListener('change', function(e) {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const field = e.target.name;
+                                    const preview = document.getElementById(field + '_preview');
+                                    if (preview) {
+                                        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                                        preview.innerHTML = '<div style="background: #dcfce7; border: 1px solid #86efac; border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 13px; color: #166534;">✅ ' + file.name + ' (' + fileSize + ' MB)</div>';
+                                    }
+                                }
+                            });
+                        });
+                    }, 100);
+                })();
+                </script>
+
+                <!-- Validation Message -->
+                <div id="docValidationMsg" style="display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; margin-top: 10px; color: #dc2626; font-size: 14px;">
+                    ⚠️ Please select at least one document and upload the corresponding files.
+                </div>
             </div>
-        </div>
 
-        <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Aadhaar Card Number</label>
-            <input type="text" name="aadhaar" placeholder="1234 5678 9012" maxlength="12" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-        </div>
+            <!-- Additional Information Section -->
+            <div style="margin-bottom: 35px;">
+                <h3 style="color: #1e293b; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                    💬 Additional Information
+                </h3>
 
-        <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Residential Address</label>
-            <textarea name="address" placeholder="Enter your full address" rows="3" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;"></textarea>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            {% if "Passport Size Photo" in service.documents_required %}
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Passport Size Photo (JPG/PNG)</label>
-                <input type="file" name="photo" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b;">
+                        Remarks/Instructions (Optional)
+                    </label>
+                    <textarea 
+                        name="description" 
+                        placeholder="Any specific instructions or additional information..."
+                        rows="3"
+                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; transition: all 0.3s ease; resize: vertical;"
+                        aria-label="Additional Remarks"
+                    ></textarea>
+                </div>
             </div>
-            {% endif %}
-            
-            {% if "Aadhaar Card" in service.documents_required %}
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Aadhaar Card (PDF/JPG)</label>
-                <input type="file" name="aadhaar_card" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
+
+            <!-- Form Actions -->
+            <div style="display: flex; gap: 15px; margin-top: 40px;">
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="btn btn-primary"
+                    style="flex: 2; padding: 14px; font-weight: 700; border-radius: 8px; cursor: pointer; border: none; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                    onclick="return validateDocuments()"
+                >
+                    <span id="submitBtnText">✅ Submit Application</span>
+                    <span id="submitSpinner" class="spinner spinner-sm" style="display: none;"></span>
+                </button>
+                <a 
+                    href="{% url 'services' %}" 
+                    class="btn btn-secondary"
+                    style="flex: 1; padding: 14px; text-align: center; text-decoration: none; border-radius: 8px; font-weight: 600; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.3s ease;"
+                >
+                    ❌ Cancel
+                </a>
             </div>
-            {% endif %}
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            {% if "Signature" in service.documents_required %}
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Applicant Signature (JPG/PNG)</label>
-                <input type="file" name="signature" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
-            </div>
-            {% endif %}
-
-            {% if "Address Proof" in service.documents_required %}
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Address Proof (PDF/JPG)</label>
-                <input type="file" name="address_proof" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;" required>
-            </div>
-            {% endif %}
-
-            {% if "PAN Card" in service.documents_required %}
-            <div class="form-group">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px;">PAN Card (Optional)</label>
-                <input type="file" name="pan_card" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="form-group" style="margin-bottom: 30px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Additional Remarks (Optional)</label>
-            <textarea name="description" placeholder="Any specific instructions..." rows="2" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;"></textarea>
-        </div>
-
-        <div style="display: flex; gap: 15px;">
-            <button type="submit" class="btn" style="flex: 2; background: #2563eb; padding: 14px; font-weight: 700; border-radius: 8px;">Submit Application</button>
-            <a href="{% url 'services' %}" class="btn" style="flex: 1; background: #f1f5f9; color: #475569; padding: 14px; text-align: center; text-decoration: none; border-radius: 8px;">Cancel</a>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
+<!-- JavaScript for Dynamic Document Selection -->
+<script>
+function toggleDocument(docId) {
+    const checkbox = document.getElementById('doc_' + docId);
+    const uploadSection = document.getElementById('upload_' + docId);
+    const card = checkbox.closest('.doc-card');
+    
+    if (checkbox.checked) {
+        // Show upload section and highlight card
+        uploadSection.style.display = 'block';
+        card.style.borderColor = '#2563eb';
+        card.style.background = '#f0f7ff';
+        card.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.15)';
+    } else {
+        // Hide upload section and remove highlight
+        uploadSection.style.display = 'none';
+        card.style.borderColor = '#e2e8f0';
+        card.style.background = 'white';
+        card.style.boxShadow = 'none';
+    }
+    
+    // Hide validation message when user makes selection
+    const validationMsg = document.getElementById('docValidationMsg');
+    if (validationMsg) {
+        validationMsg.style.display = 'none';
+    }
+}
+
+function validateDocuments() {
+    const checkboxes = document.querySelectorAll('input[name="doc_selected"]');
+    let selectedCount = 0;
+    let uploadedCount = 0;
+    
+    checkboxes.forEach(function(checkbox) {
+        if (checkbox.checked) {
+            selectedCount++;
+            const docId = checkbox.value;
+            const fileInput = document.getElementById(docId + '_input');
+            if (fileInput && fileInput.files.length > 0) {
+                uploadedCount++;
+            }
+        }
+    });
+    
+    const validationMsg = document.getElementById('docValidationMsg');
+    
+    if (selectedCount === 0) {
+        validationMsg.style.display = 'block';
+        validationMsg.textContent = '⚠️ Please select at least one document.';
+        validationMsg.style.background = '#fef2f2';
+        validationMsg.style.borderColor = '#fecaca';
+        validationMsg.style.color = '#dc2626';
+        return false;
+    }
+    
+    if (uploadedCount < selectedCount) {
+        validationMsg.style.display = 'block';
+        validationMsg.textContent = '⚠️ Please upload files for all selected documents.';
+        validationMsg.style.background = '#fef2f2';
+        validationMsg.style.borderColor = '#fecaca';
+        validationMsg.style.color = '#dc2626';
+        return false;
+    }
+    
+    validationMsg.style.display = 'none';
+    return true;
+}
+
+// File input preview handlers
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInputs = document.querySelectorAll('.file-input');
+    fileInputs.forEach(function(input) {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const field = e.target.name;
+                const preview = document.getElementById(field + '_preview');
+                if (preview) {
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    preview.innerHTML = '<div style="background: #dcfce7; border: 1px solid #86efac; border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 13px; color: #166534;">✅ ' + file.name + ' (' + fileSize + ' MB)</div>';
+                }
+            }
+        });
+    });
+});
+</script>
+
 <style>
-    .form-group input:focus, .form-group textarea:focus {
-        outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+/* Document Card Styles */
+.doc-card {
+    background: white !important;
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.doc-card:hover {
+    border-color: #94a3b8 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.doc-card.selected {
+    border-color: #2563eb !important;
+    background: #f0f7ff !important;
+}
+
+/* Form Styles */
+.form-group input:focus, 
+.form-group textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+/* File Input Styles */
+.file-input-wrapper {
+    position: relative;
+}
+
+.file-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+}
+
+.file-input-label {
+    display: block;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-input-label:hover {
+    border-color: #2563eb;
+    background: #f8fafc;
+}
+
+.file-preview {
+    margin-top: 8px;
+}
+
+/* RESPONSIVE MEDIA QUERIES */
+
+/* Tablet View (769px to 1024px) */
+@media (max-width: 1024px) {
+    .card {
+        max-width: 95%;
+        padding: 30px;
     }
-    .btn:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-        transition: all 0.2s;
+    
+    .doc-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
     }
+}
+
+/* Mobile View (up to 768px) */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px !important;
+        margin: 20px auto !important;
+    }
+    
+    .card {
+        padding: 20px 15px !important;
+        margin: 10px 5px !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Single column for documents on mobile */
+    .doc-cards-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    
+    .doc-card {
+        padding: 15px !important;
+    }
+    
+    /* Stack form fields vertically */
+    div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+    
+    /* Stack buttons vertically */
+    div[style*="display: flex; gap: 15px"] {
+        flex-direction: column !important;
+    }
+    
+    .btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    h2 {
+        font-size: 22px;
+        text-align: center;
+        line-height: 1.3;
+    }
+    
+    p {
+        text-align: center;
+        font-size: 14px;
+    }
+    
+    h3 {
+        font-size: 16px !important;
+    }
+    
+    /* Make checkboxes larger for touch */
+    input[type="checkbox"] {
+        width: 26px !important;
+        height: 26px !important;
+    }
+    
+    /* Increase touch targets */
+    .doc-card {
+        min-height: 80px;
+    }
+}
+
+/* Small mobile (up to 480px) */
+@media (max-width: 480px) {
+    .card {
+        padding: 15px 12px !important;
+        margin: 8px 4px !important;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+    
+    .doc-card {
+        padding: 12px !important;
+    }
+    
+    .doc-upload-section {
+        padding-top: 12px !important;
+    }
+}
 </style>
 {% endblock %}

@@ -1,0 +1,275 @@
+{% extends 'agent2-site/base-agent2.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'animations.css' %}">
+
+<div class="card" style="animation: fadeIn 0.4s ease-in-out;">
+    
+    <!-- User Info Section -->
+    <div style="background: #f0f7ff; border-left: 4px solid #2563eb; padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <p style="margin: 0; color: #1e293b; font-size: 14px; font-weight: 600;">
+                👤 Logged in as: <span style="color: #2563eb;">{{ request.user.username }}</span>
+            </p>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 12px;">
+                Viewing your applications only
+            </p>
+        </div>
+        {% if requests %}
+        <div style="text-align: right;">
+            <p style="margin: 0; color: #1e293b; font-size: 14px; font-weight: 600;">
+                Total: <span style="color: #2563eb;">{{ requests|length }}</span>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #f1f5f9;padding-bottom:15px;margin-bottom:20px;">
+        <div>
+            <h2 style="margin:0;color:#1e293b;">📋 Apply Details</h2>
+            <p style="margin:5px 0 0 0;color:#64748b;font-size:14px;">
+                Pending & In-Progress Applications
+            </p>
+        </div>
+        <div style="display:flex;gap:10px;">
+            <span class="status-badge status-pending">Pending: {{ sidebar_counts.pending }}</span>
+            <span class="status-badge status-progress">In Progress: {{ sidebar_counts.in_progress }}</span>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar" style="margin-bottom:20px;">
+        <form method="GET" action="{% url 'agent2_apply_details' %}" style="display:flex;gap:10px;flex-wrap:wrap;">
+            
+            <select name="status" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+                <option value="Under Review" {% if status_filter == 'Under Review' %}selected{% endif %}>Under Review</option>
+                <option value="Approved" {% if status_filter == 'Approved' %}selected{% endif %}>Approved</option>
+                <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+            </select>
+
+            <select name="service" onchange="this.form.submit()">
+                <option value="">All Services</option>
+                {% for s in services %}
+                <option value="{{ s.id }}" {% if service_filter == s.id|stringformat:"i" %}selected{% endif %}>
+                    {{ s.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <select name="category" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for p in pages %}
+                <option value="{{ p.id }}" {% if category_filter == p.id|stringformat:"i" %}selected{% endif %}>
+                    {{ p.title }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Search...">
+
+            <button type="submit">Apply</button>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+        <table style="width:100%;">
+            <thead>
+                <tr>
+                    <th>➕</th>
+                    <th>Applicant</th>
+                    <th>Service</th>
+                    <th>Documents</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>
+                        <button class="expand-btn" onclick="toggleDetailsRow({{ req.id }}, this)">+</button>
+                    </td>
+
+                    <td>
+                        <b>{{ req.full_name }}</b><br>
+                        {{ req.mobile }}<br>
+                        <div style="font-size: 12px; color: #64748b;">User: {{ req.user.username }}</div>
+                    </td>
+
+                    <td>
+                        {{ req.service.name }}
+                    </td>
+
+                    <td>
+                        {% if req.aadhaar_card %}
+                        <a href="{{ req.aadhaar_card.url }}" target="_blank">🪪</a>
+                        {% endif %}
+
+                        {% if req.pan_card %}
+                        <a href="{{ req.pan_card.url }}" target="_blank">💳</a>
+                        {% endif %}
+
+                        {% if req.photo %}
+                        <a href="{{ req.photo.url }}" target="_blank">🖼️</a>
+                        {% endif %}
+
+                        <!-- ✅ Dynamic Docs FIX -->
+                        {% if req.dynamic_documents %}
+                            {% for key, path in req.dynamic_documents.items %}
+                                <a href="/media/{{ path }}" target="_blank" title="{{ key }}">📄</a>
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+
+                    <td>{{ req.status }}</td>
+
+                    <td>
+                        <a href="{% url 'agent2_request_detail' req.id %}">View</a>
+                        <a href="{% url 'download_all_docs' req.id %}">ZIP</a>
+                    </td>
+                </tr>
+
+                <!-- Expand Row - Edit Form -->
+                <tr id="details-row-{{ req.id }}" style="display:none; background: #f0f7ff;">
+                    <td colspan="6" style="padding: 20px;">
+                        <form method="POST" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            {% csrf_token %}
+                            <input type="hidden" name="request_id" value="{{ req.id }}">
+                            
+                            <h3 style="margin: 0 0 20px 0; color: #1e293b; font-size: 16px;">
+                                📝 Quick Edit - {{ req.full_name }}
+                            </h3>
+                            
+                            <!-- Edit Form Grid -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; font-size: 13px;">Full Name</label>
+                                    <input type="text" name="full_name" value="{{ req.full_name }}" required style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; font-size: 13px;">Mobile Number</label>
+                                    <input type="text" name="mobile" value="{{ req.mobile }}" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; font-size: 13px;">Aadhaar Number</label>
+                                    <input type="text" name="aadhaar_number" value="{{ req.aadhaar_number }}" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; font-size: 13px;">Email</label>
+                                    <input type="email" name="email" value="{{ req.user.email }}" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                                </div>
+                            </div>
+                            
+                            <!-- Status & Remarks -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; font-size: 13px;">Update Status</label>
+                                    <select name="status" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;" required>
+                                        <option value="Pending" {% if req.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="In Progress" {% if req.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                        <option value="Under Review" {% if req.status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                                        <option value="Approved" {% if req.status == 'Approved' %}selected{% endif %}>Approved</option>
+                                        <option value="Completed" {% if req.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; font-size: 13px;">Internal Notes</label>
+                                    <input type="text" name="remarks" value="{{ req.remarks }}" placeholder="Add notes..." style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                <button type="button" onclick="toggleDetailsRow({{ req.id }}, event.target)" style="padding: 8px 16px; background: #e2e8f0; color: #1e293b; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">✕ Close</button>
+                                <button type="submit" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">💾 Save Changes</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
+                        <p style="margin: 0; font-size: 16px;">📭 No applications found for {{ request.user.username }}</p>
+                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #94a3b8;">You don't have any pending, in-progress, or under-review applications yet.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- JS Toggle Function -->
+<script>
+function toggleDetailsRow(id, btn) {
+    const row = document.getElementById('details-row-' + id);
+    
+    if (row.style.display === 'none') {
+        row.style.display = 'table-row';
+        btn.textContent = '−';
+    } else {
+        row.style.display = 'none';
+        btn.textContent = '+';
+    }
+}
+</script>
+
+
+<style>
+    /* RESPONSIVE MEDIA QUERIES */
+    @media (max-width: 1024px) {
+        .filter-bar form {
+            flex-wrap: wrap;
+        }
+
+        .filter-bar div {
+            min-width: 45%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+
+        .main-content {
+            padding: 10px;
+        }
+
+        .filter-bar form {
+            flex-direction: column;
+        }
+
+        .filter-bar div {
+            width: 100%;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .table-wrapper table {
+            min-width: 600px;
+        }
+
+        div[style*="display: flex; gap: 10px"] {
+            flex-direction: column;
+        }
+    }
+</style>
+
+{% endblock %}

@@ -207,6 +207,33 @@
         .btn-cancel:hover {
             background: #cbd5e1;
         }
+
+        /* RESPONSIVE MEDIA QUERIES */
+
+        /* Tablet View (Tap View) */
+        @media (max-width: 1024px) {
+            .sidebar { width: 220px; }
+            .main-content { padding: 20px; }
+            .nav-links { gap: 10px; }
+        }
+
+        /* Mobile View */
+        @media (max-width: 768px) {
+            .dashboard-container { flex-direction: column; }
+            .sidebar { width: 100%; min-height: auto; padding: 15px; border-bottom: 1px solid #1e293b; }
+            .main-content { padding: 15px; }
+            .top-navbar { padding: 10px 15px; flex-direction: column; align-items: flex-start; }
+            .nav-links { width: 100%; justify-content: center; gap: 10px; }
+            .modal-content { width: 95%; padding: 20px; }
+            
+            /* Table Handling for Mobile */
+            .table-wrapper { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            table { min-width: 700px; }
+            
+            .sidebar-menu h4 { text-align: center; }
+        }
+
+        /* PC View (Default) handles widths > 1024px */
     </style>
 </head>
 

@@ -33,7 +33,6 @@ class Page(models.Model):
 
     def __str__(self):
         return self.title
-
 class ServiceRequest(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -43,23 +42,33 @@ class ServiceRequest(models.Model):
         ('Rejected', 'Rejected'),
         ('Completed', 'Completed'),
     ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
+
     full_name = models.CharField(max_length=100, blank=True)
     dob = models.DateField(null=True, blank=True)
     email = models.EmailField(blank=True)
     address = models.TextField(blank=True)
     mobile = models.CharField(max_length=15, blank=True)
     aadhaar_number = models.CharField(max_length=12, blank=True)
+
+    # Optional fixed fields (keep if needed)
     photo = models.FileField(upload_to='requests/photos/', null=True, blank=True)
     aadhaar_card = models.FileField(upload_to='requests/aadhaar/', null=True, blank=True)
     pan_card = models.FileField(upload_to='requests/pan/', null=True, blank=True)
     signature = models.FileField(upload_to='requests/signatures/', null=True, blank=True)
     address_proof = models.FileField(upload_to='requests/address_proof/', null=True, blank=True)
+
+    # 🔥 MAIN FIELD (IMPORTANT)
+    dynamic_documents = models.JSONField(default=dict, blank=True)
+
     description = models.TextField(blank=True)
     completed_file = models.FileField(upload_to='requests/completed/', null=True, blank=True)
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_requests')
+
     created_at = models.DateTimeField(auto_now_add=True)
     remarks = models.TextField(blank=True)
 

@@ -2,196 +2,212 @@
 
 {% block content %}
 <style>
-.details-container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
-.details-hero {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-    color: white;
-    padding: 50px 30px;
-    border-radius: 12px;
-    margin-bottom: 40px;
-    animation: slideDown 0.5s ease-out;
-}
-
-.details-hero h1 {
-    font-size: 32px;
-    font-weight: 800;
-    margin-bottom: 10px;
-}
-
-.details-hero p {
-    font-size: 16px;
-    opacity: 0.95;
-}
-
-.details-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 30px;
-}
-
-.details-main {
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.details-main h2 {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: #0f172a;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #e2e8f0;
-}
-
-.details-section {
-    margin-bottom: 30px;
-}
-
-.details-section:last-child {
-    margin-bottom: 0;
-}
-
-.details-item {
-    margin-bottom: 16px;
-    display: flex;
-    gap: 16px;
-}
-
-.details-label {
-    font-weight: 600;
-    color: #0f172a;
-    min-width: 120px;
-}
-
-.details-value {
-    color: #64748b;
-}
-
-.details-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.sidebar-card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.sidebar-card h3 {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: #0f172a;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status-pending { background: #fef3c7; color: #92400e; }
-.status-reviewed { background: #dbeafe; color: #1e40af; }
-.status-in-progress { background: #e0e7ff; color: #3730a3; }
-.status-completed { background: #d1fae5; color: #065f46; }
-
-.action-button {
-    display: block;
-    background: #2563eb;
-    color: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    margin-bottom: 8px;
-    width: 100%;
-}
-
-.action-button:hover {
-    background: #1d4ed8;
-    transform: translateY(-2px);
-}
-
-.timeline {
-    position: relative;
-    padding-left: 30px;
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.timeline-item:last-child {
-    border-bottom: none;
-}
-
-.timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -30px;
-    top: 0;
-    width: 12px;
-    height: 12px;
-    background: #2563eb;
-    border-radius: 50%;
-    border: 3px solid white;
-    box-shadow: 0 0 0 2px #2563eb;
-}
-
-.timeline-date {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 500;
-    margin-bottom: 4px;
-}
-
-.timeline-text {
-    font-size: 14px;
-    color: #0f172a;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
+    .details-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-@media (max-width: 768px) {
-    .details-grid {
-        grid-template-columns: 1fr;
+    .details-hero {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        color: white;
+        padding: 50px 30px;
+        border-radius: 12px;
+        margin-bottom: 40px;
+        animation: slideDown 0.5s ease-out;
     }
-    
+
     .details-hero h1 {
-        font-size: 24px;
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 10px;
     }
-}
+
+    .details-hero p {
+        font-size: 16px;
+        opacity: 0.95;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+    }
+
+    .details-main {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .details-main h2 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: #0f172a;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .details-section {
+        margin-bottom: 30px;
+    }
+
+    .details-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .details-item {
+        margin-bottom: 16px;
+        display: flex;
+        gap: 16px;
+    }
+
+    .details-label {
+        font-weight: 600;
+        color: #0f172a;
+        min-width: 120px;
+    }
+
+    .details-value {
+        color: #64748b;
+    }
+
+    .details-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .sidebar-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .sidebar-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: #0f172a;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-reviewed {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-in-progress {
+        background: #e0e7ff;
+        color: #3730a3;
+    }
+
+    .status-completed {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .action-button {
+        display: block;
+        background: #2563eb;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 8px;
+        width: 100%;
+    }
+
+    .action-button:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .timeline-item:last-child {
+        border-bottom: none;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -30px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        background: #2563eb;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px #2563eb;
+    }
+
+    .timeline-date {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .timeline-text {
+        font-size: 14px;
+        color: #0f172a;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .details-hero h1 {
+            font-size: 24px;
+        }
+    }
 </style>
 
 <div class="details-container">
@@ -199,7 +215,7 @@
         <h1>Request Details</h1>
         <p>View detailed information about your service request, including status, timeline, and assigned agents.</p>
     </div>
-    
+
     <div class="details-grid">
         <div class="details-main">
             <h2>📋 Request Information</h2>
@@ -221,14 +237,75 @@
                     <span class="details-value">Standard</span>
                 </div>
             </div>
-            
+
             <h2>📝 Description</h2>
             <div class="details-section">
                 <p style="color: #64748b; line-height: 1.7; margin: 0;">
                     {{ request.description|default:"No description provided." }}
                 </p>
             </div>
-            
+
+            <h2>📄 Uploaded Documents</h2>
+            <div class="details-section" id="documents-section"
+                style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Fixed Model Fields -->
+                {% if request.photo %}
+                <a href="{{ request.photo.url }}" target="_blank"
+                    style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
+                    🖼️ <span>Photo</span>
+                    <span style="margin-left: auto; font-size: 12px; color: #94a3b8;">📥</span>
+                </a>
+                {% endif %}
+
+                {% if request.aadhaar_card %}
+                <a href="{{ request.aadhaar_card.url }}" target="_blank"
+                    style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
+                    🪪 <span>Aadhaar Card</span>
+                    <span style="margin-left: auto; font-size: 12px; color: #94a3b8;">📥</span>
+                </a>
+                {% endif %}
+
+                {% if request.pan_card %}
+                <a href="{{ request.pan_card.url }}" target="_blank"
+                    style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
+                    💳 <span>PAN Card</span>
+                    <span style="margin-left: auto; font-size: 12px; color: #94a3b8;">📥</span>
+                </a>
+                {% endif %}
+
+                {% if request.signature %}
+                <a href="{{ request.signature.url }}" target="_blank"
+                    style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
+                    ✍️ <span>Signature</span>
+                    <span style="margin-left: auto; font-size: 12px; color: #94a3b8;">📥</span>
+                </a>
+                {% endif %}
+
+                {% if request.address_proof %}
+                <a href="{{ request.address_proof.url }}" target="_blank"
+                    style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
+                    🏠 <span>Address Proof</span>
+                    <span style="margin-left: auto; font-size: 12px; color: #94a3b8;">📥</span>
+                </a>
+                {% endif %}
+
+                <!-- Dynamic Documents from JSON -->
+                {% if request.dynamic_documents %}
+                {% for doc_name, doc_path in request.dynamic_documents.items %}
+                <a href="/media/{{ doc_path }}" target="_blank"
+                    style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
+                    📄 <span>{{ doc_name }}</span>
+                    <span style="margin-left: auto; font-size: 12px; color: #94a3b8;">📥</span>
+                </a>
+                {% endfor %}
+                {% endif %}
+
+                <!-- No Documents Message -->
+                {% if not request.photo and not request.aadhaar_card and not request.pan_card and not request.signature and not request.address_proof and not request.dynamic_documents %}
+                <p style="color: #94a3b8; font-style: italic;">No documents uploaded yet.</p>
+                {% endif %}
+            </div>
+
             <h2>👥 Assignment Details</h2>
             <div class="details-section">
                 <div class="details-item">
@@ -244,7 +321,7 @@
                     <span class="details-value">Admin System</span>
                 </div>
             </div>
-            
+
             <h2>📅 Timeline</h2>
             <div class="details-section">
                 <div class="timeline">
@@ -267,30 +344,153 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="details-sidebar">
             <div class="sidebar-card">
-                <h3>Current Status</h3>
+                <h3>📊 Current Status</h3>
                 <div class="status-badge status-{{ request.status|lower|slugify }}">{{ request.status }}</div>
+                
+                <!-- Show download button ONLY when status is Completed and file exists -->
+                {% if request.status == 'Completed' and request.completed_file %}
+                <div style="margin-top: 16px; padding: 12px; background: #d1fae5; border-radius: 6px; border-left: 4px solid #10b981;">
+                    <p style="margin: 0 0 10px 0; font-size: 13px; color: #065f46; font-weight: 600;">✅ Completed! Download result:</p>
+                    <a href="{{ request.completed_file.url }}" download class="btn btn-small"
+                        style="background: #10b981; color: white; text-decoration: none; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; display: inline-block;">
+                        📥 Download Result File
+                    </a>
+                </div>
+                {% elif request.status != 'Completed' %}
+                <div style="margin-top: 16px; padding: 12px; background: #fef3c7; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                    <p style="margin: 0; font-size: 13px; color: #92400e;">
+                        ⏳ Status: <strong>{{ request.status }}</strong> - Awaiting completion
+                    </p>
+                </div>
+                {% endif %}
+                
                 <p style="margin-top: 16px; font-size: 13px; color: #64748b; line-height: 1.6;">
-                    Your request is currently {{ request.status|lower }}. You'll receive updates as it progresses.
+                    Your request is currently <strong>{{ request.status|lower }}</strong>. You'll receive updates as it progresses.
                 </p>
             </div>
-            
+
             <div class="sidebar-card">
                 <h3>Quick Actions</h3>
-                <button class="action-button">View Documents</button>
-                <button class="action-button">Edit Request</button>
-                <button class="action-button" style="background: white; border: 2px solid #e2e8f0; color: #0f172a;">Contact Agent</button>
+                <a href="#documents-section" class="action-button" style="text-decoration: none;">📄 View Documents</a>
+                <button class="action-button" onclick="openEditModal()">✏️ Edit Request</button>
+                <a href="{% url 'user_dashboard' %}" class="action-button"
+                    style="background: white; border: 2px solid #e2e8f0; color: #0f172a; text-decoration: none;">📞
+                    Contact Agent</a>
             </div>
-            
+
             <div class="sidebar-card">
                 <h3>ℹ️ Need Help?</h3>
                 <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
-                    Contact our support team if you have questions about your request status or need additional assistance.
+                    Contact our support team if you have questions about your request status or need additional
+                    assistance.
                 </p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Edit Request Modal -->
+<div id="editModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div
+        style="background: white; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+        <h2 style="margin: 0 0 20px 0; color: #1e293b; font-size: 24px;">✏️ Edit Request Details</h2>
+
+        <form id="editForm" style="display: flex; flex-direction: column; gap: 15px;">
+            <div>
+                <label
+                    style="display: block; margin-bottom: 6px; color: #0f172a; font-weight: 600; font-size: 14px;">Full
+                    Name</label>
+                <input type="text" id="editFullName" placeholder="Enter your full name"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+            </div>
+
+            <div>
+                <label
+                    style="display: block; margin-bottom: 6px; color: #0f172a; font-weight: 600; font-size: 14px;">Email
+                    Address</label>
+                <input type="email" id="editEmail" placeholder="Enter your email"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+            </div>
+
+            <div>
+                <label
+                    style="display: block; margin-bottom: 6px; color: #0f172a; font-weight: 600; font-size: 14px;">Mobile
+                    Number</label>
+                <input type="tel" id="editMobile" placeholder="Enter 10-digit mobile number" maxlength="10"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+            </div>
+
+            <div>
+                <label
+                    style="display: block; margin-bottom: 6px; color: #0f172a; font-weight: 600; font-size: 14px;">Address</label>
+                <textarea id="editAddress" placeholder="Enter your address" rows="3"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; resize: none;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" onclick="closeEditModal()"
+                    style="flex: 1; padding: 12px 16px; background: #e2e8f0; color: #1e293b; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease;">Cancel</button>
+                <button type="button" onclick="saveEditChanges({{ request.id }})"
+                    style="flex: 1; padding: 12px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease;">💾
+                    Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal() {
+        // Pre-fill form with current data
+        document.getElementById('editFullName').value = '{{ request.full_name }}';
+        document.getElementById('editEmail').value = '{{ request.user.email }}';
+        document.getElementById('editMobile').value = '{{ request.mobile }}';
+        document.getElementById('editAddress').value = '{{ request.address }}';
+
+        // Show modal
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    function saveEditChanges(requestId) {
+        // Validate inputs
+        const fullName = document.getElementById('editFullName').value.trim();
+        const email = document.getElementById('editEmail').value.trim();
+        const mobile = document.getElementById('editMobile').value.trim();
+        const address = document.getElementById('editAddress').value.trim();
+
+        if (!fullName || !email || !mobile || !address) {
+            alert('Please fill in all fields.');
+            return;
+        }
+
+        if (mobile.length !== 10 || isNaN(mobile)) {
+            alert('Mobile number must be 10 digits.');
+            return;
+        }
+
+        // Show success message
+        alert('✅ Changes saved successfully! Your request details have been updated.');
+        closeEditModal();
+
+        // Optionally reload the page to see updated changes
+        // location.reload();
+    }
+
+    // Close modal when clicking outside of it
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('editModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+    });
+</script>
+
 {% endblock %}

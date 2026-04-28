@@ -8,6 +8,23 @@
     <link rel="stylesheet" href="{% static 'services/css/style.css' %}">
     <style>
         .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        
+        .nav-count {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin-left: auto;
+            color: #64748b;
+        }
+        .active-link .nav-count { background: rgba(255, 255, 255, 0.2); color: white; }
+        
+        /* Topbar Styles */
+        .topbar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .topbar-title { margin: 0; font-size: 18px; color: #1e293b; font-weight: 700; }
+        .user-dropdown { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-review { background: #e0f2fe; color: #0369a1; }
         .status-progress { background: #e0e7ff; color: #3730a3; }
@@ -19,6 +36,29 @@
         .sidebar-menu li a { display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .sidebar-menu li a:hover { background: #3b82f6; color: white; }
         .active-link { background: #2563eb; color: white !important; }
+
+        /* RESPONSIVE MEDIA QUERIES */
+
+        /* PC View (Default) - handles widths > 1024px */
+
+        /* Tablet View (Tap View) */
+        @media (max-width: 1024px) {
+            .sidebar { width: 220px; }
+            .filter-bar { flex-wrap: wrap; }
+            .main-content { padding: 20px; }
+        }
+
+        /* Mobile View */
+        @media (max-width: 768px) {
+            .dashboard-container { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { padding: 10px; }
+            .topbar { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .filter-bar form { flex-direction: column !important; }
+            .filter-bar div { width: 100%; }
+            .table-wrapper { overflow-x: auto; }
+            .table-wrapper table { min-width: 600px; }
+        }
     </style>
 </head>
 <body>
@@ -26,10 +66,8 @@
     <aside class="sidebar">
         <div class="sidebar-header">✓ Agent2 Panel</div>
         <ul class="sidebar-menu">
-            <li><a href="{% url 'agent2_dashboard' %}" class="{% if not request.GET.status or request.GET.status == '' %}active-link{% endif %}">📑 All Assigned</a></li>
-            <li><a href="{% url 'agent2_dashboard' %}?status=Pending" class="{% if request.GET.status == 'Pending' %}active-link{% endif %}">🆕 New Requests</a></li>
-            <li><a href="{% url 'agent2_dashboard' %}?status=In+Progress" class="{% if request.GET.status == 'In Progress' %}active-link{% endif %}">⏳ In Progress</a></li>
-            <li><a href="{% url 'agent2_dashboard' %}?status=Completed" class="{% if request.GET.status == 'Completed' %}active-link{% endif %}">✅ Completed History</a></li>
+            <li><a href="{% url 'agent2_apply_details' %}" class="{% if request.resolver_match.url_name == 'agent2_apply_details' %}active-link{% endif %}">📋 Apply Details</a></li>
+            <li><a href="{% url 'agent2_complete_details' %}" class="{% if request.resolver_match.url_name == 'agent2_complete_details' %}active-link{% endif %}">✅ Complete Details</a></li>
             <li><a href="{% url 'agent2_service' %}" class="{% if request.resolver_match.url_name == 'agent2_service' %}active-link{% endif %}">🛠️ View Services</a></li>
             <li><a href="{% url 'agent2_upload' %}">📤 Upload Tools</a></li>
             <li><a href="{% url 'agent2_login' %}">🚪 Logout</a></li>
@@ -37,6 +75,7 @@
         <div class="user-info">
             <p>Logged in as:</p>
             <strong>{{ user.get_full_name }}</strong>
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
             <p style="margin-top: 12px; font-size: 12px;">{{ user.role }}</p>
         </div>
     </aside>
@@ -44,12 +83,19 @@
     <div class="main-content">
         <div class="topbar">
             <div class="topbar-left">
-                <h2 class="topbar-title">Review Queue</h2>
+                <h2 class="topbar-title">
+                    {% if request.resolver_match.url_name == 'agent2_dashboard' %}📑 All Assigned
+                    {% elif request.resolver_match.url_name == 'agent2_service' %}🛠️ Service Catalog
+                    {% elif request.resolver_match.url_name == 'agent2_upload' %}📤 Upload Tools
+                    {% elif request.resolver_match.url_name == 'agent2_request_detail' %}Application Review
+                    {% else %}Agent Portal{% endif %}
+                </h2>
             </div>
             <div class="topbar-right">
                 <div class="user-dropdown">
-                    <div class="user-avatar">{{ user.first_name|first }}</div>
+                    <div class="user-avatar">{{ user.username|first }}</div>
                     <span>{{ user.get_full_name }}</span>
+                    <span>{{ user.get_full_name|default:user.username }}</span>
                 </div>
             </div>
         </div>
@@ -57,7 +103,7 @@
         <div class="page-content">
             {% block content %}
             <div class="filter-bar" style="flex-direction: column; align-items: stretch; gap: 10px;">
-                <form method="GET" action="{% url 'agent2_dashboard' %}" style="display: flex; gap: 15px; width: 100%;">
+                <form method="GET" action="{% url 'agent2_dashboard' %}" style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
                     <div style="flex: 1;">
                         <label style="font-size: 11px; color: #64748b;">Filter Status</label>
                         <select name="status" onchange="this.form.submit()" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
@@ -65,6 +111,15 @@
                             <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
                             <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
                             <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 11px; color: #64748b;">Filter Category</label>
+                        <select name="category" onchange="this.form.submit()" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                            <option value="">All Categories</option>
+                            {% for p in pages %}
+                            <option value="{{ p.id }}" {% if category_filter == p.id|stringformat:"i" %}selected{% endif %}>{{ p.title }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div style="flex: 1;">
@@ -125,8 +180,9 @@
                                         {{ request.status }}
                                     </span>
                                 </td>
-                                <td style="padding: 12px; text-align: center;">
-                                    <a href="{% url 'agent2_request_detail' request.id %}" class="btn btn-primary btn-sm" style="background: #2563eb; color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 12px;">Review & Forward</a>
+                                <td style="padding: 12px; text-align: center; display: flex; gap: 5px; justify-content: center;">
+                                    <a href="{% url 'agent2_request_detail' request.id %}" class="btn" style="background: #2563eb; color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 11px; font-weight: 600;">🔍 Review</a>
+                                    <a href="{% url 'agent2_request_detail' request.id %}?edit=1" class="btn" style="background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 11px; font-weight: 600;">✏️ Edit</a>
                                 </td>
                             </tr>
                             {% empty %}
@@ -143,10 +199,6 @@
             {% endblock %}
         </div>
     </div>
-</div>
-</body>
-</html>
-    </main>
 </div>
 </body>
 </html>

@@ -110,4 +110,23 @@
     </div>
     {% endfor %}
 </div>
+
+<style>
+    /* PC View is default (> 1024px) */
+
+    /* Tablet / Tap View (769px to 1024px) */
+    @media (max-width: 1024px) {
+        .services-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Mobile View (up to 768px) */
+    @media (max-width: 768px) {
+        .agent2-service-hero { padding: 30px 15px; }
+        .agent2-service-hero h1 { font-size: 24px; }
+        .filter-bar form { flex-direction: column !important; }
+        .filter-bar div { width: 100% !important; }
+        .services-grid { grid-template-columns: 1fr; }
+        .service-card { margin-bottom: 10px; }
+    }
+</style>
 {% endblock %}

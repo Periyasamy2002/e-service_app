@@ -22,7 +22,7 @@
     </div>
 
     <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
-        <form method="get" action="{% url 'view_custom_page' page.id %}" style="display: flex; gap: 10px; width: 100%;">
+        <form method="get" action="{% url 'view_custom_page' page.id %}" class="responsive-search-form" style="display: flex; gap: 10px; width: 100%;">
             <input type="text" name="search_services" placeholder="Search services by name or description..."
                    value="{{ search_query_services|default:'' }}"
                    style="flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
@@ -78,4 +78,14 @@
     <p style="color: #64748b; font-style: italic;">No services have been assigned to this page yet.</p>
     {% endif %}
 </div>
+
+<style>
+    @media (max-width: 768px) {
+        .responsive-search-form {
+            flex-direction: column;
+        }
+        .responsive-search-form input { width: 100%; }
+        .responsive-search-form button, .responsive-search-form a { width: 100%; text-align: center; }
+    }
+</style>
 {% endblock %}

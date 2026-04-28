@@ -1,11 +1,17 @@
+import zipfile
+import io
+import os
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import Http404, HttpResponse
+from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.db.models import Q
 from functools import wraps
+from .forms import ServiceRequestForm
 from .models import User, Service, ServiceRequest, Page
 
 def role_required(allowed_roles):
@@ -47,10 +53,6 @@ def about(request):
 
 def contact(request):
     return render(request, 'contact.html')
-
-def services(request):
-    services = Service.objects.all()
-    return render(request, 'service.html', {'services': services})
 
 def user_login(request):
     if request.method == 'POST':
@@ -183,7 +185,7 @@ def view_custom_page(request, page_id):
 def apply_details(request):
     all_requests = ServiceRequest.objects.all().order_by('-created_at')
     pages = Page.objects.all()
-    agents = User.objects.filter(role='AGENT1')
+    agents = User.objects.filter(role__in=['AGENT1', 'AGENT2'])
 
     # Choose template based on user role to maintain UI consistency
     template_name = 'admin-site/apply_details.html'
@@ -363,7 +365,7 @@ def assign_request(request, request_id):
     if request.method == 'POST':
         agent_id = request.POST.get('agent_id')
         if agent_id:
-            agent = get_object_or_404(User, id=agent_id, role='AGENT1')
+            agent = get_object_or_404(User, id=agent_id, role__in=['AGENT1', 'AGENT2'])
             service_request.assigned_to = agent
             service_request.status = 'Under Review'
             service_request.save()
@@ -385,50 +387,150 @@ def user_dashboard(request):
 @login_required
 @role_required(['USER'])
 def user_request_detail(request, request_id):
+    """Display user's service request details with download option for completed file"""
     service_request = get_object_or_404(ServiceRequest, id=request_id, user=request.user)
     return render(request, 'details.html', {'request': service_request})
 
 @login_required
 @role_required(['USER'])
 def apply_service(request, service_id):
+    """User apply for a service with dynamic document uploads."""
     service = get_object_or_404(Service, id=service_id)
+    
     if request.method == 'POST':
-        full_name = request.POST.get('full_name')
-        dob = request.POST.get('dob')
-        email = request.POST.get('email')
-        address = request.POST.get('address')
-        mobile = request.POST.get('mobile')
-        aadhaar = request.POST.get('aadhaar')
-        description = request.POST.get('description', '')
-        photo = request.FILES.get('photo')
-        aadhaar_card = request.FILES.get('aadhaar_card')
-        pan_card = request.FILES.get('pan_card')
-        signature = request.FILES.get('signature')
-        address_proof = request.FILES.get('address_proof')
-
-        if not (full_name and dob and email and mobile and aadhaar):
-            messages.error(request, 'Please fill in all required fields.')
+        # ========== DEBUG ==========
+        print("=" * 50)
+        print("DEBUG: === USER APPLY SERVICE SUBMISSION ===")
+        print(f"DEBUG: All POST keys: {list(request.POST.keys())}")
+        print(f"DEBUG: All FILES keys: {list(request.FILES.keys())}")
+        print("=" * 50)
+        
+        errors = []
+        
+        # Validate required text fields
+        full_name = request.POST.get('full_name', '').strip()
+        dob = request.POST.get('dob', '').strip()
+        email = request.POST.get('email', '').strip()
+        mobile = request.POST.get('mobile', '').strip()
+        aadhaar_number = request.POST.get('aadhaar_number', '').strip()
+        address = request.POST.get('address', '').strip()
+        
+        if not full_name:
+            errors.append('Full Name is required')
+        if not dob:
+            errors.append('Date of Birth is required')
+        if not email:
+            errors.append('Email is required')
+        if not mobile or len(mobile) != 10 or not mobile.isdigit():
+            errors.append('Mobile must be 10 digits')
+        if not aadhaar_number or len(aadhaar_number.replace(' ', '')) != 12:
+            errors.append('Aadhaar number must be 12 digits')
+        if not address:
+            errors.append('Address is required')
+        
+        # ========== KEY STEP: Get selected documents from checkbox ==========
+        doc_selected = request.POST.getlist('doc_selected')
+        print(f"DEBUG: Selected documents (from checkbox): {doc_selected}")
+        
+        if not doc_selected:
+            errors.append('Please select at least one document')
+        
+        # Verify each selected document has an uploaded file
+        uploaded_files = []
+        for doc_id in doc_selected:
+            file_obj = request.FILES.get(doc_id)
+            if file_obj:
+                uploaded_files.append((doc_id, file_obj))
+                print(f"DEBUG: File found for '{doc_id}': {file_obj.name}")
+            else:
+                errors.append(f'Please upload file for: {doc_id}')
+        
+        if errors:
+            for error in errors:
+                messages.error(request, error)
             return render(request, 'user-site/apply.html', {'service': service})
-
-        ServiceRequest.objects.create(
-            user=request.user,
-            service=service,
-            full_name=full_name,
-            dob=dob,
-            email=email,
-            address=address,
-            mobile=mobile,
-            aadhaar_number=aadhaar,
-            photo=photo,
-            aadhaar_card=aadhaar_card,
-            pan_card=pan_card,
-            signature=signature,
-            address_proof=address_proof,
-            description=description
-        )
-        messages.success(request, 'Your request has been submitted and is under review.')
-        return redirect('user_dashboard')
-
+        
+        # ========== Save ServiceRequest ==========
+        try:
+            service_request = ServiceRequest()
+            service_request.user = request.user
+            service_request.service = service
+            service_request.full_name = full_name
+            service_request.dob = dob
+            service_request.email = email
+            service_request.mobile = mobile
+            service_request.aadhaar_number = aadhaar_number.replace(' ', '')
+            service_request.address = address
+            service_request.description = request.POST.get('description', '')
+            service_request.status = 'Pending'
+            
+            service_request.save()
+            print(f"DEBUG: Request saved with ID: {service_request.id}")
+            
+            # ========== Save STANDARD document fields ==========
+            # Map all possible slugified document names to model fields
+            standard_fields_map = {
+                'photo': 'photo',
+                'photograph': 'photo',
+                'aadhaar': 'aadhaar_card',
+                'aadhaar_card': 'aadhaar_card',
+                'aadhaar_number': 'aadhaar_card',
+                'pan': 'pan_card',
+                'pan_card': 'pan_card',
+                'pan_number': 'pan_card',
+                'signature': 'signature',
+                'address': 'address_proof',
+                'address_proof': 'address_proof',
+                'residence_proof': 'address_proof',
+            }
+            
+            # Save standard fields based on what's in request.FILES
+            for form_name, model_field in standard_fields_map.items():
+                file_obj = request.FILES.get(form_name)
+                if file_obj:
+                    setattr(service_request, model_field, file_obj)
+                    print(f"DEBUG: Saved standard field {model_field}: {file_obj.name}")
+            
+            service_request.save()
+            
+            # ========== Save DYNAMIC documents to JSONField ==========
+            dynamic_docs = {}
+            
+            for doc_id, file_obj in uploaded_files:
+                # Create unique filename to avoid conflicts
+                import os
+                from django.utils import timezone
+                timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+                original_name = file_obj.name
+                ext = os.path.splitext(original_name)[1]
+                new_filename = f"{doc_id}_{timestamp}{ext}"
+                
+                # Save to media directory
+                doc_folder = f'requests/dynamic/{service_request.id}/'
+                file_path = f'{doc_folder}{new_filename}'
+                saved_path = default_storage.save(file_path, file_obj)
+                
+                # Store in dynamic_documents JSON
+                dynamic_docs[doc_id] = saved_path
+                print(f"DEBUG: Saved dynamic doc '{doc_id}' -> {saved_path}")
+            
+            # Update with dynamic documents
+            service_request.dynamic_documents = dynamic_docs
+            service_request.save()
+            
+            print(f"DEBUG: ✅ Success! Request #{service_request.id}")
+            print(f"DEBUG: Dynamic documents saved: {dynamic_docs}")
+            print("=" * 50)
+            
+            messages.success(request, f'Application for {service.name} submitted successfully!')
+            return redirect('user_dashboard')
+            
+        except Exception as e:
+            print(f"ERROR: Exception during save: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f'Error: {str(e)}')
+    
     return render(request, 'user-site/apply.html', {'service': service})
 
 # Agent2 Views
@@ -450,20 +552,30 @@ def services(request):
 
     return render(request, 'service.html', {'services': all_services, 'pages': pages, 'search_query_services': search_query, 'page_filter_id': page_filter_id})
 
+def get_agent2_sidebar_counts(user):
+    """Helper to get task counts for the Agent2 sidebar."""
+    agent_base = ServiceRequest.objects.filter(user=user)
+    return {
+        'all': agent_base.count(),
+        'pending': agent_base.filter(status='Pending').count(),
+        'in_progress': agent_base.filter(status='In Progress').count(),
+        'completed': agent_base.filter(status='Completed').count(),
+    }
+
 @login_required
 @role_required(['AGENT2'])
 def agent2_dashboard(request):
     """
     Agent2 main dashboard with status, service, and search filtering.
     """
-    all_assigned = ServiceRequest.objects.filter(
-        assigned_to=request.user
-    ).order_by('-created_at')
+    agent_base = ServiceRequest.objects.filter(user=request.user)
+    all_assigned = agent_base.order_by('-created_at')
 
     # Filters
     status_filter = request.GET.get('status')
     service_filter = request.GET.get('service')
     search_query = request.GET.get('search')
+    category_filter = request.GET.get('category')
 
     if search_query:
         all_assigned = all_assigned.filter(
@@ -476,6 +588,8 @@ def agent2_dashboard(request):
         all_assigned = all_assigned.filter(status=status_filter)
     if service_filter:
         all_assigned = all_assigned.filter(service_id=service_filter)
+    if category_filter:
+        all_assigned = all_assigned.filter(service__page_id=category_filter)
 
     pages = Page.objects.all()
     available_services = Service.objects.all()
@@ -486,7 +600,9 @@ def agent2_dashboard(request):
         'services': available_services,
         'status_filter': status_filter,
         'service_filter': service_filter,
+        'category_filter': category_filter,
         'search_query': search_query,
+        'sidebar_counts': get_agent2_sidebar_counts(request.user),
     }
     return render(request, 'agent2-site/base-agent2.html', context)
 
@@ -512,12 +628,28 @@ def agent2_completed(request):
 @role_required(['AGENT2'])
 def agent2_request_detail(request, request_id):
     """Agent2 detail view. Uses 'req' to avoid shadowing the request object."""
-    service_request = get_object_or_404(ServiceRequest, id=request_id, assigned_to=request.user)
+    # Only allow access to the current user's own submitted requests
+    service_request = get_object_or_404(ServiceRequest, id=request_id, user=request.user)
+    
+    if request.method == 'POST' and 'edit_details' in request.POST:
+        # Handle inline edit from Agent 2
+        service_request.full_name = request.POST.get('full_name', service_request.full_name)
+        service_request.dob = request.POST.get('dob', service_request.dob)
+        service_request.mobile = request.POST.get('mobile', service_request.mobile)
+        service_request.email = request.POST.get('email', service_request.email)
+        service_request.aadhaar_number = request.POST.get('aadhaar_number', service_request.aadhaar_number)
+        service_request.address = request.POST.get('address', service_request.address)
+        service_request.save()
+        messages.success(request, "Application details updated successfully.")
+        return redirect('agent2_request_detail', request_id=request_id)
+
     pages = Page.objects.all()
     
     context = {
         'req': service_request,
         'pages': pages,
+        'edit_mode': request.GET.get('edit') == '1',
+        'sidebar_counts': get_agent2_sidebar_counts(request.user),
     }
     return render(request, 'agent2-site/agent2_tasks.html', context)
 
@@ -543,51 +675,148 @@ def agent2_service(request):
         'pages': pages,
         'search_query_services': search_query,
         'page_filter_id': page_filter_id,
+        'sidebar_counts': get_agent2_sidebar_counts(request.user),
     }
     return render(request, 'agent2-site/service.html', context)
 
 @login_required
 @role_required(['AGENT2'])
 def agent2_apply(request, service_id):
-    """Agent2 view to apply for a service, using the agent2-specific apply template."""
+    """Agent2 view to apply for a service with dynamic document uploads."""
     service = get_object_or_404(Service, id=service_id)
     if request.method == 'POST':
-        full_name = request.POST.get('full_name')
-        dob = request.POST.get('dob')
-        email = request.POST.get('email')
-        address = request.POST.get('address')
-        mobile = request.POST.get('mobile')
-        aadhaar = request.POST.get('aadhaar')
-        description = request.POST.get('description', '')
+        # ========== DEBUG ==========
+        print("=" * 50)
+        print("DEBUG: === AGENT2 APPLY SUBMISSION ===")
+        print(f"DEBUG: All POST keys: {list(request.POST.keys())}")
+        print(f"DEBUG: All FILES keys: {list(request.FILES.keys())}")
+        print("=" * 50)
         
-        photo = request.FILES.get('photo')
-        aadhaar_card = request.FILES.get('aadhaar_card')
-        pan_card = request.FILES.get('pan_card')
-        signature = request.FILES.get('signature')
-        address_proof = request.FILES.get('address_proof')
-
-        if not (full_name and dob and email and mobile and aadhaar):
-            messages.error(request, 'Please fill in all required fields.')
+        errors = []
+        
+        # Validate required text fields
+        full_name = request.POST.get('full_name', '').strip()
+        dob = request.POST.get('dob', '').strip()
+        email = request.POST.get('email', '').strip()
+        mobile = request.POST.get('mobile', '').strip()
+        aadhaar_number = request.POST.get('aadhaar_number', '').strip()
+        address = request.POST.get('address', '').strip()
+        
+        if not full_name:
+            errors.append('Full Name is required')
+        if not dob:
+            errors.append('Date of Birth is required')
+        if not email:
+            errors.append('Email is required')
+        if not mobile or len(mobile) != 10 or not mobile.isdigit():
+            errors.append('Mobile must be 10 digits')
+        if not aadhaar_number or len(aadhaar_number.replace(' ', '')) != 12:
+            errors.append('Aadhaar number must be 12 digits')
+        if not address:
+            errors.append('Address is required')
+        
+        # ========== KEY STEP: Get selected documents from checkbox ==========
+        doc_selected = request.POST.getlist('doc_selected')
+        print(f"DEBUG: Selected documents (from checkbox): {doc_selected}")
+        
+        if not doc_selected:
+            errors.append('Please select at least one document')
+        
+        # Verify each selected document has an uploaded file
+        uploaded_files = []
+        for doc_id in doc_selected:
+            file_obj = request.FILES.get(doc_id)
+            if file_obj:
+                uploaded_files.append((doc_id, file_obj))
+                print(f"DEBUG: File found for '{doc_id}': {file_obj.name}")
+            else:
+                errors.append(f'Please upload file for: {doc_id}')
+        
+        if errors:
+            for error in errors:
+                messages.error(request, error)
             return render(request, 'agent2-site/apply.html', {'service': service})
-
-        ServiceRequest.objects.create(
-            user=request.user,
-            service=service,
-            full_name=full_name,
-            dob=dob,
-            email=email,
-            address=address,
-            mobile=mobile,
-            aadhaar_number=aadhaar,
-            photo=photo,
-            aadhaar_card=aadhaar_card,
-            pan_card=pan_card,
-            signature=signature,
-            address_proof=address_proof,
-            description=description
-        )
-        messages.success(request, 'Application submitted successfully.')
-        return redirect('agent2_dashboard')
+        
+        # ========== Save ServiceRequest ==========
+        try:
+            service_request = ServiceRequest()
+            service_request.user = request.user
+            service_request.service = service
+            service_request.full_name = full_name
+            service_request.dob = dob
+            service_request.email = email
+            service_request.mobile = mobile
+            service_request.aadhaar_number = aadhaar_number.replace(' ', '')
+            service_request.address = address
+            service_request.description = request.POST.get('description', '')
+            service_request.status = 'Pending'
+            
+            service_request.save()
+            print(f"DEBUG: Request saved with ID: {service_request.id}")
+            
+            # ========== Save STANDARD document fields ==========
+            # Map all possible slugified document names to model fields
+            standard_fields_map = {
+                'photo': 'photo',
+                'photograph': 'photo',
+                'aadhaar': 'aadhaar_card',
+                'aadhaar_card': 'aadhaar_card',
+                'aadhaar_number': 'aadhaar_card',
+                'pan': 'pan_card',
+                'pan_card': 'pan_card',
+                'pan_number': 'pan_card',
+                'signature': 'signature',
+                'address': 'address_proof',
+                'address_proof': 'address_proof',
+                'residence_proof': 'address_proof',
+            }
+            
+            # Save standard fields based on what's in request.FILES
+            for form_name, model_field in standard_fields_map.items():
+                file_obj = request.FILES.get(form_name)
+                if file_obj:
+                    setattr(service_request, model_field, file_obj)
+                    print(f"DEBUG: Saved standard field {model_field}: {file_obj.name}")
+            
+            service_request.save()
+            
+            # ========== Save DYNAMIC documents to JSONField ==========
+            dynamic_docs = {}
+            
+            for doc_id, file_obj in uploaded_files:
+                # Create unique filename to avoid conflicts
+                import os
+                from django.utils import timezone
+                timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+                original_name = file_obj.name
+                ext = os.path.splitext(original_name)[1]
+                new_filename = f"{doc_id}_{timestamp}{ext}"
+                
+                # Save to media directory
+                doc_folder = f'requests/dynamic/{service_request.id}/'
+                file_path = f'{doc_folder}{new_filename}'
+                saved_path = default_storage.save(file_path, file_obj)
+                
+                # Store in dynamic_documents JSON
+                dynamic_docs[doc_id] = saved_path
+                print(f"DEBUG: Saved dynamic doc '{doc_id}' -> {saved_path}")
+            
+            # Update with dynamic documents
+            service_request.dynamic_documents = dynamic_docs
+            service_request.save()
+            
+            print(f"DEBUG: ✅ Success! Request #{service_request.id}")
+            print(f"DEBUG: Dynamic documents saved: {dynamic_docs}")
+            print("=" * 50)
+            
+            messages.success(request, f'Application for {service.name} submitted successfully!')
+            return redirect('agent2_dashboard')
+            
+        except Exception as e:
+            print(f"ERROR: Exception during save: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f'Error: {str(e)}')
 
     return render(request, 'agent2-site/apply.html', {'service': service})
 
@@ -595,7 +824,9 @@ def agent2_apply(request, service_id):
 @role_required(['AGENT2'])
 def agent2_forward(request, request_id):
     """Agent2 forwards request to Agent1"""
-    service_request = get_object_or_404(ServiceRequest, id=request_id, assigned_to=request.user)
+    # Ensure they can only forward their own request
+    service_request = get_object_or_404(ServiceRequest, id=request_id, user=request.user)
+
     agent1 = User.objects.filter(role='AGENT1').first()
     
     if agent1:
@@ -616,8 +847,140 @@ def agent2_upload(request):
     
     context = {
         'pages': pages,
+        'sidebar_counts': get_agent2_sidebar_counts(request.user),
     }
     return render(request, 'agent2-site/agent2_upload.html', context)
+
+@login_required
+@role_required(['AGENT2'])
+def agent2_apply_details(request):
+    """
+    Agent2 Apply Details - Shows ONLY the logged-in user's applications.
+    
+    CRITICAL: Only display requests where user = request.user
+    """
+    
+    # ===== HANDLE POST (SAVE EDIT) =====
+    if request.method == 'POST':
+        req_id = request.POST.get('request_id')
+        # SECURITY: Double-check user=request.user to prevent editing other users' data
+        service_request = get_object_or_404(
+            ServiceRequest, 
+            id=req_id, 
+            user=request.user  # ✅ Only allow editing own requests
+        )
+
+        service_request.full_name = request.POST.get('full_name')
+        service_request.mobile = request.POST.get('mobile')
+        service_request.aadhaar_number = request.POST.get('aadhaar_number')
+        service_request.email = request.POST.get('email')
+        service_request.status = request.POST.get('status')
+        service_request.remarks = request.POST.get('remarks')
+
+        service_request.save()
+
+        messages.success(request, "✅ Details updated successfully!")
+        return redirect('agent2_apply_details')
+
+
+    # ===== GET REQUEST - FETCH AND FILTER DATA =====
+    # 🔥 START WITH ONLY THE LOGGED-IN USER'S REQUESTS
+    user_requests = ServiceRequest.objects.filter(user=request.user).order_by('-created_at')
+    
+    pages = Page.objects.all()
+    available_services = Service.objects.all()
+
+    # Get filter parameters from GET request
+    status_filter = request.GET.get('status')
+    service_filter = request.GET.get('service')
+    search_query = request.GET.get('search')
+    category_filter = request.GET.get('category')
+
+    # ===== APPLY FILTERS (Always starting from user-filtered queryset) =====
+    filtered_requests = user_requests  # Start with user-filtered base
+    
+    # Search filter
+    if search_query:
+        filtered_requests = filtered_requests.filter(
+            Q(full_name__icontains=search_query) | 
+            Q(aadhaar_number__icontains=search_query) |
+            Q(mobile__icontains=search_query)
+        )
+
+    # Status filter - default to pending/in-progress/under-review if not specified
+    if status_filter:
+        filtered_requests = filtered_requests.filter(status=status_filter)
+    else:
+        filtered_requests = filtered_requests.filter(
+            status__in=['Pending', 'In Progress', 'Under Review']
+        )
+
+    # Service filter
+    if service_filter:
+        filtered_requests = filtered_requests.filter(service_id=service_filter)
+    
+    # Category/Page filter
+    if category_filter:
+        filtered_requests = filtered_requests.filter(service__page_id=category_filter)
+
+    context = {
+        'requests': filtered_requests,  # ✅ Only logged-in user's filtered requests
+        'pages': pages,
+        'services': available_services,
+        'status_filter': status_filter,
+        'service_filter': service_filter,
+        'category_filter': category_filter,
+        'search_query': search_query,
+        'sidebar_counts': get_agent2_sidebar_counts(request.user),
+    }
+
+    return render(request, 'agent2-site/agent2_apply_details.html', context)
+
+@login_required
+@role_required(['AGENT2'])
+def agent2_complete_details(request):
+    """
+    Agent2 Complete Details - Shows all completed applications.
+    """
+    all_requests = ServiceRequest.objects.filter(
+        user=request.user, 
+        status='Completed'
+    ).order_by('-created_at')
+    pages = Page.objects.all()
+    available_services = Service.objects.all()
+    
+    # Filters
+    service_filter = request.GET.get('service')
+    search_query = request.GET.get('search')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+
+    if search_query:
+        all_requests = all_requests.filter(
+            Q(full_name__icontains=search_query) | 
+            Q(aadhaar_number__icontains=search_query) |
+            Q(mobile__icontains=search_query)
+        )
+
+    if service_filter:
+        all_requests = all_requests.filter(service_id=service_filter)
+    
+    if date_from:
+        all_requests = all_requests.filter(created_at__date__gte=date_from)
+    if date_to:
+        all_requests = all_requests.filter(created_at__date__lte=date_to)
+
+    context = {
+        'requests': all_requests,
+        'pages': pages,
+        'services': available_services,
+        'service_filter': service_filter,
+        'search_query': search_query,
+        'date_from': date_from,
+        'date_to': date_to,
+        'sidebar_counts': get_agent2_sidebar_counts(request.user),
+    }
+    return render(request, 'agent2-site/agent2_complete_details.html', context)
 
 def agent2_login(request):
     """Agent2 login page"""
@@ -889,3 +1252,39 @@ def agent1_login(request):
             messages.error(request, 'Invalid username or password.')
 
     return render(request, 'agent1-site/agent1-login.html')
+
+@login_required
+@role_required(['ADMIN', 'AGENT1', 'AGENT2'])
+def download_all_docs(request, req_id):
+    """Packages all uploaded documents for a request into a ZIP file."""
+    req = get_object_or_404(ServiceRequest, id=req_id)
+    
+    # Create an in-memory ZIP file
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, 'w') as zip_file:
+        # 1. Add Fixed Model Fields (Standard Documents)
+        fields = [req.photo, req.aadhaar_card, req.pan_card, req.signature, req.address_proof]
+        
+        for field in fields:
+            if field: # Checks if a file is actually assigned
+                try:
+                    if os.path.exists(field.path):
+                        zip_file.write(field.path, arcname=os.path.basename(field.path))
+                except (ValueError, FileNotFoundError):
+                    continue
+
+        # 2. Add Dynamic Documents from JSON field
+        if req.dynamic_documents:
+            for doc_name, doc_path in req.dynamic_documents.items():
+                full_path = os.path.join(settings.MEDIA_ROOT, doc_path)
+                if os.path.exists(full_path):
+                    # Maintain extension but use doc_name for clarity inside the ZIP
+                    ext = os.path.splitext(doc_path)[1]
+                    zip_file.write(full_path, arcname=f"{doc_name}{ext}")
+
+    # Prepare the response
+    response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+    safe_name = req.full_name.replace(' ', '_') if req.full_name else 'Applicant'
+    zip_name = f"Documents_{safe_name}_{req.id}.zip"
+    response['Content-Disposition'] = f'attachment; filename="{zip_name}"'
+    return response

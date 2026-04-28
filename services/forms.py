@@ -17,4 +17,23 @@ class ServiceForm(forms.ModelForm):
 class ServiceRequestForm(forms.ModelForm):
     class Meta:
         model = ServiceRequest
-        fields = ['service', 'description']
+        fields = [
+            'full_name', 'dob', 'email', 'address', 'mobile', 
+            'aadhaar_number', 'photo', 'aadhaar_card', 'pan_card', 
+            'signature', 'address_proof', 'description'
+        ]
+
+    def clean_mobile(self):
+        mobile = self.cleaned_data.get('mobile')
+        if mobile and (not mobile.isdigit() or len(mobile) != 10):
+            raise forms.ValidationError("Mobile number must be 10 digits.")
+        return mobile
+
+    def clean_aadhaar_number(self):
+        aadhaar = self.cleaned_data.get('aadhaar_number')
+        if aadhaar:
+            # Remove spaces and validate length
+            aadhaar = aadhaar.replace(' ', '')
+            if not aadhaar.isdigit() or len(aadhaar) != 12:
+                raise forms.ValidationError("Aadhaar number must be 12 digits.")
+        return aadhaar

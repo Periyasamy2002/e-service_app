@@ -1,7 +1,7 @@
 {% extends 'admin-site/admin_base.html' %}
 
 {% block content %}
-<div class="card" style="max-width: 600px; margin: 0 auto;">
+<div class="card responsive-card" style="max-width: 600px; margin: 0 auto;">
     <h2>Update Request #{{ req.id }}</h2>
     <p style="color: #64748b; margin-bottom: 25px;">Update status or upload final result for {{ req.service.name }}.</p>
 
@@ -29,7 +29,9 @@
             <input type="file" name="completed_file" style="padding: 10px; border: 1px dashed #cbd5e1; width: 100%;">
             {% if req.completed_file %}
                 <div style="margin-top: 10px; font-size: 13px;">
-                    Current File: <a href="{{ req.completed_file.url }}" target="_blank">View existing result</a>
+                    <a href="{{ req.completed_file.url }}" download class="btn btn-small" style="background: #10b981; text-decoration: none; margin-top: 5px;">
+                        ⬇️ Download Completed File
+                    </a>
                 </div>
             {% endif %}
         </div>
@@ -40,4 +42,10 @@
         </div>
     </form>
 </div>
+
+<style>
+    @media (max-width: 768px) {
+        .responsive-card { max-width: 100% !important; padding: 20px !important; }
+    }
+</style>
 {% endblock %}
