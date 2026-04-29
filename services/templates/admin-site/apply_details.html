@@ -12,12 +12,12 @@
         letter-spacing: 0.5px;
         border: 1px solid transparent;
     }
-    .status-pending { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
-    .status-under-review { background: #eff6ff; color: #2563eb; border-color: #dbeafe; }
-    .status-in-progress { background: #fff7ed; color: #ea580c; border-color: #ffedd5; }
-    .status-approved { background: #f0fdf4; color: #16a34a; border-color: #dcfce7; }
-    .status-rejected { background: #fef2f2; color: #dc2626; border-color: #fee2e2; }
-    .status-completed { background: #0f172a; color: #ffffff; }
+    .status-pending { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .status-under-review { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+    .status-in-progress { background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+    .status-approved { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    .status-rejected { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+    .status-completed { background: #f0fdf4; color: #166534; border-color: #dcfce7; }
 
     .admin-table-row:hover {
         background-color: #fcfcfc;
@@ -41,100 +41,201 @@
 </style>
 
 <div class="card">
-    <h2 style="font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px;">
-        📊 Application Management
-    </h2>
-    <p style="color: #64748b; margin-bottom: 25px;">Review user applications and track submission data.</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h2 style="margin: 0; color: #1e293b;">
+            {% if filter_type == 'assigned' %}👥 Assigned Requests
+            {% elif filter_type == 'unassigned' %}📤 Unassigned Requests
+            {% elif filter_type == 'completed' %}✅ Completed Requests
+            {% elif filter_type == 'pending' %}⏸️ Pending Requests
+            {% else %}📊 All Applications
+            {% endif %}
+        </h2>
+        <span style="background: #eff6ff; color: #2563eb; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; border: 1px solid #dbeafe;">
+            Total: {{ requests.count }}
+        </span>
+    </div>
+
+    <!-- FILTERS SECTION -->
+    <div style="background: #f8fafc; border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+        <form method="GET" action="{% url 'apply_details' %}" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: flex-end;">
+            <input type="hidden" name="filter_type" value="{{ filter_type }}">
+            <div>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Search (Name, Mobile, Aadhaar)</label>
+                <input type="text" name="search" placeholder="Search..." value="{{ search_query|default:'' }}" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Status</label>
+                <select name="status" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
+                    <option value="">All Statuses</option>
+                    <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Under Review" {% if status_filter == 'Under Review' %}selected{% endif %}>Under Review</option>
+                    <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Service</label>
+                <select name="service" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
+                    <option value="">All Services</option>
+                    {% for s in services %}
+                    <option value="{{ s.id }}" {% if service_filter == s.id|stringformat:"i" %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Agent</label>
+                <select name="agent" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
+                    <option value="">All Agents</option>
+                    {% for agent in agents %}
+                    <option value="{{ agent.id }}" {% if agent_filter == agent.id|stringformat:"i" %}selected{% endif %}>{{ agent.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" style="padding: 8px 15px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">🔍 Apply</button>
+            </div>
+        </form>
+        <div style="margin-top: 10px;">
+            <a href="{% url 'apply_details' %}?filter_type={{ filter_type }}" style="font-size: 0.8rem; color: #0369a1; text-decoration: none; font-weight: 600;">✕ Clear Filters</a>
+        </div>
+    </div>
 
     <div class="table-wrapper">
-        <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 1100px;">
             <thead>
-                <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
-                    <th style="padding: 15px;">Applicant</th>
-                    <th style="padding: 15px;">Service</th>
-                    <th style="padding: 15px;">Mobile</th>
-                    <th style="padding: 15px;">Aadhaar</th>
-                    <th style="padding: 15px;">Status</th>
-                    <th style="padding: 15px;">Documents</th>
-                    <th style="padding: 15px;">Final Result</th>
-                    <th style="padding: 15px;">Action</th>
+                <tr style="text-align: left; background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">ID</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Applicant</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Service</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Mobile</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Status</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Assigned Agent</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Documents</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for req in requests %}
                 <tr style="border-bottom: 1px solid #f1f5f9;" class="admin-table-row">
+                    <td style="padding: 15px; font-weight: 700; color: #334155;">#{{ req.id }}</td>
                     <td style="padding: 15px;">
                         <div style="font-weight: 600;">{{ req.full_name }}</div>
-                        <div style="font-size: 12px; color: #64748b;">User: {{ req.user.username }}</div>
+                        <div style="font-size: 12px; color: #64748b;">👤 {{ req.user.username }}</div>
                     </td>
-                    <td style="padding: 15px;">{{ req.service.name }}</td>
-                    <td style="padding: 15px;">{{ req.mobile }}</td>
-                    <td style="padding: 15px;">{{ req.aadhaar_number }}</td>
+                    <td style="padding: 15px; font-weight: 500;">{{ req.service.name }}</td>
+                    <td style="padding: 15px; color: #64748b;">{{ req.mobile }}</td>
                     <td style="padding: 15px;">
-                        <form method="post" action="{% url 'update_request_status' req.id %}" style="display: flex; flex-direction: column; gap: 5px;">
-                            {% csrf_token %}
-                            <select name="status" onchange="this.form.submit()" style="padding: 6px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: #ffffff; cursor: pointer; width: 140px; font-weight: 600;">
-                                <option value="Pending" {% if req.status == 'Pending' %}selected{% endif %}>Pending</option>
-                                <option value="Under Review" {% if req.status == 'Under Review' %}selected{% endif %}>🔵 Under Review</option>
-                                <option value="In Progress" {% if req.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                                <option value="Approved" {% if req.status == 'Approved' %}selected{% endif %}>🟢 Approved</option>
-                                <option value="Rejected" {% if req.status == 'Rejected' %}selected{% endif %}>🔴 Rejected</option>
-                                <option value="Completed" {% if req.status == 'Completed' %}selected{% endif %}>Completed</option>
-                            </select>
-                            <span class="status-badge status-{{ req.status|lower|slugify }}" style="width: fit-content;">{{ req.status }}</span>
-                        </form>
+                        <span class="status-badge status-{{ req.status|lower|slugify }}">{{ req.status }}</span>
                     </td>
                     <td style="padding: 15px;">
-                        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 12px;">
+                        {% if req.assigned_to %}
+                            <span style="display: inline-block; padding: 4px 8px; background: #e0e7ff; color: #3730a3; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                                {{ req.assigned_to.username }} ({{ req.assigned_to.role }})
+                            </span>
+                        {% else %}
+                            <span style="color: #94a3b8; font-size: 0.9rem;">❌ Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px;">
+                        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;">
                             <!-- Fixed Model Fields -->
                             {% if req.photo %}<a href="{{ req.photo.url }}" target="_blank" class="doc-link">🖼️ Photo</a>{% endif %}
-                            {% if req.aadhaar_card %}<a href="{{ req.aadhaar_card.url }}" target="_blank" class="doc-link">🪪 Aadhaar Card</a>{% endif %}
-                            {% if req.signature %}<a href="{{ req.signature.url }}" target="_blank" class="doc-link">✍️ Signature</a>{% endif %}
-                            {% if req.pan_card %}<a href="{{ req.pan_card.url }}" target="_blank" class="doc-link">💳 PAN Card</a>{% endif %}
-                            {% if req.address_proof %}<a href="{{ req.address_proof.url }}" target="_blank" class="doc-link">🏠 Address Proof</a>{% endif %}
+                            {% if req.aadhaar_card %}<a href="{{ req.aadhaar_card.url }}" target="_blank" class="doc-link">🪪 Aadhaar</a>{% endif %}
+                            {% if req.pan_card %}<a href="{{ req.pan_card.url }}" target="_blank" class="doc-link">💳 PAN</a>{% endif %}
+                            {% if req.signature %}<a href="{{ req.signature.url }}" target="_blank" class="doc-link">✍️ Sign</a>{% endif %}
+                            {% if req.address_proof %}<a href="{{ req.address_proof.url }}" target="_blank" class="doc-link">🏠 Address</a>{% endif %}
                             
                             <!-- Dynamic Documents from JSON -->
                             {% if req.dynamic_documents %}
                                 {% for doc_name, doc_path in req.dynamic_documents.items %}
-                                    <a href="/media/{{ doc_path }}" target="_blank" class="doc-link" title="Click to download">📄 {{ doc_name }}</a>
+                                    <a href="/media/{{ doc_path }}" target="_blank" class="doc-link" title="{{ doc_name }}">📄 {{ doc_name|truncatechars:12 }}</a>
                                 {% endfor %}
                             {% endif %}
                             
                             <!-- No Files Message -->
                             {% if not req.photo and not req.aadhaar_card and not req.signature and not req.pan_card and not req.address_proof and not req.dynamic_documents %}
-                                <span style="color: #94a3b8;">No Files</span>
+                                <span style="color: #94a3b8; font-size: 0.85rem;">No Files</span>
                             {% endif %}
                         </div>
                     </td>
                     <td style="padding: 15px;">
-                        {% if req.completed_file %}
-                        <a href="{{ req.completed_file.url }}" target="_blank" style="color: #10b981; text-decoration: none; font-weight: 600;">✅ Download File</a>
-                        {% else %}
-                        <span style="color: #94a3b8;">Pending...</span>
-                        {% endif %}
-                    </td>
-                    <td style="padding: 15px;">
-                        <div class="action-container">
-                            {% if user.role == 'ADMIN' %}
-                            <form method="post" action="{% url 'assign_request' req.id %}" style="display: flex; gap: 5px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <!-- REMOVE Button (for assigned) -->
+                            {% if req.assigned_to %}
+                            <form method="POST" action="{% url 'remove_assignment' req.id %}" style="display: inline;">
                                 {% csrf_token %}
-                                <select name="agent_id" required style="padding: 6px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 6px; width: 130px;">
-                                    <option value="">👤 Assign Agent</option>
-                                    {% for agent in agents %}
-                                        <option value="{{ agent.id }}">{{ agent.username }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="submit" class="btn btn-small" style="padding: 6px 12px; font-size: 11px; font-weight: 700;">Assign</button>
+                                <button type="submit" style="background: #ef4444; color: white; padding: 6px 10px; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; width: 100%;" onclick="return confirm('Remove assignment?');">🗑️ REMOVE</button>
                             </form>
                             {% endif %}
-                        <a href="{% url 'update_request_status' req.id %}" class="btn btn-small" style="text-decoration: none; font-size: 12px; background-color: #6366f1; text-align: center; font-weight: 700; margin-right: 8px;">📝 Update details</a>
-                        <a href="{% url 'download_all_docs' req.id %}" class="btn btn-small" style="text-decoration: none; font-size: 12px; background-color: #10b981; text-align: center; font-weight: 700;">📦 Download ZIP</a>
+                            
+                            <!-- ASSIGN Button -->
+                            <button type="button" onclick="openAssignModal({{ req.id }}, '{{ req.full_name }}')" style="background: #f59e0b; color: white; padding: 6px 10px; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; width: 100%;">👥 ASSIGN</button>
+                            
+                            <!-- UPDATE Details Link -->
+                            <a href="{% url 'update_request_status' req.id %}" style="display: block; background: #6366f1; color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; font-weight: 600; text-align: center;">📝 UPDATE</a>
                         </div>
                     </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="padding: 40px; text-align: center; color: #94a3b8; font-style: italic;">No requests found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- ASSIGN MODAL -->
+<div id="assignModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); padding: 20px;">
+    <div style="background: white; margin: auto; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+            <h2 style="margin: 0; color: #0f172a; font-size: 20px;">Assign Request to Agent</h2>
+            <button type="button" onclick="closeAssignModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">×</button>
+        </div>
+        
+        <form id="assignForm" method="POST" action="">
+            {% csrf_token %}
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #1e293b; font-weight: 500; font-size: 14px;">Select Agent</label>
+                <select name="agent_id" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: Arial; font-size: 14px; box-sizing: border-box;">
+                    <option value="">-- Select an Agent --</option>
+                    {% for agent in agents %}
+                        <option value="{{ agent.id }}">{{ agent.username }} ({{ agent.role }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #1e293b; font-weight: 500; font-size: 14px;">Message / Notes (Optional)</label>
+                <textarea name="message" placeholder="Add any notes or instructions for the agent..." rows="4" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: Arial; font-size: 14px; box-sizing: border-box;"></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" onclick="closeAssignModal()" style="background: #e2e8f0; color: #1e293b; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+                <button type="submit" style="background: #2563eb; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Assign Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAssignModal(requestId, applicantName) {
+        const form = document.getElementById('assignForm');
+        form.action = "{% url 'admin_assign_request' 0 %}".replace('0', requestId);
+        document.getElementById('assignModal').style.display = 'flex';
+    }
+    
+    function closeAssignModal() {
+        document.getElementById('assignModal').style.display = 'none';
+    }
+    
+    window.onclick = function(event) {
+        const modal = document.getElementById('assignModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+
 {% endblock %}

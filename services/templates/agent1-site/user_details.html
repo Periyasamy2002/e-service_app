@@ -1,26 +1,177 @@
 {% extends 'agent1-site/base-agent1.html' %}
 
 {% block content %}
-<div class="card" style="max-width: 760px; margin: 0 auto;">
-    <h2>Request Details</h2>
-    <div class="feature-list" style="margin-top: 16px;">
-        <li><strong>User:</strong> {{ request.user.username }}</li>
-        <li><strong>Service:</strong> {{ request.service.name }}</li>
-        <li><strong>Description:</strong> {{ request.description }}</li>
-        <li><strong>Status:</strong> <span class="status-pill status-{{ request.status|lower|slugify }}">{{ request.status }}</span></li>
+<div style="max-width: 1000px; margin: 0 auto;">
+    <!-- REQUEST HEADER -->
+    <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="margin: 0; color: #1e293b;">Request #{{ request.id }} Details</h2>
+            <span style="background: #e0f2fe; color: #0369a1; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                Created: {{ request.created_at|date:"d M Y" }}
+            </span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+            <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
+                <small style="color: #64748b; font-weight: 600;">USER</small>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600;">{{ request.user.get_full_name|default:request.user.username }}</p>
+            </div>
+            <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
+                <small style="color: #64748b; font-weight: 600;">SERVICE</small>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600;">{{ request.service.name }}</p>
+            </div>
+            <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
+                <small style="color: #64748b; font-weight: 600;">AADHAAR</small>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600;">{{ request.aadhaar_number }}</p>
+            </div>
+            <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
+                <small style="color: #64748b; font-weight: 600;">MOBILE</small>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600;">{{ request.mobile }}</p>
+            </div>
+            <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
+                <small style="color: #64748b; font-weight: 600;">EMAIL</small>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600; font-size: 0.9rem;">{{ request.email }}</p>
+            </div>
+            <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
+                <small style="color: #64748b; font-weight: 600;">ADDRESS</small>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600; font-size: 0.9rem;">{{ request.address|truncatewords:5 }}</p>
+            </div>
+        </div>
     </div>
-    <form method="post" style="margin-top: 28px;" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="remarks">Remarks</label>
-            <textarea id="remarks" name="remarks" placeholder="Add completion notes..."></textarea>
+
+    <!-- DOCUMENTS SECTION -->
+    <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin: 0 0 15px 0; color: #1e293b;">📄 All Uploaded Documents</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;">
+            <!-- STANDARD DOCUMENTS -->
+            {% if request.photo %}
+            <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+                <small style="color: #64748b; font-weight: 600;">📸 PHOTO</small>
+                <div style="margin-top: 8px;">
+                    <a href="{{ request.photo.url }}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; margin-right: 3px;">👁️ View</a>
+                    <a href="{{ request.photo.url }}" download style="display: inline-block; background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem;">⬇️ Download</a>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if request.aadhaar_card %}
+            <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+                <small style="color: #64748b; font-weight: 600;">🆔 AADHAAR</small>
+                <div style="margin-top: 8px;">
+                    <a href="{{ request.aadhaar_card.url }}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; margin-right: 3px;">👁️ View</a>
+                    <a href="{{ request.aadhaar_card.url }}" download style="display: inline-block; background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem;">⬇️ Download</a>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if request.pan_card %}
+            <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+                <small style="color: #64748b; font-weight: 600;">🏷️ PAN</small>
+                <div style="margin-top: 8px;">
+                    <a href="{{ request.pan_card.url }}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; margin-right: 3px;">👁️ View</a>
+                    <a href="{{ request.pan_card.url }}" download style="display: inline-block; background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem;">⬇️ Download</a>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if request.signature %}
+            <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+                <small style="color: #64748b; font-weight: 600;">✍️ SIGNATURE</small>
+                <div style="margin-top: 8px;">
+                    <a href="{{ request.signature.url }}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; margin-right: 3px;">👁️ View</a>
+                    <a href="{{ request.signature.url }}" download style="display: inline-block; background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem;">⬇️ Download</a>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if request.address_proof %}
+            <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+                <small style="color: #64748b; font-weight: 600;">🏠 ADDRESS PROOF</small>
+                <div style="margin-top: 8px;">
+                    <a href="{{ request.address_proof.url }}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; margin-right: 3px;">👁️ View</a>
+                    <a href="{{ request.address_proof.url }}" download style="display: inline-block; background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem;">⬇️ Download</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- DYNAMIC DOCUMENTS -->
+            {% for doc_name, doc_path in request.dynamic_documents.items %}
+            <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+                <small style="color: #64748b; font-weight: 600;">📎 {{ doc_name|upper }}</small>
+                <div style="margin-top: 8px;">
+                    <a href="/media/{{ doc_path }}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; margin-right: 3px;">👁️ View</a>
+                    <a href="/media/{{ doc_path }}" download style="display: inline-block; background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.75rem;">⬇️ Download</a>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if not request.photo and not request.aadhaar_card and not request.pan_card and not request.signature and not request.address_proof and not request.dynamic_documents %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 30px; color: #94a3b8;">
+                <p>No documents uploaded yet.</p>
+            </div>
+            {% endif %}
         </div>
-        <div class="form-group" style="margin-bottom: 20px;">
-            <label>Final Completed Document (PDF/JPG)</label>
-            <input type="file" name="completed_file" style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
-        </div>
-        <button type="submit">Mark as Completed</button>
-    </form>
-    <p style="margin-top: 18px;"><a href="{% url 'agent1_dashboard' %}">Back to Dashboard</a></p>
+    </div>
+
+    <!-- STATUS & REMARKS FORM -->
+    <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin: 0 0 15px 0; color: #1e293b;">⚙️ Update Request Status & Details</h3>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- STATUS CHANGE -->
+            <div style="margin-bottom: 15px;">
+                <label for="status" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 6px;">Change Status</label>
+                <select name="status" id="status" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem;">
+                    <option value="" disabled>-- Select Status --</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if request.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <small style="color: #64748b; margin-top: 4px; display: block;">Current Status: <strong>{{ request.status }}</strong></small>
+            </div>
+
+            <!-- REMARKS -->
+            <div style="margin-bottom: 15px;">
+                <label for="remarks" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 6px;">Remarks / Notes</label>
+                <textarea 
+                    id="remarks" 
+                    name="remarks" 
+                    placeholder="Add any notes or completion details..."
+                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-family: Arial; resize: vertical; min-height: 100px;">{{ request.remarks|default:'' }}</textarea>
+            </div>
+
+            <!-- COMPLETED FILE -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 6px;">Upload Completed Document</label>
+                <input 
+                    type="file" 
+                    name="completed_file" 
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    style="width: 100%; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 6px;">
+                <small style="color: #64748b; margin-top: 4px; display: block;">Accepted formats: PDF, JPG, JPEG, PNG, DOC, DOCX</small>
+                {% if request.completed_file %}
+                <div style="margin-top: 8px; padding: 8px; background: #eff6ff; border-radius: 6px; border-left: 3px solid #0369a1;">
+                    <small style="color: #0369a1;"><strong>Current file:</strong> <a href="{{ request.completed_file.url }}" style="color: #0369a1; text-decoration: underline;">Download</a></small>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- BUTTONS -->
+            <div style="display: flex; gap: 10px;">
+                <button 
+                    type="submit" 
+                    style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem;">
+                    💾 Save Changes
+                </button>
+                <a 
+                    href="{% url 'agent1_dashboard' %}" 
+                    style="padding: 10px 20px; background: #94a3b8; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: inline-block;">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

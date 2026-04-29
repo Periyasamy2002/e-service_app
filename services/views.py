@@ -183,16 +183,124 @@ def view_custom_page(request, page_id):
 @login_required
 @role_required(['ADMIN', 'AGENT1'])
 def apply_details(request):
-    all_requests = ServiceRequest.objects.all().order_by('-created_at')
+    """
+    Show requests based on role and filters:
+    - For ADMIN: Show based on filter_type (all, pending, assigned, unassigned, completed)
+    - For AGENT1: Show only unassigned requests (assigned_to = NULL)
+    """
     pages = Page.objects.all()
     agents = User.objects.filter(role__in=['AGENT1', 'AGENT2'])
+
+    filter_type = request.GET.get('filter_type', 'all')
+    
+    # Start with an optimized base queryset
+    all_requests = ServiceRequest.objects.select_related('user', 'service', 'assigned_to').order_by('-created_at')
+
+    # Apply filtering based on type
+    if filter_type == 'completed':
+        all_requests = all_requests.filter(status='Completed')
+    elif filter_type == 'pending':
+        all_requests = all_requests.filter(status='Pending')
+    elif filter_type == 'assigned':
+        all_requests = all_requests.filter(assigned_to__isnull=False)
+    elif filter_type == 'unassigned':
+        all_requests = all_requests.filter(assigned_to__isnull=True)
+    elif request.user.role != 'ADMIN' and filter_type == 'all':
+        # Default behavior for non-admins if no specific filter is selected
+        all_requests = all_requests.filter(assigned_to__isnull=True)
+
+    # Apply filters
+    status_filter = request.GET.get('status')
+    service_filter = request.GET.get('service')
+    search_query = request.GET.get('search')
+    agent_filter = request.GET.get('agent')  # For admin to filter by assigned agent
+
+    if status_filter:
+        all_requests = all_requests.filter(status=status_filter)
+    if service_filter:
+        all_requests = all_requests.filter(service_id=service_filter)
+    if search_query:
+        all_requests = all_requests.filter(
+            Q(full_name__icontains=search_query) |
+            Q(mobile__icontains=search_query) |
+            Q(aadhaar_number__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+    if agent_filter and request.user.role == 'ADMIN':
+        all_requests = all_requests.filter(assigned_to_id=agent_filter)
+
+    # Get all services for filter dropdown
+    services = Service.objects.all()
 
     # Choose template based on user role to maintain UI consistency
     template_name = 'admin-site/apply_details.html'
     if request.user.role == 'AGENT1':
         template_name = 'agent1-site/apply_details.html'
 
-    return render(request, template_name, {'pages': pages, 'requests': all_requests, 'agents': agents})
+    context = {
+        'pages': pages,
+        'requests': all_requests,
+        'agents': agents,
+        'services': services,
+        'status_filter': status_filter,
+        'service_filter': service_filter,
+        'search_query': search_query,
+        'agent_filter': agent_filter,
+        'filter_type': filter_type,
+    }
+    return render(request, template_name, context)
+
+
+@login_required
+@role_required(['ADMIN'])
+def remove_assignment(request, request_id):
+    """
+    Remove assignment from request (set assigned_to = NULL, status = Pending).
+    Only for ADMIN.
+    """
+    service_request = get_object_or_404(ServiceRequest, id=request_id)
+    
+    if request.method == 'POST':
+        service_request.assigned_to = None
+        service_request.status = 'Pending'
+        service_request.save()
+        messages.success(request, f"Request #{request_id} has been unassigned and moved to Pending.")
+        return redirect(request.META.get('HTTP_REFERER', 'apply_details'))
+    
+    return redirect(request.META.get('HTTP_REFERER', 'apply_details'))
+
+
+@login_required
+@role_required(['ADMIN'])
+def reassign_request(request, request_id):
+    """
+    Reassign request to another Agent1.
+    Only for ADMIN.
+    """
+    service_request = get_object_or_404(ServiceRequest, id=request_id)
+    
+    if request.method == 'POST':
+        agent_id = request.POST.get('agent_id')
+        message = request.POST.get('message', '')
+        
+        if agent_id:
+            try:
+                agent = User.objects.get(id=agent_id, role='AGENT1')
+                service_request.assigned_to = agent
+                service_request.status = 'Under Review'
+                if message:
+                    service_request.remarks = message
+                service_request.save()
+                messages.success(request, f"Request #{request_id} has been assigned to {agent.username}.")
+            except User.DoesNotExist:
+                messages.error(request, "Selected agent not found.")
+        else:
+            messages.error(request, "Please select an agent.")
+        
+        return redirect('apply_details')
+    
+    # GET request: Show assign form (shouldn't happen normally)
+    return redirect('apply_details')
 
 
 @login_required
@@ -1104,20 +1212,42 @@ def agent1_completed(request):
 @login_required
 @role_required(['AGENT1'])
 def agent1_request_detail(request, request_id):
-    """Agent1 view for specific request details. Moves status to 'In Progress' on first view."""
+    """Agent1 view for specific request details. Allows status change, remarks, and document upload."""
     service_request = get_object_or_404(ServiceRequest, id=request_id, assigned_to=request.user)
     
-    # Transition status when Agent 1 begins processing
-    if service_request.status == 'Under Review':
-        service_request.status = 'In Progress'
+    if request.method == 'POST':
+        # Handle status change
+        new_status = request.POST.get('status')
+        if new_status and new_status in dict(ServiceRequest.STATUS_CHOICES):
+            service_request.status = new_status
+        
+        # Handle remarks
+        remarks = request.POST.get('remarks', '')
+        if remarks:
+            service_request.remarks = remarks
+        
+        # Handle completed file upload
+        completed_file = request.FILES.get('completed_file')
+        if completed_file:
+            service_request.completed_file = completed_file
+        
         service_request.save()
-        messages.info(request, f"Application #{request_id} has been moved to 'In Progress'.")
+        messages.success(request, f"Request #{request_id} updated successfully.")
+        return redirect('agent1_request_detail', request_id=request_id)
+    else:
+        # GET request: Transition status when Agent 1 begins processing (first view)
+        if service_request.status == 'Under Review':
+            service_request.status = 'In Progress'
+            service_request.save()
+            messages.info(request, f"Application #{request_id} has been moved to 'In Progress'.")
 
     pages = Page.objects.all()
+    status_choices = ServiceRequest.STATUS_CHOICES
     
     context = {
         'request': service_request,
         'pages': pages,
+        'status_choices': status_choices,
     }
     return render(request, 'agent1-site/user_details.html', context)
 
@@ -1163,6 +1293,31 @@ def agent1_complete(request, request_id):
         return redirect('agent1_dashboard')
     
     return render(request, 'agent1-site/user_details.html', {'request': service_request})
+
+@login_required
+@role_required(['AGENT1'])
+def take_request(request, request_id):
+    """
+    Agent1 takes (claims) an unassigned request.
+    Sets assigned_to = logged-in agent and status = 'Under Review'
+    """
+    if request.method == 'POST':
+        service_request = get_object_or_404(ServiceRequest, id=request_id, assigned_to__isnull=True)
+        
+        # Get description from form (optional)
+        description = request.POST.get('description', '')
+        
+        # Assign to current agent
+        service_request.assigned_to = request.user
+        service_request.status = 'Under Review'
+        if description:
+            service_request.remarks = description
+        service_request.save()
+        
+        messages.success(request, f'Request #{request_id} has been assigned to you. Status: Under Review')
+        return redirect('apply_details')
+    
+    return redirect('apply_details')
 
 @login_required
 @role_required(['ADMIN', 'AGENT1'])
@@ -1288,3 +1443,240 @@ def download_all_docs(request, req_id):
     zip_name = f"Documents_{safe_name}_{req.id}.zip"
     response['Content-Disposition'] = f'attachment; filename="{zip_name}"'
     return response
+
+
+# ===== AGENT1 APPLY DETAILS WITH FILTERING =====
+@login_required
+@role_required(['AGENT1'])
+def agent1_apply_details(request):
+    """
+    Agent1 Apply Details page with filtering options:
+    - All: Show all requests (pending + completed)
+    - Completed: Show only completed requests
+    - Pending: Show only pending requests
+    - Assigned: Show only requests assigned to this Agent1
+    - History: Show completed requests assigned to this Agent1
+    """
+    pages = Page.objects.all()
+    available_services = Service.objects.all()
+    all_agents = User.objects.filter(role='AGENT1').exclude(id=request.user.id)
+    
+    # Get filter type from URL
+    filter_type = request.GET.get('filter_type', 'all')
+    
+    # Base query building based on filter_type
+    if filter_type == 'completed':
+        # Show only completed requests
+        requests_list = ServiceRequest.objects.filter(status='Completed').order_by('-created_at')
+    elif filter_type == 'pending':
+        # Show only pending requests
+        requests_list = ServiceRequest.objects.filter(status='Pending').order_by('-created_at')
+    elif filter_type == 'unassigned':
+        # Show only unassigned requests
+        requests_list = ServiceRequest.objects.filter(assigned_to__isnull=True).order_by('-created_at')
+    elif filter_type == 'assigned':
+        # Show only requests assigned to this Agent1
+        requests_list = ServiceRequest.objects.filter(assigned_to=request.user).order_by('-created_at')
+    elif filter_type == 'history':
+        # Show completed requests that were assigned to this Agent1
+        requests_list = ServiceRequest.objects.filter(
+            assigned_to=request.user, 
+            status='Completed'
+        ).order_by('-created_at')
+    else:  # 'all'
+        # Show all requests
+        requests_list = ServiceRequest.objects.all().order_by('-created_at')
+    
+    # Apply additional filters
+    status_filter = request.GET.get('status')
+    service_filter = request.GET.get('service')
+    search_query = request.GET.get('search')
+    
+    if status_filter:
+        requests_list = requests_list.filter(status=status_filter)
+    if service_filter:
+        requests_list = requests_list.filter(service_id=service_filter)
+    if search_query:
+        requests_list = requests_list.filter(
+            Q(full_name__icontains=search_query) |
+            Q(mobile__icontains=search_query) |
+            Q(aadhaar_number__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+    
+    context = {
+        'pages': pages,
+        'requests': requests_list,
+        'agents': all_agents,
+        'services': available_services,
+        'filter_type': filter_type,
+        'status_filter': status_filter,
+        'service_filter': service_filter,
+        'search_query': search_query,
+    }
+    return render(request, 'agent1-site/apply_details.html', context)
+
+
+@login_required
+@role_required(['AGENT1'])
+def agent1_remove_assignment(request, request_id):
+    """
+    Agent1 removes a request from their assignment.
+    - Sets assigned_to = NULL
+    - Sets status = 'Pending'
+    - Request goes back to general queue
+    """
+    service_request = get_object_or_404(ServiceRequest, id=request_id, assigned_to=request.user)
+    
+    if request.method == 'POST':
+        service_request.assigned_to = None
+        service_request.status = 'Pending'
+        service_request.save()
+        messages.success(request, f"Request #{request_id} has been removed from your queue and moved to Pending.")
+        return redirect('agent1_apply_details', filter_type='assigned')
+    
+    return redirect('agent1_apply_details', filter_type='assigned')
+
+
+@login_required
+@role_required(['AGENT1'])
+def agent1_assign_request(request, request_id):
+    """
+    Agent1 reassigns a request to another Agent1.
+    - Shows modal form with Agent1 dropdown
+    - Sets assigned_to = selected agent
+    - Adds message to remarks
+    - Status = 'Under Review'
+    """
+    service_request = get_object_or_404(ServiceRequest, id=request_id, assigned_to=request.user)
+    
+    if request.method == 'POST':
+        agent_id = request.POST.get('agent_id')
+        message = request.POST.get('message', '')
+        
+        if agent_id:
+            try:
+                # Verify the selected agent is AGENT1 and not the current user
+                target_agent = User.objects.get(id=agent_id, role='AGENT1')
+                if target_agent.id == request.user.id:
+                    messages.error(request, "Cannot assign to yourself.")
+                    return redirect('agent1_apply_details', filter_type='assigned')
+                
+                # Reassign the request
+                service_request.assigned_to = target_agent
+                service_request.status = 'Under Review'
+                
+                # Save message in remarks (append to existing remarks)
+                if message:
+                    if service_request.remarks:
+                        service_request.remarks += f"\n--- Transferred by {request.user.username} ---\n{message}"
+                    else:
+                        service_request.remarks = f"--- Transferred by {request.user.username} ---\n{message}"
+                
+                service_request.save()
+                messages.success(request, f"Request #{request_id} has been assigned to {target_agent.username}.")
+                return redirect('agent1_apply_details', filter_type='assigned')
+                
+            except User.DoesNotExist:
+                messages.error(request, "Selected agent not found.")
+                return redirect('agent1_apply_details', filter_type='assigned')
+        else:
+            messages.error(request, "Please select an agent.")
+            return redirect('agent1_apply_details', filter_type='assigned')
+    
+    # GET request - redirect (shouldn't happen normally as form is in template)
+    return redirect('agent1_apply_details', filter_type='assigned')
+
+
+# ===== ADMIN-SPECIFIC FUNCTIONS =====
+@login_required
+@role_required(['ADMIN'])
+def admin_assign_request(request, request_id):
+    """
+    Admin assigns a request to any Agent1/Agent2.
+    POST: assign request
+    """
+    service_request = get_object_or_404(ServiceRequest, id=request_id)
+    
+    if request.method == 'POST':
+        agent_id = request.POST.get('agent_id')
+        message = request.POST.get('message', '')
+        
+        if agent_id:
+            try:
+                target_agent = User.objects.get(id=agent_id, role__in=['AGENT1', 'AGENT2'])
+                
+                # Save previous assignment info if exists
+                prev_agent = service_request.assigned_to
+                service_request.assigned_to = target_agent
+                service_request.status = 'Under Review'
+                
+                # Save message in remarks (append with transfer info)
+                if message:
+                    transfer_info = f"\n--- Assigned by Admin ({request.user.username}) ---\n{message}"
+                    if prev_agent:
+                        transfer_info = f"\n--- Reassigned by Admin from {prev_agent.username} ---\n{message}"
+                    
+                    if service_request.remarks:
+                        service_request.remarks += transfer_info
+                    else:
+                        service_request.remarks = transfer_info
+                
+                service_request.save()
+                messages.success(request, f"Request #{request_id} assigned to {target_agent.username} ({target_agent.role}).")
+                return redirect(request.META.get('HTTP_REFERER', 'apply_details'))
+                
+            except User.DoesNotExist:
+                messages.error(request, "Selected agent not found.")
+        else:
+            messages.error(request, "Please select an agent.")
+    
+    return redirect(request.META.get('HTTP_REFERER', 'apply_details'))
+
+
+@login_required
+@role_required(['ADMIN'])
+def admin_agent_workload(request):
+    """
+    Admin dashboard showing agent workload and performance.
+    - Total requests per agent
+    - Assigned vs Completed
+    - Status breakdown
+    - Agent activity overview
+    """
+    pages = Page.objects.all()
+    all_agents = User.objects.filter(role__in=['AGENT1', 'AGENT2'])
+    
+    # Build agent workload data
+    agent_data = []
+    for agent in all_agents:
+        agent_requests = ServiceRequest.objects.filter(assigned_to=agent)
+        
+        agent_stats = {
+            'agent': agent,
+            'role': agent.role,
+            'total_assigned': agent_requests.count(),
+            'pending': agent_requests.filter(status='Pending').count(),
+            'under_review': agent_requests.filter(status='Under Review').count(),
+            'in_progress': agent_requests.filter(status='In Progress').count(),
+            'completed': agent_requests.filter(status='Completed').count(),
+            'approved': agent_requests.filter(status='Approved').count(),
+            'rejected': agent_requests.filter(status='Rejected').count(),
+            'completion_rate': round((agent_requests.filter(status='Completed').count() / agent_requests.count() * 100), 1) if agent_requests.count() > 0 else 0,
+        }
+        agent_data.append(agent_stats)
+    
+    # Calculate overall stats
+    total_assigned_all = ServiceRequest.objects.filter(assigned_to__isnull=False).count()
+    total_unassigned = ServiceRequest.objects.filter(assigned_to__isnull=True).count()
+    total_completed_all = ServiceRequest.objects.filter(status='Completed').count()
+    
+    context = {
+        'pages': pages,
+        'agent_data': agent_data,
+        'total_agents': all_agents.count(),
+        'total_assigned': total_assigned_all,
+        'total_unassigned': total_unassigned,
+        'total_completed': total_completed_all,
+    }
+    return render(request, 'admin-site/agent_workload.html', context)

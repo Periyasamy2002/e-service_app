@@ -3,10 +3,53 @@
 {% block content %}
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h2 style="margin: 0; color: #1e293b;">📋 All Application Requests</h2>
+        <h2 style="margin: 0; color: #1e293b;">
+            {% if filter_type == 'assigned' %}👤 My Assigned Requests
+            {% elif filter_type == 'completed' %}✅ Completed Requests
+            {% elif filter_type == 'pending' %}⏸️ Pending Requests
+            {% elif filter_type == 'history' %}📜 Completed History
+            {% else %}📋 All Applications
+            {% endif %}
+        </h2>
         <span style="background: #eff6ff; color: #2563eb; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; border: 1px solid #dbeafe;">
             Total Records: {{ requests.count }}
         </span>
+    </div>
+
+    <!-- FILTERS SECTION -->
+    <div style="background: #f8fafc; border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+        <form method="GET" action="{% url 'agent1_apply_details' %}" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: flex-end;">
+            <input type="hidden" name="filter_type" value="{{ filter_type }}">
+            <div>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Search (Name, Mobile, Aadhaar)</label>
+                <input type="text" name="search" placeholder="Search..." value="{{ search_query|default:'' }}" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Filter by Status</label>
+                <select name="status" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
+                    <option value="">All Statuses</option>
+                    <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Under Review" {% if status_filter == 'Under Review' %}selected{% endif %}>Under Review</option>
+                    <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Filter by Service</label>
+                <select name="service" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
+                    <option value="">All Services</option>
+                    {% for s in services %}
+                    <option value="{{ s.id }}" {% if service_filter == s.id|stringformat:"i" %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" style="padding: 8px 15px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">🔍 Apply</button>
+            </div>
+        </form>
+        <div style="margin-top: 10px;">
+            <a href="{% url 'agent1_apply_details' %}?filter_type={{ filter_type }}" style="font-size: 0.8rem; color: #0369a1; text-decoration: none; font-weight: 600;">✕ Clear Filters</a>
+        </div>
     </div>
 
     <div style="overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
@@ -16,8 +59,10 @@
                     <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Application ID</th>
                     <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Service Name</th>
                     <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Applicant</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Contact</th>
                     <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Date Submitted</th>
                     <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Status</th>
+                    <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Assigned Agent</th>
                     <th style="padding: 15px; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Action</th>
                 </tr>
             </thead>
@@ -27,6 +72,10 @@
                     <td style="padding: 15px; font-weight: 700; color: #334155;">#REQ-{{ req.id }}</td>
                     <td style="padding: 15px; font-weight: 600;">{{ req.service.name }}</td>
                     <td style="padding: 15px;">{{ req.user.username }}</td>
+                    <td style="padding: 15px; font-size: 0.9rem; color: #64748b;">
+                        {{ req.mobile }}<br>
+                        <small>{{ req.email }}</small>
+                    </td>
                     <td style="padding: 15px; color: #64748b;">{{ req.created_at|date:"d M Y, h:i A" }}</td>
                     <td style="padding: 15px;">
                         <span style="display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
@@ -37,18 +86,92 @@
                             {{ req.status }}
                         </span>
                     </td>
+                    <td style="padding: 15px; color: #64748b;">
+                        {% if req.assigned_to %}
+                            <span style="display: inline-block; padding: 4px 8px; background: #e0e7ff; color: #3730a3; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                                {{ req.assigned_to.username }}
+                            </span>
+                        {% else %}
+                            <span style="color: #94a3b8; font-size: 0.9rem;">Unassigned</span>
+                        {% endif %}
+                    </td>
                     <td style="padding: 15px;">
-                        <a href="{% url 'agent1_request_detail' req.id %}" style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 600; margin-right: 6px;">View Detail</a>
-                        <a href="{% url 'download_all_docs' req.id %}" style="display: inline-block; background: #10b981; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 600;">📦 ZIP</a>
+                        {% if filter_type == 'assigned' and req.assigned_to.id == user.id %}
+                            <!-- REMOVE Button -->
+                            <form method="POST" action="{% url 'agent1_remove_assignment' req.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 600; margin-right: 6px; cursor: pointer;">🗑️ REMOVE</button>
+                            </form>
+                            
+                            <!-- ASSIGN Button (Opens Modal) -->
+                            <button type="button" onclick="openAssignModal({{ req.id }}, '{{ req.user.username }}')" style="background: #10b981; color: white; padding: 6px 12px; border: none; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 600; cursor: pointer;">👥 ASSIGN</button>
+                        {% else %}
+                            <!-- View/Take Button for unassigned -->
+                            <a href="{% url 'agent1_request_detail' req.id %}" style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 600;">👁️ VIEW</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" style="padding: 40px; text-align: center; color: #94a3b8; font-style: italic;">No application requests available in the system.</td>
+                    <td colspan="8" style="padding: 40px; text-align: center; color: #94a3b8; font-style: italic;">No application requests available.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- ASSIGN MODAL -->
+<div id="assignModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); padding: 20px;">
+    <div style="background: white; margin: auto; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+            <h2 style="margin: 0; color: #0f172a; font-size: 20px;">Assign to Another Agent1</h2>
+            <button type="button" onclick="closeAssignModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">×</button>
+        </div>
+        
+        <form id="assignForm" method="POST" action="">
+            {% csrf_token %}
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #1e293b; font-weight: 500; font-size: 14px;">Select Agent1</label>
+                <select name="agent_id" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: Arial; font-size: 14px; box-sizing: border-box;">
+                    <option value="">-- Select an Agent --</option>
+                    {% for agent in agents %}
+                        <option value="{{ agent.id }}">{{ agent.username }} ({{ agent.get_full_name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #1e293b; font-weight: 500; font-size: 14px;">Message / Notes</label>
+                <textarea name="message" placeholder="Enter any message or instructions for the assigned agent..." rows="4" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: Arial; font-size: 14px; box-sizing: border-box;"></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" onclick="closeAssignModal()" style="background: #e2e8f0; color: #1e293b; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+                <button type="submit" style="background: #2563eb; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Assign Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CLOSE MODAL WHEN CLICKING OUTSIDE -->
+<script>
+    function openAssignModal(requestId, applicantName) {
+        const form = document.getElementById('assignForm');
+        form.action = "{% url 'agent1_assign_request' 0 %}".replace('0', requestId);
+        document.getElementById('assignModal').style.display = 'flex';
+    }
+    
+    function closeAssignModal() {
+        document.getElementById('assignModal').style.display = 'none';
+    }
+    
+    window.onclick = function(event) {
+        const modal = document.getElementById('assignModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+
 {% endblock %}

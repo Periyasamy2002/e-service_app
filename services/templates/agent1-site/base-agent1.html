@@ -135,12 +135,7 @@ body {
     <div class="nav-left">
         <a href="{% url 'agent1_dashboard' %}">Dashboard</a>
 
-        <div class="dropdown">
-            <a href="#">Apply Details ⬇</a>
-            <div class="dropdown-content">
-                <a href="{% url 'apply_details' %}">All Applications</a>
-            </div>
-        </div>
+        <a href="{% url 'apply_details' %}">All Applications</a>
 
         <a href="{% url 'agent1_completed' %}">History</a>
     </div>
@@ -156,15 +151,40 @@ body {
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <a href="{% url 'agent1_dashboard' %}?status=Under+Review">🆕 New Requests</a>
-        <a href="{% url 'agent1_dashboard' %}">📑 All Assigned</a>
-        <a href="{% url 'agent1_dashboard' %}?status=In+Progress">⏳ In Progress</a>
-        <a href="{% url 'agent1_dashboard' %}?status=Completed">✅ Completed</a>
-        <a href="{% url 'agent1_login' %}">🚪 Logout</a>
-
+        <a href="{% url 'agent1_dashboard' %}">🏠 Dashboard</a>
+        
+        <!-- Apply Details Section -->
+        <!-- <div style="margin-top: 15px; border-top: 1px solid #475569; padding-top: 10px;">
+            <h4 style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; margin: 10px 0; letter-spacing: 0.05em;">📋 Apply Details</h4>
+            <a href="{% url 'agent1_apply_details' %}?filter_type=all" style="padding: 8px; border-left: 3px solid {% if request.GET.filter_type == 'all' %}#3b82f6{% else %}transparent{% endif %};">
+                📑 All Applications
+            </a>
+            <a href="{% url 'agent1_apply_details' %}?filter_type=completed" style="padding: 8px; border-left: 3px solid {% if request.GET.filter_type == 'completed' %}#3b82f6{% else %}transparent{% endif %};">
+                ✅ Completed
+            </a>
+            <a href="{% url 'agent1_apply_details' %}?filter_type=pending" style="padding: 8px; border-left: 3px solid {% if request.GET.filter_type == 'pending' %}#3b82f6{% else %}transparent{% endif %};">
+                ⏸️  Pending
+            </a>
+            <a href="{% url 'agent1_apply_details' %}?filter_type=assigned" style="padding: 8px; border-left: 3px solid {% if request.GET.filter_type == 'assigned' %}#3b82f6{% else %}transparent{% endif %};">
+                👤 Assigned to Me
+            </a>
+            <a href="{% url 'agent1_apply_details' %}?filter_type=history" style="padding: 8px; border-left: 3px solid {% if request.GET.filter_type == 'history' %}#3b82f6{% else %}transparent{% endif %};">
+                📜 History
+            </a>
+        </div>
+         -->
+        <!-- My Tasks Section -->
+        <div style="margin-top: 15px; border-top: 1px solid #475569; padding-top: 10px;">
+            <h4 style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; margin: 10px 0; letter-spacing: 0.05em;">⚡ My Tasks</h4>
+            <a href="{% url 'agent1_dashboard' %}?status=Under+Review">🆕 New Requests</a>
+            <a href="{% url 'agent1_dashboard' %}">📋 All Assigned</a>
+            <a href="{% url 'agent1_dashboard' %}?status=In+Progress">⏳ In Progress</a>
+            <a href="{% url 'agent1_dashboard' %}?status=Completed">✅ Completed</a>
+        </div>
+        
         <!-- CUSTOM PAGES LIST -->
-        <div style="margin-top: 20px; border-top: 1px solid #475569; padding-top: 10px;">
-            <h4 style="color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">📄 Services</h4>
+        <div style="margin-top: 15px; border-top: 1px solid #475569; padding-top: 10px;">
+            <h4 style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; margin: 10px 0; letter-spacing: 0.05em;">📄 Services</h4>
             {% if pages %}
                 {% for p in pages %}
                     <a href="{% url 'view_custom_page' p.id %}" style="font-size: 14px; padding: 8px;">{{ p.title }}</a>
@@ -173,6 +193,8 @@ body {
                 <p style="color: #94a3b8; font-size: 13px; margin: 5px 10px;">No pages created</p>
             {% endif %}
         </div>
+        
+        <a href="{% url 'agent1_login' %}" style="margin-top: 20px; background: #dc2626; display: block;">🚪 Logout</a>
     </div>
 
     <!-- MAIN CONTENT -->

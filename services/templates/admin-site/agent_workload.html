@@ -1,0 +1,228 @@
+{% extends 'admin-site/admin_base.html' %}
+
+{% block content %}
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+    }
+    
+    .stat-card h3 {
+        margin: 0 0 10px 0;
+        color: #64748b;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .stat-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2563eb;
+    }
+    
+    .agent-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .agent-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .agent-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    
+    .agent-role {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .role-agent1 {
+        background: #e0e7ff;
+        color: #3730a3;
+    }
+    
+    .role-agent2 {
+        background: #fce7f3;
+        color: #be185d;
+    }
+    
+    .completion-rate {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #10b981;
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+    }
+    
+    .stat-item {
+        background: #f8fafc;
+        padding: 12px;
+        border-radius: 6px;
+        text-align: center;
+        border-left: 3px solid #2563eb;
+    }
+    
+    .stat-item.pending { border-left-color: #fbbf24; }
+    .stat-item.review { border-left-color: #3b82f6; }
+    .stat-item.progress { border-left-color: #f97316; }
+    .stat-item.completed { border-left-color: #10b981; }
+    .stat-item.approved { border-left-color: #06b6d4; }
+    .stat-item.rejected { border-left-color: #ef4444; }
+    
+    .stat-item .label {
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        letter-spacing: 0.02em;
+    }
+    
+    .stat-item .count {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    
+    .progress-bar {
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #06b6d4);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+</style>
+
+<div class="card">
+    <h2 style="font-weight: 800; color: #0f172a; margin-bottom: 10px;">⚙️ Agent Workload & Performance</h2>
+    <p style="color: #64748b; margin-bottom: 30px;">Real-time overview of agent task distribution and completion rates.</p>
+    
+    <!-- OVERALL STATS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Agents</h3>
+            <div class="value">{{ total_agents }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Assigned Requests</h3>
+            <div class="value">{{ total_assigned }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Unassigned Requests</h3>
+            <div class="value">{{ total_unassigned }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Completed</h3>
+            <div class="value">{{ total_completed }}</div>
+        </div>
+    </div>
+    
+    <!-- AGENT DETAILS -->
+    <h3 style="color: #0f172a; margin-bottom: 20px; font-size: 1.1rem; font-weight: 700;">📊 Agent Details</h3>
+    
+    {% for agent in agent_data %}
+    <div class="agent-card">
+        <div class="agent-header">
+            <div>
+                <span class="agent-name">{{ agent.agent.username }}</span>
+                <span class="agent-role" {% if agent.role == 'AGENT1' %}class="agent-role role-agent1"{% else %}class="agent-role role-agent2"{% endif %}>
+                    {{ agent.role }}
+                </span>
+            </div>
+            <div class="completion-rate">
+                {{ agent.completion_rate }}% Complete
+                <div class="progress-bar" style="width: 100px; margin-top: 4px;">
+                    <div class="progress-fill" style="width: {{ agent.completion_rate }}%;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="label">Total Assigned</div>
+                <div class="count">{{ agent.total_assigned }}</div>
+            </div>
+            <div class="stat-item pending">
+                <div class="label">Pending</div>
+                <div class="count">{{ agent.pending }}</div>
+            </div>
+            <div class="stat-item review">
+                <div class="label">Under Review</div>
+                <div class="count">{{ agent.under_review }}</div>
+            </div>
+            <div class="stat-item progress">
+                <div class="label">In Progress</div>
+                <div class="count">{{ agent.in_progress }}</div>
+            </div>
+            <div class="stat-item completed">
+                <div class="label">Completed</div>
+                <div class="count">{{ agent.completed }}</div>
+            </div>
+            <div class="stat-item approved">
+                <div class="label">Approved</div>
+                <div class="count">{{ agent.approved }}</div>
+            </div>
+            <div class="stat-item rejected">
+                <div class="label">Rejected</div>
+                <div class="count">{{ agent.rejected }}</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <a href="{% url 'apply_details' %}?filter_type=assigned&agent={{ agent.agent.id }}" 
+               style="display: inline-block; padding: 8px 16px; background: #2563eb; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                👁️ View {{ agent.agent.username }}'s Tasks
+            </a>
+            {% if agent.total_assigned > agent.completed %}
+            <a href="{% url 'apply_details' %}?filter_type=assigned&agent={{ agent.agent.id }}&status=Pending" 
+               style="display: inline-block; padding: 8px 16px; background: #f59e0b; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                ⚠️ Pending Work
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div style="padding: 40px; text-align: center; color: #94a3b8; background: #f8fafc; border-radius: 8px;">
+        <p style="font-size: 1rem; margin: 0;">No agents available yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

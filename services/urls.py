@@ -17,6 +17,8 @@ urlpatterns = [
     path('adminsite/add-page/', views.add_page, name='add_page'),
     path('adminsite/page/<int:page_id>/', views.view_custom_page, name='view_custom_page'),
     path('adminsite/apply-details/', views.apply_details, name='apply_details'),
+    path('adminsite/remove-assignment/<int:request_id>/', views.remove_assignment, name='remove_assignment'),
+    path('adminsite/reassign-request/<int:request_id>/', views.reassign_request, name='reassign_request'),
     path('adminsite/user-details/', views.user_details, name='user_details'),
     path('adminsite/edit-user/<int:user_id>/', views.edit_user, name='edit_user'),
     path('adminsite/delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
@@ -56,4 +58,14 @@ urlpatterns = [
     path('agent1/request/<int:request_id>/', views.agent1_request_detail, name='agent1_request_detail'),
     path('agent1/complete/<int:request_id>/', views.agent1_complete, name='agent1_complete'),
     path('agent1/download-report/<int:request_id>/', views.agent1_download_report, name='agent1_download_report'),
+    path('agent1/take-request/<int:request_id>/', views.take_request, name='take_request'),
+    
+    # Agent1 Apply Details & Actions
+    path('agent1/apply-details/', views.agent1_apply_details, name='agent1_apply_details'),
+    path('agent1/remove-assignment/<int:request_id>/', views.agent1_remove_assignment, name='agent1_remove_assignment'),
+    path('agent1/assign-request/<int:request_id>/', views.agent1_assign_request, name='agent1_assign_request'),
+    
+    # Admin Actions
+    path('admin/assign-request/<int:request_id>/', views.admin_assign_request, name='admin_assign_request'),
+    path('admin/agent-workload/', views.admin_agent_workload, name='admin_agent_workload'),
 ]

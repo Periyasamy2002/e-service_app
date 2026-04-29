@@ -279,9 +279,12 @@
         <!-- APPLY DETAILS MENU -->
         {% if request.resolver_match.url_name == 'apply_details' %}
         <div class="sidebar-menu">
-            <a href="#">Apply Details</a>
-            <a href="#">Completed</a>
-            <a href="#">Pending</a>
+            <a href="{% url 'apply_details' %}?filter_type=all">📋 All Applications</a>
+            <a href="{% url 'apply_details' %}?filter_type=pending">⏸️ Pending</a>
+            <a href="{% url 'apply_details' %}?filter_type=assigned">👥 Assigned</a>
+            <a href="{% url 'apply_details' %}?filter_type=unassigned">📤 Unassigned</a>
+            <a href="{% url 'apply_details' %}?filter_type=completed">✅ Completed</a>
+            <a href="{% url 'admin_agent_workload' %}">⚙️ Agent Workload</a>
         </div>
         {% endif %}
 
