@@ -99,6 +99,26 @@
         color: #333;
     }
 
+    /* Alert Messages */
+    .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
     .toggle-link {
         color: #667eea;
         cursor: pointer;
@@ -118,6 +138,14 @@
             <h2>Login</h2>
             <p>Welcome back</p>
 
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
                 <input type="text" name="username" placeholder="Username" required>
@@ -135,6 +163,14 @@
         <div class="form-section {% if not show_register %}hidden{% endif %}" id="registerBox">
             <h2>Create Account</h2>
             <p>Join the Service System</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
 
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}

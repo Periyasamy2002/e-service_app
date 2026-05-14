@@ -8,24 +8,72 @@
     <link rel="stylesheet" href="{% static 'services/css/style.css' %}">
 
     <style>
-        body { margin: 0; font-family: Arial; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        /* TOP NAVBAR */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* ================= TOP NAVBAR ================= */
         .top-navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #1e293b;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 15px 30px;
             color: white;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             flex-wrap: wrap;
             gap: 10px;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .hamburger-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .hamburger-btn.active {
+            color: #3b82f6;
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
         }
 
         .nav-links {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .nav-links a, .nav-links button {
@@ -35,28 +83,66 @@
             cursor: pointer;
             background: none;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 4px;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .nav-links a:hover, .nav-links button:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
         }
 
-        /* LAYOUT */
+        .nav-links .btn-add-service {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            padding: 8px 14px;
+        }
+
+        .nav-links .btn-add-service:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+        }
+
+        /* ================= LAYOUT ================= */
         .dashboard-container {
             display: flex;
+            min-height: calc(100vh - 70px);
         }
 
-        /* SIDEBAR */
+        /* ================= SIDEBAR ================= */
         .sidebar {
             width: 250px;
             background: #0f172a;
             color: white;
-            min-height: 100vh;
             padding: 20px;
             overflow-y: auto;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            z-index: 900;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1e293b;
+            color: #3b82f6;
         }
 
         .sidebar-menu {
@@ -66,45 +152,55 @@
         .sidebar-menu h4 {
             margin: 15px 0 10px 0;
             color: #64748b;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .sidebar-menu a, .sidebar-menu button {
             display: block;
-            color: #cbd5f5;
-            padding: 10px 0;
+            color: #cbd5e1;
+            padding: 12px 15px;
             text-decoration: none;
             border: none;
             background: none;
             cursor: pointer;
             font-size: 14px;
-            transition: color 0.3s;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
         }
 
         .sidebar-menu a:hover, .sidebar-menu button:hover {
-            color: white;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            padding-left: 20px;
         }
 
-        /* MAIN CONTENT */
+        /* ================= MAIN CONTENT ================= */
         .main-content {
             flex: 1;
+            margin-left: 250px;
             padding: 30px;
             background: #f1f5f9;
+            overflow-y: auto;
         }
 
         .btn {
-            background: #2563eb;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
             padding: 10px 15px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            white-space: nowrap;
         }
 
         .btn:hover {
-            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
         }
 
         .btn-small {
@@ -112,31 +208,34 @@
             font-size: 13px;
         }
 
-        /* MODAL STYLES */
+        /* ================= MODAL STYLES ================= */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
         }
 
         .modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
         }
 
         .modal-content {
             background: white;
             padding: 30px;
-            border-radius: 8px;
+            border-radius: 12px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideInUp 0.3s ease;
         }
 
         .modal-header {
@@ -144,22 +243,27 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 2px solid #e2e8f0;
             padding-bottom: 15px;
         }
 
         .modal-header h2 {
             margin: 0;
             color: #0f172a;
-            font-size: 20px;
+            font-size: 22px;
         }
 
         .close-btn {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
-            color: #64748b;
+            color: #94a3b8;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #dc2626;
         }
 
         .form-group {
@@ -170,19 +274,19 @@
             display: block;
             margin-bottom: 5px;
             color: #1e293b;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 14px;
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            font-family: Arial;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: inherit;
             font-size: 14px;
-            box-sizing: border-box;
+            transition: all 0.3s ease;
         }
 
         .form-group input:focus,
@@ -190,6 +294,7 @@
             outline: none;
             border-color: #2563eb;
             background: #f0f7ff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .modal-footer {
@@ -208,32 +313,268 @@
             background: #cbd5e1;
         }
 
-        /* RESPONSIVE MEDIA QUERIES */
+        /* ================= SCROLL TO TOP BUTTON ================= */
+        #scrollToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
 
-        /* Tablet View (Tap View) */
+        #scrollToTop:hover {
+            transform: scale(1.15);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6);
+        }
+
+        #scrollToTop:active {
+            transform: scale(0.95);
+        }
+
+        /* ================= ANIMATIONS ================= */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* ================= TABLE WRAPPER ================= */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        table thead {
+            background: #f1f5f9;
+        }
+
+        table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #1e293b;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+        }
+
+        table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* ================= RESPONSIVE MEDIA QUERIES ================= */
+
+        /* Tablet View (768px - 1024px) */
         @media (max-width: 1024px) {
-            .sidebar { width: 220px; }
-            .main-content { padding: 20px; }
-            .nav-links { gap: 10px; }
+            .top-navbar {
+                padding: 12px 20px;
+            }
+
+            .nav-links {
+                gap: 10px;
+            }
+
+            .navbar-right {
+                gap: 10px;
+                font-size: 13px;
+            }
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main-content {
+                margin-left: 220px;
+                padding: 20px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 25px;
+            }
+
+            #scrollToTop {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
         }
 
-        /* Mobile View */
+        /* Mobile View (480px - 767px) */
         @media (max-width: 768px) {
-            .dashboard-container { flex-direction: column; }
-            .sidebar { width: 100%; min-height: auto; padding: 15px; border-bottom: 1px solid #1e293b; }
-            .main-content { padding: 15px; }
-            .top-navbar { padding: 10px 15px; flex-direction: column; align-items: flex-start; }
-            .nav-links { width: 100%; justify-content: center; gap: 10px; }
-            .modal-content { width: 95%; padding: 20px; }
-            
-            /* Table Handling for Mobile */
-            .table-wrapper { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            table { min-width: 700px; }
-            
-            .sidebar-menu h4 { text-align: center; }
+            .hamburger-btn {
+                display: block;
+            }
+
+            .top-navbar {
+                padding: 12px 15px;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .navbar-left {
+                gap: 10px;
+            }
+
+            .navbar-brand {
+                font-size: 18px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .dashboard-container {
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 80%;
+                max-width: 280px;
+                height: calc(100vh - 70px);
+                z-index: 900;
+                transform: translateX(-100%);
+                box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .modal-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .close-btn {
+                align-self: flex-end;
+            }
+
+            .table-wrapper {
+                margin: 0 -15px;
+                border-radius: 0;
+            }
+
+            table {
+                min-width: 700px;
+                font-size: 13px;
+            }
+
+            table th, table td {
+                padding: 10px 8px;
+            }
+
+            #scrollToTop {
+                bottom: 15px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+
+            .navbar-right {
+                font-size: 12px;
+            }
         }
 
-        /* PC View (Default) handles widths > 1024px */
+        /* Small Mobile View (< 480px) */
+        @media (max-width: 480px) {
+            .top-navbar {
+                gap: 8px;
+            }
+
+            .navbar-brand {
+                font-size: 16px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .modal-content {
+                padding: 15px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            table th, table td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-width: none;
+            }
+        }
     </style>
 </head>
 
@@ -241,16 +582,21 @@
 
 <!-- 🔝 TOP NAVBAR -->
 <div class="top-navbar">
-    <div class="nav-links">
+    <div class="navbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()">☰</button>
+        <a href="{% url 'admin_dashboard' %}" class="navbar-brand">Admin Panel</a>
+    </div>
+    
+    <div class="nav-links" id="navLinks">
         <a href="{% url 'admin_dashboard' %}">Dashboard</a>
-        <a href="{% url 'apply_details' %}">Apply Details</a>
-        <a href="{% url 'user_details' %}">User Handling</a>
-        <button onclick="document.getElementById('addPageModal').classList.add('show')">+ Add Page</button>
-        <a href="{% url 'add_service' %}"  style="background: #059669; padding: 8px 12px; border: none; color: white; border-radius: 4px; cursor: pointer;">+ Add Service</a>
+        <a href="{% url 'apply_details' %}">Applications</a>
+        <a href="{% url 'user_details' %}">Users</a>
+        <button class="btn btn-small" onclick="openAddPageModal()">+ Page</button>
+        <a href="{% url 'add_service' %}" class="btn btn-add-service btn-small">+ Service</a>
         <a href="{% url 'admin_login' %}">Logout</a>
     </div>
 
-    <div style="white-space: nowrap;">
+    <div class="navbar-right">
         👤 {{ user.username }}
     </div>
 </div>
@@ -258,32 +604,35 @@
 <div class="dashboard-container">
 
     <!-- 📂 SIDEBAR -->
-    <aside class="sidebar">
-        <h3>Menu</h3>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">📋 Menu</div>
 
         <!-- DASHBOARD MENU -->
         {% if request.resolver_match.url_name == 'admin_dashboard' %}
         <div class="sidebar-menu">
-            <a href="#">Overview</a>
-            <a href="#">Reports</a>
+            <a href="{% url 'admin_dashboard' %}">📊 Overview</a>
+            <a href="#">📈 Reports</a>
         </div>
         {% endif %}
 
         <!-- ADD PAGE MENU -->
         {% if request.resolver_match.url_name == 'add_page' %}
         <div class="sidebar-menu">
-            <button class="btn">+ New Page</button>
+            <button class="btn btn-small" onclick="openAddPageModal()">+ New Page</button>
         </div>
         {% endif %}
 
         <!-- APPLY DETAILS MENU -->
         {% if request.resolver_match.url_name == 'apply_details' %}
         <div class="sidebar-menu">
+            <h4>Applications</h4>
             <a href="{% url 'apply_details' %}?filter_type=all">📋 All Applications</a>
             <a href="{% url 'apply_details' %}?filter_type=pending">⏸️ Pending</a>
             <a href="{% url 'apply_details' %}?filter_type=assigned">👥 Assigned</a>
             <a href="{% url 'apply_details' %}?filter_type=unassigned">📤 Unassigned</a>
             <a href="{% url 'apply_details' %}?filter_type=completed">✅ Completed</a>
+        </div>
+        <div class="sidebar-menu">
             <a href="{% url 'admin_agent_workload' %}">⚙️ Agent Workload</a>
         </div>
         {% endif %}
@@ -291,25 +640,25 @@
         <!-- USER DETAILS MENU -->
         {% if request.resolver_match.url_name == 'user_details' %}
         <div class="sidebar-menu">
-            <a href="{% url 'user_details' %}">All Users</a>
-            <a href="{% url 'user_details' %}?role=AGENT1">Agent 1</a>
-            <a href="{% url 'user_details' %}?role=AGENT2">Agent 2</a>
-            <a href="{% url 'user_details' %}?role=USER">Users</a>
+            <h4>Users</h4>
+            <a href="{% url 'user_details' %}">👥 All Users</a>
+            <a href="{% url 'user_details' %}?role=AGENT1">🤖 Agent 1</a>
+            <a href="{% url 'user_details' %}?role=AGENT2">🤖 Agent 2</a>
+            <a href="{% url 'user_details' %}?role=USER">👤 Users</a>
         </div>
         {% endif %}
 
         <!-- CUSTOM PAGES LIST -->
-        <div class="sidebar-menu" style="margin-top: 20px; border-top: 1px solid #1e293b; padding-top: 10px;">
-            <h4>📄 Created Pages</h4>
+        <div class="sidebar-menu" style="margin-top: 30px; border-top: 1px solid #1e293b; padding-top: 15px;">
+            <h4>📄 Pages</h4>
             {% if pages %}
                 {% for p in pages %}
-                    <a href="{% url 'view_custom_page' p.id %}">{{ p.title }}</a>
+                    <a href="{% url 'view_custom_page' p.id %}">📃 {{ p.title }}</a>
                 {% endfor %}
             {% else %}
-                <p style="color: #64748b; font-size: 13px; margin: 5px 0;">No pages created yet</p>
+                <p style="color: #64748b; font-size: 13px; margin: 5px 0; padding: 10px 0;">No pages yet</p>
             {% endif %}
         </div>
-
     </aside>
 
     <!-- 📄 MAIN CONTENT -->
@@ -321,46 +670,112 @@
 
 </div>
 
+<!-- SCROLL TO TOP BUTTON -->
+<button id="scrollToTop" title="Scroll to top">↑</button>
+
 <!-- ADD PAGE MODAL -->
 <div id="addPageModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <h2>Create New Page</h2>
-            <button class="close-btn" onclick="document.getElementById('addPageModal').classList.remove('show')">&times;</button>
+            <button class="close-btn" onclick="closeAddPageModal()">&times;</button>
         </div>
         <form method="post" action="{% url 'add_page' %}">
             {% csrf_token %}
             <div class="form-group">
-                <label>Page Title</label>
-                <input type="text" name="title" placeholder="Enter page name" required>
+                <label for="pageTitle">Page Title</label>
+                <input type="text" id="pageTitle" name="title" placeholder="Enter page name" required>
             </div>
             <div class="form-group">
-                <label>Page Description</label>
-                <textarea name="description" placeholder="Enter page content" rows="6" required></textarea>
+                <label for="pageDesc">Page Description</label>
+                <textarea id="pageDesc" name="description" placeholder="Enter page content" rows="6" required></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-cancel" onclick="document.getElementById('addPageModal').classList.remove('show')">Cancel</button>
+                <button type="button" class="btn btn-cancel" onclick="closeAddPageModal()">Cancel</button>
                 <button type="submit" class="btn">Create Page</button>
             </div>
         </form>
     </div>
 </div>
 
-
-
-<!-- CLOSE MODAL WHEN CLICKING OUTSIDE -->
 <script>
-    const pageModal = document.getElementById('addPageModal');
-    const userModal = document.getElementById('addUserModal');
-    
-    window.onclick = function(event) {
-        if (event.target === pageModal) {
-            pageModal.classList.remove('show');
-        }
-        if (userModal && event.target === userModal) {
-            userModal.classList.remove('show');
+    // =================== SIDEBAR TOGGLE ===================
+    let sidebarOpen = false;
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburgerBtn');
+        sidebarOpen = !sidebarOpen;
+
+        if (sidebarOpen) {
+            sidebar.classList.add('show');
+            hamburger.classList.add('active');
+        } else {
+            sidebar.classList.remove('show');
+            hamburger.classList.remove('active');
         }
     }
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburgerBtn');
+        
+        if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+            sidebar.classList.remove('show');
+            hamburger.classList.remove('active');
+            sidebarOpen = false;
+        }
+    });
+
+    // Close sidebar on window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            document.getElementById('sidebar').classList.remove('show');
+            document.getElementById('hamburgerBtn').classList.remove('active');
+            sidebarOpen = false;
+        }
+    });
+
+    // =================== SCROLL TO TOP BUTTON ===================
+    const scrollBtn = document.getElementById('scrollToTop');
+
+    window.addEventListener('scroll', function() {
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+            scrollBtn.style.display = 'block';
+        } else {
+            scrollBtn.style.display = 'none';
+        }
+    });
+
+    scrollBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // =================== MODAL FUNCTIONS ===================
+    const addPageModal = document.getElementById('addPageModal');
+
+    function openAddPageModal() {
+        addPageModal.classList.add('show');
+    }
+
+    function closeAddPageModal() {
+        addPageModal.classList.remove('show');
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === addPageModal) {
+            closeAddPageModal();
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeAddPageModal();
+        }
+    });
 </script>
 
 </body>

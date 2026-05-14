@@ -1,4 +1,5 @@
 {% extends 'admin-site/admin_base.html' %}
+{% load custom_filters %}
 
 {% block content %}
 <style>
@@ -93,7 +94,13 @@
                                 <span>📋 Documents Required</span>
                                 <span style="font-size: 10px; color: #94a3b8;">▼</span>
                             </summary>
-                            <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #1e293b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 10px;">{{ service.documents_required|linebreaksbr }}</p>
+                            <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #1e293b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                                {% for doc in service.documents_required|split:"," %}
+                                    {% if doc|trim %}
+                                    <li style="margin-left: 25px;">{{ doc|trim }}</li>
+                                    {% endif %}
+                                {% endfor %}
+
                         </details>
                         {% endif %}
 

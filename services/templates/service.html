@@ -3,7 +3,7 @@
 {% block content %}
 <style>
 .service-hero {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
     color: white;
     padding: 100px 20px;
     text-align: center;
@@ -240,21 +240,28 @@
         font-size: 24px;
     }
 }
+
+.service-gif {
+    width: 100px;
+    margin-bottom: 20px;
+    filter: brightness(1.2);
+}
 </style>
 
 <section class="service-hero">
-    <span style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 20px;">🎯 Available Services</span>
-    <h1>Browse Our Service Catalog</h1>
-    <p>Explore our range of services and submit your request. Our team will process and complete your request efficiently.</p>
+
+    <span style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 20px;">🎯 Dynamic Catalog</span>
+    <h1 class="reveal">Browse Our Service Catalog</h1>
+    <p class="reveal">Explore our range of services and submit your request. Our team will process and complete your request efficiently.</p>
     <a href="{% url 'register' %}" class="service-cta">Get Started Today</a>
 </section>
 
 <div class="services-section">
-    <h2 class="services-title">Popular Services</h2>
+    <h2 class="services-title reveal">Popular Services</h2>
     
-    <div class="services-grid">
+    <div class="services-grid reveal">
         {% for service in services %}
-        <div class="service-card">
+        <div class="service-card reveal">
             <div class="service-header">
                 <h3>{{ service.name }}</h3>
                 {% if service.charges > 0 %}

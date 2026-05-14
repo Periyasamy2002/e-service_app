@@ -1,5 +1,7 @@
 {% extends 'agent1-site/base-agent1.html' %}
 
+{% load custom_filters %}
+
 {% block content %}
 <div class="card" style="margin-bottom: 30px;">
     <div class="flex items-center justify-between">
@@ -58,7 +60,13 @@
                     <span>📋 Documents Required</span>
                     <span style="font-size: 10px; color: #94a3b8;">▼</span>
                 </summary>
-                <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #1e293b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 10px;">{{ service.documents_required|linebreaksbr }}</p>
+                <ul class="documents-list" style="margin: 10px 0 0 1.5rem; font-size: 0.9rem; color: #1e293b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                    {% for doc in service.documents_required|split:"," %}
+                        {% if doc|trim %}
+                        <li>{{ doc|trim }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
             </details>
             {% endif %}
 
@@ -67,10 +75,10 @@
                 {% if service.tutorial_link %}<a href="{{ service.tutorial_link }}" target="_blank" style="flex: 1; text-align: center; background: #f59e0b; color: white; text-decoration: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">🎥 Tutorial</a>{% endif %}
             </div>
 
-            <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+            <!-- <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
                 <a href="{% url 'edit_service' service.id %}" class="btn" style="background: #2563eb; color: white; text-decoration: none; font-size: 13px; padding: 8px 12px; flex: 1; text-align: center;">✏️ Edit</a>
                 <a href="{% url 'delete_service' service.id %}" class="btn" style="background: #ef4444; color: white; text-decoration: none; font-size: 13px; padding: 8px 12px; flex: 1; text-align: center;" onclick="return confirm('Are you sure?');">🗑️ Delete</a>
-            </div>
+            </div> -->
         </div>
         {% endfor %}
     </div>

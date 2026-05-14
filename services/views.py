@@ -46,15 +46,22 @@ def role_required(allowed_roles):
     return decorator
 
 def index(request):
-    return render(request, 'index.html')
+    pages = Page.objects.all()
+    services = Service.objects.all()[:3]  # Show featured services
+    return render(request, 'index.html', {'pages': pages, 'services': services})
 
 def about(request):
-    return render(request, 'about.html')
+    pages = Page.objects.all()
+    return render(request, 'about.html', {'pages': pages})
 
 def contact(request):
-    return render(request, 'contact.html')
+    pages = Page.objects.all()
+    return render(request, 'contact.html', {'pages': pages})
 
 def user_login(request):
+    if request.user.is_authenticated:
+        return redirect('services')
+
     if request.method == 'POST':
         action = request.POST.get('action', 'login')
 
@@ -62,23 +69,34 @@ def user_login(request):
             # Handle registration
             username = request.POST.get('username')
             email = request.POST.get('email')
-            password = request.POST.get('password')
+            password = request.POST.get('password1')
+            confirm_password = request.POST.get('password2')
             first_name = request.POST.get('first_name', '')
             last_name = request.POST.get('last_name', '')
             role = request.POST.get('role', 'USER')
 
-            if username and password and email:
-                user = User.objects.create_user(username=username, email=email, password=password)
-                user.first_name = first_name
-                user.last_name = last_name
-                user.role = role
-                user.save()
-                login(request, user)
-                messages.success(request, f'Welcome aboard, {user.username}! Your account has been created.')
-                return redirect('services')
-            else:
+            if not all([username, email, password]):
                 messages.error(request, 'Please fill in all required fields.')
-                return render(request, 'user-login.html', {'show_register': True})
+            elif password != confirm_password:
+                messages.error(request, 'Passwords do not match.')
+            elif User.objects.filter(username=username).exists():
+                messages.error(request, 'This username is already taken.')
+            elif User.objects.filter(email=email).exists():
+                messages.error(request, 'This email is already registered.')
+            else:
+                try:
+                    user = User.objects.create_user(username=username, email=email, password=password)
+                    user.first_name = first_name
+                    user.last_name = last_name
+                    user.role = role
+                    user.save()
+                    login(request, user)
+                    messages.success(request, f'Welcome aboard, {user.username}! Your account has been created.')
+                    return redirect('services')
+                except Exception as e:
+                    messages.error(request, f'An error occurred: {str(e)}')
+            
+            return render(request, 'user-login.html', {'show_register': True})
         else:
             # Handle login
             username = request.POST.get('username')

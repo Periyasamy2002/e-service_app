@@ -3,30 +3,67 @@
 {% block content %}
 <style>
 .hero-section {
-    padding: 120px 20px;
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    padding: 100px 20px;
+    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 50%, #0891b2 100%);
+    position: relative;
     color: white;
     text-align: center;
-    animation: fadeIn 0.8s ease-out;
+    animation: fadeInUp 0.8s ease-out;
+    border-radius: 16px;
+    margin-bottom: 60px;
+    box-shadow: 0 20px 50px rgba(91, 33, 182, 0.2);
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideDown 0.6s ease-out;
 }
 
 .hero-section h1 {
-    font-size: 48px;
+    font-size: 3rem;
     font-weight: 800;
     margin-bottom: 20px;
-    animation: slideDown 0.6s ease-out;
     letter-spacing: -1px;
+    animation: fadeInUp 0.8s ease-out 0.1s backwards;
+    line-height: 1.1;
 }
 
 .hero-section p {
-    font-size: 20px;
+    font-size: 1.2rem;
     opacity: 0.95;
     margin-bottom: 40px;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-    animation: slideDown 0.7s ease-out 0.1s both;
     line-height: 1.8;
+    animation: fadeInUp 0.8s ease-out 0.2s backwards;
 }
 
 .hero-actions {
@@ -34,38 +71,67 @@
     gap: 16px;
     justify-content: center;
     flex-wrap: wrap;
-    animation: slideDown 0.8s ease-out 0.2s both;
+    animation: fadeInUp 0.8s ease-out 0.3s backwards;
 }
 
 .hero-actions .btn {
-    background: white;
-    color: #2563eb;
-    font-weight: 700;
     padding: 14px 32px;
+    font-weight: 700;
     border-radius: 8px;
     text-decoration: none;
     transition: all 0.3s ease;
-    display: inline-block;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border: none;
 }
 
-.hero-actions .btn:hover {
+.btn-primary-hero {
+    background: white;
+    color: #5b21b6;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.btn-primary-hero:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+
+.btn-secondary-hero {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 2px solid white;
+}
+
+.btn-secondary-hero:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-3px);
 }
 
 .section-title {
-    font-size: 36px;
+    font-size: 2.5rem;
     font-weight: 800;
     text-align: center;
     margin: 80px 0 50px;
     color: #0f172a;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    text-align: center;
+    color: #64748b;
+    margin: -30px 0 50px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .feature-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 28px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
     margin-bottom: 60px;
 }
 
@@ -76,111 +142,212 @@
     text-align: center;
     border: 1px solid #e2e8f0;
     transition: all 0.3s ease;
-    animation: slideIn 0.5s ease-out;
+    animation: fadeInUp 0.6s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(91, 33, 182, 0.05), transparent 70%);
 }
 
 .feature-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
-    border-color: #2563eb;
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px rgba(91, 33, 182, 0.15);
+    border-color: #5b21b6;
 }
 
 .feature-icon {
     font-size: 48px;
     margin-bottom: 20px;
-    display: inline-block;
-    width: 80px;
-    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%);
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(91, 33, 182, 0.1), rgba(124, 58, 237, 0.1));
     border-radius: 12px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .feature-card h3 {
-    font-size: 20px;
+    font-size: 1.3rem;
     font-weight: 700;
     margin-bottom: 12px;
     color: #0f172a;
+    position: relative;
+    z-index: 1;
 }
 
 .feature-card p {
     color: #64748b;
     font-size: 15px;
-    line-height: 1.6;
-    margin-bottom: 16px;
+    line-height: 1.7;
+    margin: 0;
+    position: relative;
+    z-index: 1;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+    color: white;
+    padding: 60px 20px;
+    border-radius: 16px;
+    text-align: center;
+    animation: fadeInUp 0.8s ease-out;
+    box-shadow: 0 20px 50px rgba(91, 33, 182, 0.2);
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.cta-section h2 {
+    color: white;
+    margin-bottom: 20px;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.cta-section p {
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
+    margin: 0 auto 30px;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 20px;
+    }
+
     .hero-section h1 {
-        font-size: 36px;
+        font-size: 2rem;
     }
+
     .hero-section p {
-        font-size: 18px;
+        font-size: 1rem;
     }
+
     .section-title {
-        font-size: 28px;
+        font-size: 1.8rem;
+        margin: 60px 0 30px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
     }
 }
 </style>
 
+<!-- Hero Section -->
 <section class="hero-section">
-    <span style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 20px; backdrop-filter: blur(10px);">🚀 Role-Based Service Workflow</span>
-    <h1>Efficient Service Delivery Starts Here</h1>
-    <p>Streamline your service requests with a secure, role-based platform. From request submission to completion tracking—all in one place.</p>
-    <div class="hero-actions">
-        <a class="btn" href="{% url 'register' %}">Get Started Free</a>
-        <a class="btn" href="{% url 'about' %}" style="background: rgba(255,255,255,0.2); border: 2px solid white;">Learn More</a>
+    <div class="hero-content">
+        <span class="hero-badge">🚀 Professional Service Management</span>
+        <h1>Streamlined Service Delivery at Scale</h1>
+        <p>Manage multi-role service requests efficiently with our modern, secure platform. From submission to completion—seamlessly integrated.</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary-hero" href="{% url 'register' %}">Get Started Free →</a>
+            <a class="btn btn-secondary-hero" href="{% url 'services' %}">Explore Services</a>
+        </div>
     </div>
 </section>
 
-<div class="page-shell" style="max-width: 1100px; margin: auto; padding: 0 20px;">
-    <h2 class="section-title">Key Features</h2>
-    
+<!-- Features Section -->
+<div class="container">
+    <h2 class="section-title">Why Choose Our Platform?</h2>
+    <p class="section-subtitle">Complete service management solution for modern organizations</p>
+
     <div class="feature-grid">
-        <div class="feature-card">
-            <div class="feature-icon">📋</div>
-            <h3>Admin Control</h3>
-            <p>Manage all services, monitor requests, and maintain full visibility of the workflow system.</p>
+        <div class="feature-card" style="animation-delay: 100ms;">
+            <div class="feature-icon">🔐</div>
+            <h3>Secure & Verified</h3>
+            <p>Enterprise-grade security with role-based access control and data encryption to protect all sensitive information.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">✓</div>
-            <h3>Agent Review</h3>
-            <p>Agent2 provides thorough review and forwarding. Agent1 handles completion and closure.</p>
+
+        <div class="feature-card" style="animation-delay: 200ms;">
+            <div class="feature-icon">⚡</div>
+            <h3>Lightning Fast</h3>
+            <p>Optimized performance with instant request processing and real-time status updates across all user roles.</p>
         </div>
-        <div class="feature-card">
+
+        <div class="feature-card" style="animation-delay: 300ms;">
+            <div class="feature-icon">👥</div>
+            <h3>Multi-Role System</h3>
+            <p>Dedicated dashboards for Admin, Agent, and User roles with tailored workflows for each responsibility level.</p>
+        </div>
+
+        <div class="feature-card" style="animation-delay: 400ms;">
             <div class="feature-icon">📊</div>
-            <h3>Status Tracking</h3>
-            <p>Real-time updates on every request—from pending to completed with full transparency.</p>
+            <h3>Real-Time Tracking</h3>
+            <p>Complete visibility into every request lifecycle with detailed status updates and comprehensive audit trails.</p>
         </div>
+
+        <div class="feature-card" style="animation-delay: 500ms;">
+            <div class="feature-icon">🛠️</div>
+            <h3>Customizable Workflows</h3>
+            <p>Flexible configuration to match your organization's unique service requirements and approval processes.</p>
+        </div>
+
+        <div class="feature-card" style="animation-delay: 600ms;">
+            <div class="feature-icon">📱</div>
+            <h3>Mobile Responsive</h3>
+            <p>Fully responsive design that works seamlessly on desktop, tablet, and mobile devices.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<section style="background: #f8fafc; padding: 60px 20px; border-radius: 16px; margin-top: 60px; margin-bottom: 60px;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; text-align: center;">
+            <div style="animation: fadeInUp 0.6s ease-out;">
+                <div style="font-size: 2.5rem; font-weight: 800; color: #5b21b6; margin-bottom: 8px;">5000+</div>
+                <div style="color: #64748b; font-weight: 500;">Active Users</div>
+            </div>
+            <div style="animation: fadeInUp 0.6s ease-out 100ms backwards;">
+                <div style="font-size: 2.5rem; font-weight: 800; color: #5b21b6; margin-bottom: 8px;">50K+</div>
+                <div style="color: #64748b; font-weight: 500;">Requests Processed</div>
+            </div>
+            <div style="animation: fadeInUp 0.6s ease-out 200ms backwards;">
+                <div style="font-size: 2.5rem; font-weight: 800; color: #5b21b6; margin-bottom: 8px;">99.9%</div>
+                <div style="color: #64748b; font-weight: 500;">Uptime Guarantee</div>
+            </div>
+            <div style="animation: fadeInUp 0.6s ease-out 300ms backwards;">
+                <div style="font-size: 2.5rem; font-weight: 800; color: #5b21b6; margin-bottom: 8px;">24/7</div>
+                <div style="color: #64748b; font-weight: 500;">Customer Support</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="container">
+    <div class="cta-section">
+        <h2>Ready to Transform Your Service Management?</h2>
+        <p>Join thousands of organizations using our platform for efficient, secure, and transparent service delivery.</p>
+        <a class="btn btn-primary-hero" href="{% url 'register' %}" style="display: inline-flex; margin-top: 10px;">Start Free Trial Today</a>
+    </div>
+</section>
+
+<script>
+    // Staggered animation for feature cards
+    document.querySelectorAll('.feature-card').forEach((card, i) => {
+        card.style.animationDelay = `${i * 100}ms`;
+    });
+</script>
         <div class="feature-card">
             <div class="feature-icon">🔒</div>
             <h3>Role-Based Security</h3>

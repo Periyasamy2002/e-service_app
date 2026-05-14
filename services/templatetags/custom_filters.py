@@ -12,3 +12,19 @@ def replace(value, arg):
         old_text, new_text = arg.split(':', 1)
         return str(value).replace(old_text, new_text)
     return value
+
+@register.filter
+def split(value, arg):
+    """
+    Splits a string by a delimiter and returns a list.
+    Usage: {{ text|split:"," }}
+    """
+    return str(value).split(arg)
+
+@register.filter
+def trim(value):
+    """
+    Removes leading and trailing whitespace.
+    Usage: {{ text|trim }}
+    """
+    return str(value).strip()
