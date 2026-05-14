@@ -21,7 +21,10 @@ password :saran@002
 user site
 =========
 username :vignesh
-password :vignesh@002
+password :CSRF_TRUSTED_ORIGINS = [
+    'https://service-web-rkha.onrender.com',
+    'https://*.onrender.com',  # Allows any subdomain of onrender.com for flexibility
+]
 
 
 
@@ -41,6 +44,11 @@ https://service-web-rkha.onrender.com/agent2-login/
 agent1  site link
 ----------------
 https://service-web-rkha.onrender.com/agent1-login/
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://service-web-rkha.onrender.com',
+    'https://*.onrender.com',  # Allows any subdomain of onrender.com for flexibility
+]
 
 
 
