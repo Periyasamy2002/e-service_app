@@ -4,15 +4,44 @@
 <style>
     /* Hero Section */
     .dashboard-hero {
-        background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+        background: linear-gradient(-45deg, #5b21b6, #7c3aed, #4338ca, #6d28d9);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite, fadeInUp 0.6s ease-out;
         color: white;
         padding: 60px 20px;
         border-radius: 16px;
         margin-bottom: 40px;
-        animation: fadeInUp 0.6s ease-out;
         box-shadow: 0 20px 50px rgba(91, 33, 182, 0.2);
         position: relative;
         overflow: hidden;
+    }
+    .dashboard-hero {
+        position: relative;
+        padding: 80px 20px;
+        border-radius: 18px;
+        color: white;
+        overflow: hidden;
+
+        background:
+            linear-gradient(rgba(0, 0, 0, 0.65), rgba(91, 33, 182, 0.75)),
+            url("https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80");
+
+        background-size: cover;
+        background-position: center;
+    }
+
+    @keyframes gradientBG {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
     }
 
     .dashboard-hero::before {
@@ -72,6 +101,7 @@
         padding: 24px;
         text-align: center;
         transition: all 0.3s ease;
+        backdrop-filter: blur(8px);
         position: relative;
         overflow: hidden;
         animation: scaleIn 0.5s ease-out;
@@ -88,8 +118,21 @@
     }
 
     .stat-card:hover {
-        box-shadow: 0 15px 35px rgba(91, 33, 182, 0.12);
+        box-shadow: 0 20px 40px rgba(91, 33, 182, 0.15);
         transform: translateY(-8px);
+        border-color: #7c3aed;
+    }
+
+    .stat-card:hover::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: 0.5s;
+        animation: shimmer 1.5s infinite;
     }
 
     .stat-icon {
@@ -186,6 +229,31 @@
         padding-left: 8px;
         padding-right: 8px;
         border-radius: 6px;
+    }
+
+    .live-pulse {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        margin-right: 5px;
+        box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
     }
 
     .service-icon {
@@ -373,161 +441,176 @@
             height: 40px;
         }
     }
+
+    .dashboar2 {
+        margin: 20px;
+    }
 </style>
 
 <!-- Dashboard Hero -->
-<div class="dashboard-hero">
-    <div class="dashboard-hero-content">
-        <span class="badge">👋 Welcome back</span>
-        <h1>Manage your service applications</h1>
-        <p>Track, apply, and manage all your service requests in one place</p>
-    </div>
-</div>
-
-<!-- Stats Grid -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon">📋</div>
-        <div class="stat-label">Total Applications</div>
-        <div class="stat-value">{{ my_requests|length }}</div>
-        <div class="stat-change">↑ 0 this month</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon">✅</div>
-        <div class="stat-label">Completed</div>
-        <div class="stat-value">{{ completed_count|default:0 }}</div>
-        <div class="stat-change">100% success rate</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon">⏳</div>
-        <div class="stat-label">In Progress</div>
-        <div class="stat-value">{{ pending_count|default:0 }}</div>
-        <div class="stat-change">Being processed</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon">⭐</div>
-        <div class="stat-label">Available Services</div>
-        <div class="stat-value">{{ services|length }}</div>
-        <div class="stat-change">Ready to apply</div>
-    </div>
-</div>
-
-<!-- Main Grid -->
-<div class="dashboard-grid">
-    <!-- Available Services -->
-    <div class="dashboard-card">
-        <div class="dashboard-card-header">
-            <h3>📦 Available Services</h3>
+<div class="dashboar2">
+    <div class="dashboard-hero">
+        <div class="dashboard-hero-content">
+            <span class="badge">👋 Welcome back</span>
+            <h1>Manage your service applications <span style="font-size: 0.8em; vertical-align: middle;">✨</span></h1>
+            <p>Track, apply, and manage all your service requests in one place</p>
+            <div id="live-updates-ticker"
+                style="margin-top: 15px; font-size: 0.85rem; background: rgba(0,0,0,0.2); display: inline-block; padding: 4px 12px; border-radius: 30px;">
+                <span class="live-pulse"></span> <span id="ticker-text">System operational and ready.</span>
+            </div>
         </div>
-        <div class="dashboard-card-body">
-            {% if services %}
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-label">Total Applications</div>
+            <div class="stat-value counter" data-target="{{ my_requests|length }}">0</div>
+            <div class="stat-change">↑ 0 this month</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Completed</div>
+            <div class="stat-value counter" data-target="{{ completed_count|default:0 }}">0</div>
+            <div class="stat-change">100% success rate</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value counter" data-target="{{ pending_count|default:0 }}">0</div>
+            <div class="stat-change">Being processed</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-label">Available Services</div>
+            <div class="stat-value counter" data-target="{{ services|length }}">0</div>
+            <div class="stat-change">Ready to apply</div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+        <!-- Available Services -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h3>📦 Available Services</h3>
+            </div>
+            <div class="dashboard-card-body">
+                {% if services %}
                 {% for service in services|slice:":5" %}
-                    <div class="service-item">
-                        <div class="service-icon">
-                            {% if service.id|divisibleby:4 %}📄
-                            {% elif service.id|divisibleby:3 %}🆔
-                            {% elif service.id|divisibleby:2 %}🏠
-                            {% else %}💼
-                            {% endif %}
-                        </div>
-                        <div class="service-info">
-                            <div class="service-name">{{ service.name }}</div>
-                            <div class="service-desc">₹ {{ service.charges|default:"Contact" }}</div>
-                        </div>
-                        <div class="service-action">
-                            <a href="{% url 'apply_service' service.id %}" class="btn btn-sm btn-primary" style="text-decoration: none;">Apply</a>
-                        </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        {% if service.id|divisibleby:4 %}📄
+                        {% elif service.id|divisibleby:3 %}🆔
+                        {% elif service.id|divisibleby:2 %}🏠
+                        {% else %}💼
+                        {% endif %}
                     </div>
+                    <div class="service-info">
+                        <div class="service-name">{{ service.name }}</div>
+                        <div class="service-desc">₹ {{ service.charges|default:"Contact" }}</div>
+                    </div>
+                    <div class="service-action">
+                        <a href="{% url 'apply_service' service.id %}" class="btn btn-sm btn-primary"
+                            style="text-decoration: none;">Apply</a>
+                    </div>
+                </div>
                 {% endfor %}
-            {% else %}
+                {% else %}
                 <div class="empty-state">
                     <div class="empty-state-icon">📭</div>
                     <div class="empty-state-title">No services available</div>
                     <p>Check back soon for new services</p>
                 </div>
-            {% endif %}
-        </div>
-        {% if services %}
+                {% endif %}
+            </div>
+            {% if services %}
             <div class="dashboard-card-footer">
                 <a href="{% url 'services' %}" class="view-all-btn">View All Services →</a>
             </div>
-        {% endif %}
-    </div>
-
-    <!-- Recent Applications -->
-    <div class="dashboard-card">
-        <div class="dashboard-card-header">
-            <h3>📌 Recent Applications</h3>
+            {% endif %}
         </div>
-        <div class="dashboard-card-body">
-            {% if my_requests %}
+
+        <!-- Recent Applications -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h3>📌 Recent Applications</h3>
+            </div>
+            <div class="dashboard-card-body">
+                {% if my_requests %}
                 {% for request in my_requests|slice:":5" %}
-                    <div class="request-item">
-                        <div class="request-info">
-                            <div class="request-title">{{ request.service.name }}</div>
-                            <div class="request-meta">Applied: {{ request.created_at|date:"M d, Y" }}</div>
-                        </div>
-                        <div class="request-status">
-                            <span class="status-pill status-{{ request.status|lower|slugify }}">{{ request.status }}</span>
-                            <a href="{% url 'user_request_detail' request.id %}" class="btn btn-sm btn-ghost" style="text-decoration: none;">View</a>
-                        </div>
+                <div class="request-item">
+                    <div class="request-info">
+                        <div class="request-title">{{ request.service.name }}</div>
+                        <div class="request-meta">Applied: {{ request.created_at|date:"M d, Y" }}</div>
                     </div>
+                    <div class="request-status">
+                        <span class="status-pill status-{{ request.status|lower|slugify }}">{{ request.status }}</span>
+                        <a href="{% url 'user_request_detail' request.id %}" class="btn btn-sm btn-ghost"
+                            style="text-decoration: none;">View</a>
+                    </div>
+                </div>
                 {% endfor %}
-            {% else %}
+                {% else %}
                 <div class="empty-state">
                     <div class="empty-state-icon">📋</div>
                     <div class="empty-state-title">No applications yet</div>
                     <p>Start by applying for a service above</p>
                 </div>
-            {% endif %}
-        </div>
-        {% if my_requests %}
+                {% endif %}
+            </div>
+            {% if my_requests %}
             <div class="dashboard-card-footer">
                 <a href="{% url 'user_dashboard' %}" class="view-all-btn">View All Applications →</a>
             </div>
-        {% endif %}
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="dashboard-card">
-        <div class="dashboard-card-header">
-            <h3>⚡ Quick Actions</h3>
+            {% endif %}
         </div>
-        <div class="dashboard-card-body">
-            <div class="service-item" style="border: none; padding: 12px 0;">
-                <div class="service-icon" style="background: linear-gradient(135deg, #5b21b6, #7c3aed);">
-                    <span style="color: white; font-size: 20px;">🔍</span>
-                </div>
-                <div class="service-info">
-                    <div class="service-name">Browse Services</div>
-                    <div class="service-desc">Explore all available services</div>
-                </div>
-                <a href="{% url 'services' %}" class="btn btn-sm btn-outline" style="text-decoration: none; white-space: nowrap;">Browse</a>
-            </div>
 
-            <div class="service-item" style="border: none; padding: 12px 0;">
-                <div class="service-icon" style="background: linear-gradient(135deg, #0891b2, #06b6d4);">
-                    <span style="color: white; font-size: 20px;">📊</span>
-                </div>
-                <div class="service-info">
-                    <div class="service-name">Track Status</div>
-                    <div class="service-desc">Check all application statuses</div>
-                </div>
-                <a href="{% url 'user_dashboard' %}" class="btn btn-sm btn-outline" style="text-decoration: none; white-space: nowrap;">View</a>
+        <!-- Quick Actions -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h3>⚡ Quick Actions</h3>
             </div>
+            <div class="dashboard-card-body">
+                <div class="service-item" style="border: none; padding: 12px 0;">
+                    <div class="service-icon" style="background: linear-gradient(135deg, #5b21b6, #7c3aed);">
+                        <span style="color: white; font-size: 20px;">🔍</span>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-name">Browse Services</div>
+                        <div class="service-desc">Explore all available services</div>
+                    </div>
+                    <a href="{% url 'services' %}" class="btn btn-sm btn-outline"
+                        style="text-decoration: none; white-space: nowrap;">Browse</a>
+                </div>
 
-            <div class="service-item" style="border: none; padding: 12px 0;">
-                <div class="service-icon" style="background: linear-gradient(135deg, #059669, #10b981);">
-                    <span style="color: white; font-size: 20px;">❓</span>
+                <div class="service-item" style="border: none; padding: 12px 0;">
+                    <div class="service-icon" style="background: linear-gradient(135deg, #0891b2, #06b6d4);">
+                        <span style="color: white; font-size: 20px;">📊</span>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-name">Track Status</div>
+                        <div class="service-desc">Check all application statuses</div>
+                    </div>
+                    <a href="{% url 'user_dashboard' %}" class="btn btn-sm btn-outline"
+                        style="text-decoration: none; white-space: nowrap;">View</a>
                 </div>
-                <div class="service-info">
-                    <div class="service-name">Need Help?</div>
-                    <div class="service-desc">Contact our support team</div>
+
+                <div class="service-item" style="border: none; padding: 12px 0;">
+                    <div class="service-icon" style="background: linear-gradient(135deg, #059669, #10b981);">
+                        <span style="color: white; font-size: 20px;">❓</span>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-name">Need Help?</div>
+                        <div class="service-desc">Contact our support team</div>
+                    </div>
+                    <a href="{% url 'contact' %}" class="btn btn-sm btn-outline"
+                        style="text-decoration: none; white-space: nowrap;">Help</a>
                 </div>
-                <a href="{% url 'contact' %}" class="btn btn-sm btn-outline" style="text-decoration: none; white-space: nowrap;">Help</a>
             </div>
         </div>
     </div>
@@ -538,5 +621,50 @@
     document.querySelectorAll('.stat-card, .dashboard-card').forEach((el, i) => {
         el.style.animationDelay = `${i * 100}ms`;
     });
+
+    // Live Counter Animation
+    const counters = document.querySelectorAll('.counter');
+    counters.forEach(counter => {
+        const updateCount = () => {
+            const target = +counter.getAttribute('data-target');
+            const count = +counter.innerText;
+            const speed = 200;
+            const inc = target / speed;
+
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc);
+                setTimeout(updateCount, 1);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    });
+
+    // Simulated Live Ticker Updates
+    const tickerMessages = [
+        "New service: Digital Birth Certificate added.",
+        "Agent assigned to your PAN card request.",
+        "Processing speed increased by 20% today.",
+        "System maintenance scheduled for 2 AM tonight.",
+        "Verification complete for Aadhaar requests."
+    ];
+
+    let tickerIndex = 0;
+    function updateTicker() {
+        const tickerText = document.getElementById('ticker-text');
+        if (tickerText) {
+            tickerText.style.opacity = 0;
+            setTimeout(() => {
+                tickerText.innerText = tickerMessages[tickerIndex];
+                tickerText.style.opacity = 1;
+                tickerIndex = (tickerIndex + 1) % tickerMessages.length;
+            }, 500);
+        }
+    }
+    setInterval(updateTicker, 5000);
+
+    // Style for ticker fade
+    document.getElementById('ticker-text').style.transition = 'opacity 0.5s ease-in-out';
 </script>
 {% endblock %}

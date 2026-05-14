@@ -223,10 +223,6 @@ def apply_details(request):
         all_requests = all_requests.filter(assigned_to__isnull=False)
     elif filter_type == 'unassigned':
         all_requests = all_requests.filter(assigned_to__isnull=True)
-    elif request.user.role != 'ADMIN' and filter_type == 'all':
-        # Default behavior for non-admins if no specific filter is selected
-        all_requests = all_requests.filter(assigned_to__isnull=True)
-
     # Apply filters
     status_filter = request.GET.get('status')
     service_filter = request.GET.get('service')
@@ -1231,7 +1227,10 @@ def agent1_completed(request):
 @role_required(['AGENT1'])
 def agent1_request_detail(request, request_id):
     """Agent1 view for specific request details. Allows status change, remarks, and document upload."""
-    service_request = get_object_or_404(ServiceRequest, id=request_id, assigned_to=request.user)
+    # Allow viewing if the request is assigned to the current agent OR if it is unassigned
+    service_request = get_object_or_404(
+        ServiceRequest, Q(id=request_id) & (Q(assigned_to=request.user) | Q(assigned_to__isnull=True))
+    )
     
     if request.method == 'POST':
         # Handle status change
@@ -1249,12 +1248,18 @@ def agent1_request_detail(request, request_id):
         if completed_file:
             service_request.completed_file = completed_file
         
+        # Update: Automatically record the agent identity if they process an unassigned request
+        if not service_request.assigned_to:
+            service_request.assigned_to = request.user
+            if service_request.status == 'Pending':
+                service_request.status = 'In Progress'
+
         service_request.save()
         messages.success(request, f"Request #{request_id} updated successfully.")
         return redirect('agent1_request_detail', request_id=request_id)
     else:
         # GET request: Transition status when Agent 1 begins processing (first view)
-        if service_request.status == 'Under Review':
+        if service_request.assigned_to == request.user and service_request.status == 'Under Review':
             service_request.status = 'In Progress'
             service_request.save()
             messages.info(request, f"Application #{request_id} has been moved to 'In Progress'.")

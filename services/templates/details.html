@@ -124,6 +124,20 @@
         color: #065f46;
     }
 
+    /* Image preview styling for document list */
+    .document-preview-wrapper {
+        margin-bottom: 8px;
+    }
+    .img-preview {
+        width: 160px;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        background-color: #f8fafc;
+    }
+
     .action-button {
         display: block;
         background: #2563eb;
@@ -250,6 +264,9 @@
                 style="display: flex; flex-direction: column; gap: 12px;">
                 <!-- Fixed Model Fields -->
                 {% if request.photo %}
+                <div class="document-preview-wrapper">
+                    <img src="{{ request.photo.url }}" class="img-preview" alt="Photo Preview">
+                </div>
                 <a href="{{ request.photo.url }}" target="_blank"
                     style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
                     🖼️ <span>Photo</span>
@@ -258,6 +275,9 @@
                 {% endif %}
 
                 {% if request.aadhaar_card %}
+                <div class="document-preview-wrapper">
+                    <img src="{{ request.aadhaar_card.url }}" class="img-preview" alt="Aadhaar Preview">
+                </div>
                 <a href="{{ request.aadhaar_card.url }}" target="_blank"
                     style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
                     🪪 <span>Aadhaar Card</span>
@@ -266,6 +286,9 @@
                 {% endif %}
 
                 {% if request.pan_card %}
+                <div class="document-preview-wrapper">
+                    <img src="{{ request.pan_card.url }}" class="img-preview" alt="PAN Preview">
+                </div>
                 <a href="{{ request.pan_card.url }}" target="_blank"
                     style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
                     💳 <span>PAN Card</span>
@@ -274,6 +297,9 @@
                 {% endif %}
 
                 {% if request.signature %}
+                <div class="document-preview-wrapper">
+                    <img src="{{ request.signature.url }}" class="img-preview" alt="Signature Preview">
+                </div>
                 <a href="{{ request.signature.url }}" target="_blank"
                     style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 500; transition: all 0.2s ease;">
                     ✍️ <span>Signature</span>

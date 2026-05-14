@@ -103,6 +103,54 @@
     {% block content %}
     {% endblock %}
 </div>
+
+<!-- ================= FOOTER START ================= -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <a href="{% url 'index' %}" class="navbar-brand" style="margin-bottom: 20px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
+                    </svg>
+                    E-Service
+                </a>
+                <p style="color: #64748b; line-height: 1.6; margin-top: 10px;">
+                    Your trusted partner for seamless digital service management. We simplify the complex workflows of application processing.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li><a href="{% url 'about' %}">About Us</a></li>
+                    <li><a href="{% url 'services' %}">Our Services</a></li>
+                    <li><a href="{% url 'contact' %}">Contact Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>User Center</h4>
+                <ul class="footer-links">
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'user_dashboard' %}">User Dashboard</a></li>
+                    <li><a href="{% url 'services' %}">My Applications</a></li>
+                    {% else %}
+                    <li><a href="{% url 'login' %}">Login / Register</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'contact' %}">Help Center</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Ready to Start?</h4>
+                <p style="color: #64748b; margin-bottom: 15px; font-size: 14px;">Submit your first application today and experience efficiency.</p>
+                <a href="{% url 'services' %}" class="btn btn-primary" style="width: 100%;">Apply Now</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 E-Service Platform. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
 <!-- ================= NAVBAR END ================= -->
 
 <style>
@@ -447,6 +495,83 @@ body{
         padding-top:12px;
     }
 
+}
+
+/* ================= FOOTER STYLES ================= */
+
+.footer {
+    background: #ffffff;
+    padding: 60px 0 20px;
+    margin-top: 60px;
+    border-top: 1px solid var(--border);
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 40px;
+}
+
+.footer-col h4 {
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.footer-col h4::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 30px;
+    height: 2px;
+    background: var(--primary);
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: #64748b;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+.footer-links a:hover {
+    color: var(--primary);
+    padding-left: 5px;
+}
+
+.footer-bottom {
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+@media(max-width: 992px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media(max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+    .footer {
+        padding: 40px 0 20px;
+    }
 }
 
 </style>

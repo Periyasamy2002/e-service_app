@@ -3,214 +3,488 @@
 {% block content %}
 
 <style>
-    /* Layout Container */
-    .auth-container {
-        max-width: 1000px;
-        margin: 50px auto;
+
+/* ================= GOOGLE FONT ================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ================= RESET ================= */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#020617;
+}
+
+/* ================= MAIN ================= */
+.main{
+    width:100%;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: radial-gradient(circle at top left, #0f172a, #020617);
+    position:relative;
+    overflow:hidden;
+}
+
+/* ================= PARTICLES ================= */
+.particle{
+    position:absolute;
+    width:6px;
+    height:6px;
+    background:rgba(255,255,255,0.5);
+    border-radius:50%;
+    animation: floatUp linear infinite;
+    opacity:0.6;
+}
+
+@keyframes floatUp{
+    from{
+        transform:translateY(100vh) scale(0.5);
+        opacity:0;
+    }
+    50%{
+        opacity:1;
+    }
+    to{
+        transform:translateY(-10vh) scale(1.2);
+        opacity:0;
+    }
+}
+
+/* ================= BLUR BLOBS ================= */
+.main::before,
+.main::after{
+    content:"";
+    position:absolute;
+    width:350px;
+    height:350px;
+    border-radius:50%;
+    filter:blur(100px);
+    opacity:0.4;
+    z-index:0;
+}
+
+.main::before{
+    background:#7c3aed;
+    top:-80px;
+    left:-80px;
+}
+
+.main::after{
+    background:#06b6d4;
+    bottom:-80px;
+    right:-80px;
+}
+
+/* ================= TOGGLE ================= */
+.toggle{
+    position:absolute;
+    top:30px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:20;
+    display:flex;
+    gap:10px;
+}
+
+.toggle button{
+    padding:12px 28px;
+    border:none;
+    border-radius:40px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.2);
+    transition:0.4s;
+}
+
+.toggle button.active{
+    background:white;
+    color:black;
+}
+
+/* ================= AUTH WRAPPER ================= */
+.auth-wrapper{
+    width:950px;
+    height:560px;
+    position:relative;
+    border-radius:28px;
+    overflow:hidden;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.1);
+    backdrop-filter:blur(25px);
+    box-shadow:0 25px 80px rgba(0,0,0,0.6);
+    z-index:5;
+}
+
+/* ================= PANELS ================= */
+.panel{
+    position:absolute;
+    width:50%;
+    height:100%;
+    top:0;
+    transition:0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ================= FORM PANEL ================= */
+.form-panel{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px;
+}
+
+/* ================= IMAGE PANEL ================= */
+.image-panel img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+/* ================= FORM BOX ================= */
+.form-box{
+    width:100%;
+    max-width:340px;
+    color:white;
+}
+
+.form-box h2{
+    font-size:32px;
+    margin-bottom:25px;
+    font-weight:700;
+}
+
+/* ================= INPUT ================= */
+.input-box{
+    margin-bottom:16px;
+}
+
+.input-box input{
+    width:100%;
+    padding:14px 18px;
+    border:none;
+    outline:none;
+    border-radius:14px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    font-size:14px;
+    border:1px solid rgba(255,255,255,0.08);
+    transition:0.3s;
+}
+
+.input-box input:focus{
+    border:1px solid #06b6d4;
+    background:rgba(255,255,255,0.15);
+}
+
+.input-box input::placeholder{
+    color:#cbd5e1;
+}
+
+/* ================= BUTTON ================= */
+.submit-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(90deg,#7c3aed,#06b6d4);
+    color:white;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:10px;
+    transition:0.4s;
+}
+
+.submit-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 30px rgba(124,58,237,0.4);
+}
+
+/* ================= MESSAGE ================= */
+.messages{
+    list-style:none;
+    margin-bottom:18px;
+}
+
+.alert{
+    padding:12px;
+    border-radius:10px;
+    font-size:14px;
+    margin-bottom:10px;
+}
+
+.alert-error{
+    background:rgba(239,68,68,0.2);
+    border:1px solid #ef4444;
+    color:#fecaca;
+}
+
+.alert-success{
+    background:rgba(34,197,94,0.2);
+    border:1px solid #22c55e;
+    color:#bbf7d0;
+}
+
+/* ================= LOGIN STATE ================= */
+.login-form{
+    left:0;
+    opacity:1;
+    z-index:5;
+}
+
+.login-image{
+    left:50%;
+    opacity:1;
+}
+
+.register-form{
+    left:50%;
+    opacity:0;
+    transform:translateX(100px);
+    pointer-events:none;
+}
+
+.register-image{
+    left:-50%;
+    opacity:0;
+}
+
+/* ================= REGISTER ACTIVE ================= */
+.auth-wrapper.register .login-form{
+    opacity:0;
+    transform:translateX(-100px);
+    pointer-events:none;
+}
+
+.auth-wrapper.register .login-image{
+    left:100%;
+    opacity:0;
+}
+
+.auth-wrapper.register .register-form{
+    left:50%;
+    opacity:1;
+    transform:translateX(0);
+    pointer-events:auto;
+}
+
+.auth-wrapper.register .register-image{
+    left:0;
+    opacity:1;
+}
+
+/* ================= MOBILE ================= */
+@media(max-width:900px){
+
+    .auth-wrapper{
+        width:95%;
+        height:auto;
+        min-height:650px;
     }
 
-    /* Top Navigation Buttons */
-    .top-nav {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 15px;
-        gap: 10px;
+    .panel{
+        width:100%;
+        height:100%;
     }
 
-    .btn-outline {
-        padding: 8px 20px;
-        border: 2px solid #667eea;
-        background: transparent;
-        color: #667eea;
-        border-radius: 20px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
+    .image-panel{
+        display:none;
     }
 
-    .btn-outline:hover {
-        background: #667eea;
-        color: white;
+    .login-form,
+    .register-form{
+        left:0 !important;
+        width:100%;
     }
 
-    /* Main Card */
-    .auth-wrapper {
-        display: flex;
-        background: #fff;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    .register-form{
+        opacity:0;
+        pointer-events:none;
     }
 
-    .form-section {
-        width: 50%;
-        padding: 40px;
-        transition: 0.3s;
+    .auth-wrapper.register .register-form{
+        opacity:1;
+        pointer-events:auto;
     }
 
-    .hidden {
-        display: none;
+    .auth-wrapper.register .login-form{
+        opacity:0;
+        pointer-events:none;
     }
+}
 
-    .right-section {
-        width: 50%;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-    }
-
-    input, select {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-    }
-
-    .btn-primary {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        background: #667eea;
-        color: white;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-
-    /* Back Button Styling */
-    .btn-back {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-top: 20px;
-        color: #888;
-        text-decoration: none;
-        font-size: 14px;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-back:hover {
-        color: #333;
-    }
-
-    /* Alert Messages */
-    .alert {
-        padding: 10px;
-        margin-bottom: 15px;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .alert-error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-
-    .toggle-link {
-        color: #667eea;
-        cursor: pointer;
-        font-weight: bold;
-    }
 </style>
 
-<div class="auth-container">
-    
-    <div class="top-nav">
-        <button class="btn-outline" onclick="showLogin()">Login</button>
-        <button class="btn-outline" onclick="showRegister()">Register</button>
+<div class="main">
+
+    <!-- TOGGLE -->
+    <div class="toggle">
+        <button id="loginBtn" class="active" onclick="showLogin()">Login</button>
+        <button id="registerBtn" onclick="showRegister()">Register</button>
     </div>
 
-    <div class="auth-wrapper">
-        <div class="form-section {% if show_register %}hidden{% endif %}" id="loginBox">
-            <h2>Login</h2>
-            <p>Welcome back</p>
+    <!-- AUTH WRAPPER -->
+    <div class="auth-wrapper login" id="wrapper">
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        <!-- LOGIN FORM -->
+        <div class="panel form-panel login-form">
+
+            <div class="form-box">
+
+                <h2>Welcome Back 👋</h2>
+
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li class="alert alert-{{ message.tags }}">
                         {{ message }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <form method="POST" action="{% url 'login' %}">
+
+                    {% csrf_token %}
+
+                    <div class="input-box">
+                        <input type="text" name="username" placeholder="Username">
                     </div>
-                {% endfor %}
-            {% endif %}
 
-            <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit" class="btn-primary">Login</button>
-            </form>
-
-            <p style="text-align: center; margin-top: 15px;">
-                Don't have an account? <span class="toggle-link" onclick="showRegister()">Register</span>
-            </p>
-
-            <button onclick="history.back()" class="btn-back">← Back to Home</button>
-        </div>
-
-        <div class="form-section {% if not show_register %}hidden{% endif %}" id="registerBox">
-            <h2>Create Account</h2>
-            <p>Join the Service System</p>
-
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                        {{ message }}
+                    <div class="input-box">
+                        <input type="password" name="password" placeholder="Password">
                     </div>
-                {% endfor %}
-            {% endif %}
 
-            <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="register">
+                    <button type="submit" class="submit-btn">
+                        Login
+                    </button>
 
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="email" name="email" placeholder="Email" required>
-             
-                <input type="password" name="password1" placeholder="Password" required>
-                <input type="password" name="password2" placeholder="Confirm Password" required>
+                </form>
 
-                <button type="submit" class="btn-primary">Register</button>
-            </form>
-
-            <p style="text-align: center; margin-top: 15px;">
-                Already registered? <span class="toggle-link" onclick="showLogin()">Login</span>
-            </p>
-
-            <button onclick="history.back()" class="btn-back">← Back to Home</button>
-        </div>
-
-        <div class="right-section">
-            <div>
-                <h2>Service System</h2>
-                <p>Manage users, roles and requests easily</p>
             </div>
+
         </div>
+
+        <!-- LOGIN IMAGE -->
+        <div class="panel image-panel login-image">
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop" alt="">
+        </div>
+
+        <!-- REGISTER IMAGE -->
+        <div class="panel image-panel register-image">
+            <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1200&auto=format&fit=crop" alt="">
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div class="panel form-panel register-form">
+
+            <div class="form-box">
+
+                <h2>Create Account 🚀</h2>
+
+                <form method="POST" action="{% url 'login' %}">
+
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="register">
+
+                    <div class="input-box">
+                        <input type="text" name="username" placeholder="Username">
+                    </div>
+
+                    <div class="input-box">
+                        <input type="email" name="email" placeholder="Email">
+                    </div>
+
+                    <div class="input-box">
+                        <input type="password" name="password1" placeholder="Password">
+                    </div>
+
+                    <div class="input-box">
+                        <input type="password" name="password2" placeholder="Confirm Password">
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        Register
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
     </div>
+
 </div>
 
 <script>
-    function showRegister() {
-        document.getElementById("loginBox").classList.add("hidden");
-        document.getElementById("registerBox").classList.remove("hidden");
-    }
 
-    function showLogin() {
-        document.getElementById("registerBox").classList.add("hidden");
-        document.getElementById("loginBox").classList.remove("hidden");
+/* ================= TOGGLE ================= */
+
+const wrapper = document.getElementById("wrapper");
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
+
+function showLogin(){
+
+    wrapper.classList.remove("register");
+    wrapper.classList.add("login");
+
+    loginBtn.classList.add("active");
+    registerBtn.classList.remove("active");
+}
+
+function showRegister(){
+
+    wrapper.classList.remove("login");
+    wrapper.classList.add("register");
+
+    registerBtn.classList.add("active");
+    loginBtn.classList.remove("active");
+}
+
+/* ================= PARTICLES ================= */
+
+function createParticles(){
+
+    for(let i=0;i<40;i++){
+
+        const particle = document.createElement("div");
+
+        particle.classList.add("particle");
+
+        document.querySelector(".main").appendChild(particle);
+
+        const size = Math.random() * 6 + 2;
+
+        particle.style.width = size + "px";
+        particle.style.height = size + "px";
+
+        particle.style.left = Math.random() * 100 + "vw";
+
+        particle.style.animationDuration =
+        (Math.random() * 8 + 5) + "s";
+
+        particle.style.animationDelay =
+        Math.random() * 5 + "s";
     }
+}
+
+createParticles();
+
 </script>
 
 {% endblock %}

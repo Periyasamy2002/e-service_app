@@ -1,143 +1,842 @@
 {% extends 'user-base.html' %}
 
 {% block content %}
+
 <style>
-.contact-hero {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-    color: white;
-    padding: 80px 20px;
-    text-align: center;
+  .contact-hero{
+    position:relative;
+    overflow:hidden;
+
+    background:
+    linear-gradient(
+        rgba(15,23,42,0.75),
+        rgba(37,99,235,0.75)
+    ),
+
+    url("https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1600&auto=format&fit=crop");
+
+    background-size:cover;
+
+    background-position:center;
+
+    background-repeat:no-repeat;
+
+    padding:120px 20px;
+
+    text-align:center;
+
+    color:white;
 }
 
-.contact-hero h1 {
-    font-size: 44px;
-    font-weight: 800;
-    margin-bottom: 20px;
+/* ================= HERO SECTION ================= */
+
+.contact-hero{
+    position:relative;
+    overflow:hidden;
+
+   
+    padding:120px 20px;
+
+    text-align:center;
+
+    color:white;
 }
 
-.contact-content {
-    max-width: 1100px;
-    margin: 60px auto;
-    padding: 0 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
+.contact-hero::before{
+    content:"";
+
+    position:absolute;
+
+    width:500px;
+    height:500px;
+
+    background:rgba(255,255,255,0.08);
+
+    border-radius:50%;
+
+    top:-180px;
+    right:-120px;
+
+    animation:float 6s ease-in-out infinite;
 }
 
-.contact-info, .contact-form {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+.contact-hero::after{
+    content:"";
+
+    position:absolute;
+
+    width:350px;
+    height:350px;
+
+    background:rgba(255,255,255,0.05);
+
+    border-radius:50%;
+
+    bottom:-100px;
+    left:-100px;
+
+    animation:float 8s ease-in-out infinite;
 }
 
-.contact-info h2, .contact-form h2 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 20px;
+.contact-hero-content{
+    position:relative;
+    z-index:2;
 }
 
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-size: 14px;
+.contact-hero h1{
+    font-size:60px;
+
+    font-weight:800;
+
+    margin-bottom:20px;
+
+    animation:fadeUp 1s ease;
 }
 
-.form-group input, .form-group textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-family: inherit;
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
+.contact-hero p{
+    max-width:750px;
+
+    margin:auto;
+
+    font-size:18px;
+
+    line-height:1.8;
+
+    opacity:0.95;
+
+    animation:fadeUp 1.3s ease;
 }
 
-.form-group input:focus, .form-group textarea:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+.hero-btn{
+    display:inline-block;
+
+    margin-top:35px;
+
+    background:white;
+
+    color:#2563eb;
+
+    padding:15px 35px;
+
+    border-radius:50px;
+
+    text-decoration:none;
+
+    font-weight:700;
+
+    transition:0.3s;
 }
 
-.form-group textarea {
-    min-height: 140px;
-    resize: vertical;
+.hero-btn:hover{
+    transform:translateY(-4px);
+
+    box-shadow:0 15px 30px rgba(0,0,0,0.2);
 }
 
-.contact-form button {
-    background: #2563eb;
-    color: white;
-    border: none;
-    width: 100%;
-    padding: 12px 32px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 15px;
+/* ================= CONTACT SECTION ================= */
+
+.contact-content{
+    max-width:1200px;
+
+    margin:90px auto;
+
+    padding:0 20px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:40px;
 }
 
-.contact-form button:hover {
-    background: #1d4ed8;
-    transform: translateY(-2px);
+/* ================= INFO CARD ================= */
+
+.contact-info{
+    background:white;
+
+    padding:45px;
+
+    border-radius:24px;
+
+    box-shadow:0 10px 35px rgba(0,0,0,0.08);
+
+    animation:slideLeft 1s ease;
 }
 
-@media (max-width: 768px) {
-    .contact-content {
-        grid-template-columns: 1fr;
+.contact-info h2{
+    font-size:34px;
+
+    margin-bottom:30px;
+
+    color:#0f172a;
+}
+
+.info-box{
+    display:flex;
+
+    gap:18px;
+
+    margin-bottom:30px;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    transition:0.3s;
+}
+
+.info-box:hover{
+    background:#f8fafc;
+
+    transform:translateX(8px);
+}
+
+.info-icon{
+    width:60px;
+    height:60px;
+
+    border-radius:18px;
+
+    background:linear-gradient(135deg,#2563eb,#4f46e5);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:white;
+
+    font-size:28px;
+
+    flex-shrink:0;
+}
+
+.info-text h4{
+    font-size:20px;
+
+    margin-bottom:8px;
+
+    color:#0f172a;
+}
+
+.info-text p{
+    color:#64748b;
+
+    line-height:1.8;
+}
+
+/* ================= FORM ================= */
+
+.contact-form{
+    background:white;
+
+    padding:45px;
+
+    border-radius:24px;
+
+    box-shadow:0 10px 35px rgba(0,0,0,0.08);
+
+    animation:slideRight 1s ease;
+}
+
+.contact-form h2{
+    font-size:34px;
+
+    margin-bottom:30px;
+
+    color:#0f172a;
+}
+
+.form-group{
+    margin-bottom:22px;
+}
+
+.form-group label{
+    display:block;
+
+    margin-bottom:10px;
+
+    font-weight:600;
+
+    color:#0f172a;
+}
+
+.form-group input,
+.form-group textarea{
+    width:100%;
+
+    padding:16px 18px;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:14px;
+
+    background:#f8fafc;
+
+    transition:0.3s;
+
+    font-size:15px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus{
+    outline:none;
+
+    border-color:#2563eb;
+
+    background:white;
+
+    box-shadow:0 0 0 4px rgba(37,99,235,0.1);
+}
+
+.form-group textarea{
+    min-height:160px;
+
+    resize:none;
+}
+
+.contact-form button{
+    width:100%;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:linear-gradient(135deg,#2563eb,#4f46e5);
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.contact-form button:hover{
+    transform:translateY(-3px);
+
+    box-shadow:0 15px 30px rgba(37,99,235,0.3);
+}
+
+/* ================= EXTRA SECTION ================= */
+
+.more-contact-section{
+    max-width:1200px;
+
+    margin:100px auto;
+
+    padding:0 20px;
+}
+
+.more-contact-title{
+    text-align:center;
+
+    margin-bottom:60px;
+}
+
+.more-contact-title h2{
+    font-size:46px;
+
+    margin-bottom:20px;
+
+    color:#0f172a;
+}
+
+.more-contact-title p{
+    max-width:800px;
+
+    margin:auto;
+
+    color:#64748b;
+
+    line-height:1.9;
+
+    font-size:17px;
+}
+
+/* ================= GRID ================= */
+
+.more-contact-grid{
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+
+    gap:30px;
+}
+
+/* ================= CARD ================= */
+
+.more-card{
+    background:white;
+
+    padding:40px 30px;
+
+    border-radius:24px;
+
+    box-shadow:0 10px 35px rgba(0,0,0,0.06);
+
+    position:relative;
+
+    overflow:hidden;
+
+    transition:0.4s;
+}
+
+.more-card::before{
+    content:"";
+
+    position:absolute;
+
+    width:150px;
+    height:150px;
+
+    background:rgba(37,99,235,0.05);
+
+    border-radius:50%;
+
+    top:-70px;
+    right:-70px;
+}
+
+.more-card:hover{
+    transform:translateY(-12px);
+
+    box-shadow:0 20px 45px rgba(0,0,0,0.1);
+}
+
+.more-icon{
+    width:75px;
+    height:75px;
+
+    border-radius:20px;
+
+    background:linear-gradient(135deg,#2563eb,#4f46e5);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:white;
+
+    font-size:34px;
+
+    margin-bottom:25px;
+
+    animation:float 4s ease-in-out infinite;
+}
+
+.more-card h3{
+    font-size:24px;
+
+    margin-bottom:15px;
+
+    color:#0f172a;
+}
+
+.more-card p{
+    color:#64748b;
+
+    line-height:1.8;
+}
+
+/* ================= SUPPORT IMAGE ================= */
+
+.support-image{
+    max-width:1200px;
+
+    margin:100px auto;
+
+    padding:0 20px;
+
+    text-align:center;
+}
+
+.support-image img{
+    width:100%;
+
+    max-width:900px;
+
+    border-radius:28px;
+
+    box-shadow:0 20px 45px rgba(0,0,0,0.12);
+
+    animation:fadeUp 1.2s ease;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes fadeUp{
+
+    from{
+        opacity:0;
+        transform:translateY(40px);
     }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
 }
+
+@keyframes slideLeft{
+
+    from{
+        opacity:0;
+        transform:translateX(-60px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+
+@keyframes slideRight{
+
+    from{
+        opacity:0;
+        transform:translateX(60px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+
+@keyframes float{
+
+    0%{
+        transform:translateY(0px);
+    }
+
+    50%{
+        transform:translateY(-12px);
+    }
+
+    100%{
+        transform:translateY(0px);
+    }
+
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:768px){
+
+    .contact-hero{
+        padding:90px 20px;
+    }
+
+    .contact-hero h1{
+        font-size:40px;
+    }
+
+    .contact-content{
+        grid-template-columns:1fr;
+    }
+
+    .contact-info,
+    .contact-form{
+        padding:30px;
+    }
+
+    .more-contact-title h2{
+        font-size:34px;
+    }
+
+}
+
 </style>
 
-<div class="contact-hero">
-    <h1>Get in Touch</h1>
-    <p>Have questions? Our support team is ready to help!</p>
-</div>
+<!-- ================= HERO ================= -->
 
-<div class="contact-content">
-    <div class="contact-info">
-        <h2>Contact Information</h2>
-        <p><strong>Email:</strong><br>support@eservice.example.com</p>
-        <p><strong>Phone:</strong><br>+1 (555) 123-4567</p>
-        <p><strong>Office:</strong><br>Service Center, Technology Hub<br>Business District, City</p>
-        <p><strong>Support Hours:</strong><br>Monday - Friday: 9AM - 6PM<br>Saturday - Sunday: 10AM - 4PM</p>
-    </div>
-    
-    <div class="contact-form">
-        <h2>Send us a Message</h2>
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" name="name" placeholder="John Doe" required>
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" name="email" placeholder="you@example.com" required>
-            </div>
-            <div class="form-group">
-                <label>Subject</label>
-                <input type="text" name="subject" placeholder="What is this about?" required>
-            </div>
-            <div class="form-group">
-                <label>Message</label>
-                <textarea name="message" placeholder="Tell us more..." required></textarea>
-            </div>
-            <button type="submit">Send Message</button>
-        </form>
-    </div>
-</div>
+<section class="contact-hero">
 
-<section class="card-grid">
-    <div class="card">
-        <h2>Contact Us</h2>
-        <p>Need help with the e-service workflow? Reach out and we’ll assist you with service requests, account access, or role setup.</p>
-        <ul class="feature-list">
-            <li>Email: support@eservice.example.com</li>
-            <li>Phone: +1 (555) 123-4567</li>
-            <li>Office: Service workflow support center</li>
-        </ul>
+    <div class="contact-hero-content">
+
+        <h1>Contact Our Support Team</h1>
+
+        <p>
+            We are here to help you with workflow management, service applications,
+            technical support, dashboard access, and all platform-related assistance.
+        </p>
+
+        <a href="#contact-form" class="hero-btn">
+            Send Message
+        </a>
+
     </div>
+
 </section>
+
+<!-- ================= CONTACT SECTION ================= -->
+
+<section class="contact-content">
+
+    <!-- LEFT -->
+
+    <div class="contact-info">
+
+        <h2>Contact Information</h2>
+
+        <div class="info-box">
+
+            <div class="info-icon">📧</div>
+
+            <div class="info-text">
+
+                <h4>Email Support</h4>
+
+                <p>
+                    support@eservice.example.com
+                    <br>
+                    helpdesk@eservice.example.com
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="info-box">
+
+            <div class="info-icon">📞</div>
+
+            <div class="info-text">
+
+                <h4>Phone Support</h4>
+
+                <p>
+                    +1 (555) 123-4567
+                    <br>
+                    +1 (555) 987-6543
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="info-box">
+
+            <div class="info-icon">📍</div>
+
+            <div class="info-text">
+
+                <h4>Office Address</h4>
+
+                <p>
+                    E-Service Technology Center
+                    <br>
+                    Smart Business District
+                    <br>
+                    Workflow Management Hub
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="info-box">
+
+            <div class="info-icon">⏰</div>
+
+            <div class="info-text">
+
+                <h4>Working Hours</h4>
+
+                <p>
+                    Monday - Friday : 9AM - 6PM
+                    <br>
+                    Saturday : 10AM - 4PM
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT -->
+
+    <div class="contact-form" id="contact-form">
+
+        <h2>Send us a Message</h2>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label>Full Name</label>
+
+                <input type="text"
+                       name="name"
+                       placeholder="Enter your full name"
+                       required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Email Address</label>
+
+                <input type="email"
+                       name="email"
+                       placeholder="Enter your email"
+                       required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Subject</label>
+
+                <input type="text"
+                       name="subject"
+                       placeholder="Enter message subject"
+                       required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Message</label>
+
+                <textarea name="message"
+                          placeholder="Write your message..."
+                          required></textarea>
+
+            </div>
+
+            <button type="submit">
+                Submit Message
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+<!-- ================= EXTRA CONTENT ================= -->
+
+<section class="more-contact-section">
+
+    <div class="more-contact-title">
+
+        <h2>Why Choose Our Platform?</h2>
+
+        <p>
+            Our E-Service portal provides secure workflow automation,
+            fast application tracking, professional communication,
+            and a smooth user experience across all devices.
+        </p>
+
+    </div>
+
+    <div class="more-contact-grid">
+
+        <div class="more-card">
+
+            <div class="more-icon">🚀</div>
+
+            <h3>Fast Workflow</h3>
+
+            <p>
+                Submit and manage service applications quickly using
+                our smart automated workflow management system.
+            </p>
+
+        </div>
+
+        <div class="more-card">
+
+            <div class="more-icon">🔒</div>
+
+            <h3>Secure Platform</h3>
+
+            <p>
+                User information and communication are protected using
+                enterprise-grade security and authentication systems.
+            </p>
+
+        </div>
+
+        <div class="more-card">
+
+            <div class="more-icon">💡</div>
+
+            <h3>Smart Dashboard</h3>
+
+            <p>
+                Access real-time application updates, workflow tracking,
+                notifications, and service management tools.
+            </p>
+
+        </div>
+
+        <div class="more-card">
+
+            <div class="more-icon">🌐</div>
+
+            <h3>Responsive Design</h3>
+
+            <p>
+                Enjoy smooth access from mobile, tablet, and desktop
+                devices with optimized responsive layouts.
+            </p>
+
+        </div>
+
+        <div class="more-card">
+
+            <div class="more-icon">📨</div>
+
+            <h3>Quick Communication</h3>
+
+            <p>
+                Contact support instantly and receive quick assistance
+                for all workflow and application-related issues.
+            </p>
+
+        </div>
+
+        <div class="more-card">
+
+            <div class="more-icon">🤝</div>
+
+            <h3>Professional Support</h3>
+
+            <p>
+                Our dedicated support team ensures better communication,
+                fast response time, and reliable assistance.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= IMAGE SECTION ================= -->
+
+<section class="support-image">
+
+    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=1200&auto=format&fit=crop"
+         alt="Support Team">
+
+</section>
+
 {% endblock %}
