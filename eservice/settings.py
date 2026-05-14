@@ -33,6 +33,11 @@ ALLOWED_HOSTS = [
     'localhost',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://service-web-rkha.onrender.com',
+    'https://*.onrender.com',  # Allows any subdomain of onrender.com for flexibility
+]
+
 
 # Application definition
 
