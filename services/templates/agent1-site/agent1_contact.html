@@ -1,0 +1,839 @@
+{% extends 'agent2-site/base-agent2.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div class="admin-wrapper">
+
+    <!-- Floating Background -->
+    <div class="floating floating1"></div>
+    <div class="floating floating2"></div>
+    <div class="floating floating3"></div>
+
+    <div class="container-box">
+
+        <!-- Header -->
+        <div class="top-header animate-top">
+            <span class="badge-live">
+                <span class="pulse-dot"></span>
+                Agent 2 Secure Channel
+            </span>
+
+            <h1>🏛️ Administrative Desk</h1>
+
+            <p>
+                Professional internal communication portal for validation support,
+                document escalation, workflow review, and operational coordination.
+            </p>
+        </div>
+
+        <!-- Grid -->
+        <div class="main-grid">
+
+            <!-- LEFT PANEL -->
+            <div class="left-panel animate-left">
+
+                <div class="glass-card info-card">
+
+                    <div class="card-head">
+                        <div class="icon-box">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+
+                        <div>
+                            <h3>Support Guidelines</h3>
+                            <p>Internal communication protocol</p>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-icon">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+
+                        <div>
+                            <h4>Validation Help</h4>
+                            <p>
+                                Flag unreadable documents, invalid requests,
+                                duplicate records, or verification issues for
+                                admin review.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-icon blue">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+
+                        <div>
+                            <h4>Priority Response</h4>
+                            <p>
+                                Internal Agent requests are prioritized with an
+                                estimated response time of 2-3 hours.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-icon purple">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+
+                        <div>
+                            <h4>Secure Communication</h4>
+                            <p>
+                                All reports are securely logged and monitored
+                                through the internal administrative system.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="agent-box">
+                        <div class="agent-avatar">
+                            <i class="fa-solid fa-user-secret"></i>
+                        </div>
+
+                        <div>
+                            <h5>Agent 2 Protocol Active</h5>
+                            <span>ID : {{ user.username }}</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="right-panel animate-right">
+
+                <div class="glass-card form-card">
+
+                    <div class="form-header">
+                        <div>
+                            <h2>✉️ Administrative Request</h2>
+                            <p>Forward your internal issue to administrators</p>
+                        </div>
+
+                        <div class="mail-icon">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </div>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert-box">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" id="adminForm">
+                        {% csrf_token %}
+
+                        <!-- Subject -->
+                        <div class="input-group">
+                            <label>Inquiry Subject</label>
+
+                            <div class="input-box">
+                                <i class="fa-solid fa-heading"></i>
+
+                                <input type="text"
+                                       name="subject"
+                                       placeholder="e.g., Validation query for REQ-1045"
+                                       required>
+                            </div>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="input-group">
+                            <label>Message / Report</label>
+
+                            <div class="textarea-box">
+                                <i class="fa-solid fa-message"></i>
+
+                                <textarea name="message"
+                                          placeholder="Provide clear details regarding the issue..."
+                                          required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Button -->
+                        <button type="submit" class="submit-btn">
+                            <span class="btn-text">
+                                📤 Forward to Admin
+                            </span>
+
+                            <span class="btn-loader"></span>
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+/* =======================
+   GOOGLE FONT
+======================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* =======================
+   RESET
+======================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+/* =======================
+   BODY
+======================= */
+
+body{
+    background:
+    radial-gradient(circle at top left,#4338ca 0%,transparent 30%),
+    radial-gradient(circle at bottom right,#06b6d4 0%,transparent 30%),
+    #f8fafc;
+
+    overflow-x:hidden;
+}
+
+/* =======================
+   MAIN WRAPPER
+======================= */
+
+.admin-wrapper{
+    min-height:100vh;
+    position:relative;
+    padding:50px 20px;
+}
+
+/* =======================
+   FLOATING EFFECTS
+======================= */
+
+.floating{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:.25;
+    animation:float 8s ease-in-out infinite;
+}
+
+.floating1{
+    width:250px;
+    height:250px;
+    background:#6366f1;
+    top:50px;
+    left:-80px;
+}
+
+.floating2{
+    width:300px;
+    height:300px;
+    background:#06b6d4;
+    bottom:-100px;
+    right:-50px;
+    animation-delay:2s;
+}
+
+.floating3{
+    width:180px;
+    height:180px;
+    background:#8b5cf6;
+    top:40%;
+    left:40%;
+    animation-delay:4s;
+}
+
+@keyframes float{
+    0%,100%{
+        transform:translateY(0px);
+    }
+    50%{
+        transform:translateY(-25px);
+    }
+}
+
+/* =======================
+   CONTAINER
+======================= */
+
+.container-box{
+    max-width:1250px;
+    margin:auto;
+    position:relative;
+    z-index:2;
+}
+
+/* =======================
+   HEADER
+======================= */
+
+.top-header{
+    text-align:center;
+    margin-bottom:60px;
+}
+
+.badge-live{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 18px;
+    background:rgba(255,255,255,.7);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,.5);
+    border-radius:50px;
+    font-size:14px;
+    font-weight:600;
+    color:#4338ca;
+    margin-bottom:20px;
+}
+
+.pulse-dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#10b981;
+    position:relative;
+}
+
+.pulse-dot::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:#10b981;
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+    0%{
+        transform:scale(1);
+        opacity:1;
+    }
+    100%{
+        transform:scale(2.5);
+        opacity:0;
+    }
+}
+
+.top-header h1{
+    font-size:52px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:15px;
+}
+
+.top-header p{
+    max-width:760px;
+    margin:auto;
+    color:#64748b;
+    font-size:17px;
+    line-height:1.8;
+}
+
+/* =======================
+   GRID
+======================= */
+
+.main-grid{
+    display:grid;
+    grid-template-columns:1fr 1.5fr;
+    gap:35px;
+}
+
+/* =======================
+   GLASS CARD
+======================= */
+
+.glass-card{
+    background:rgba(255,255,255,.75);
+    backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,.6);
+    border-radius:28px;
+    box-shadow:
+    0 10px 30px rgba(15,23,42,.08),
+    inset 0 1px 0 rgba(255,255,255,.5);
+
+    transition:.4s ease;
+}
+
+.glass-card:hover{
+    transform:translateY(-5px);
+}
+
+/* =======================
+   INFO CARD
+======================= */
+
+.info-card{
+    padding:35px;
+}
+
+.card-head{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:35px;
+}
+
+.icon-box{
+    width:70px;
+    height:70px;
+    border-radius:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#6366f1,#4338ca);
+    color:white;
+    font-size:28px;
+    box-shadow:0 15px 30px rgba(99,102,241,.3);
+}
+
+.card-head h3{
+    color:#0f172a;
+    font-size:24px;
+    margin-bottom:4px;
+}
+
+.card-head p{
+    color:#64748b;
+    font-size:14px;
+}
+
+.info-box{
+    display:flex;
+    gap:18px;
+    margin-bottom:28px;
+    padding:18px;
+    border-radius:18px;
+    transition:.3s;
+}
+
+.info-box:hover{
+    background:rgba(99,102,241,.05);
+    transform:translateX(5px);
+}
+
+.info-icon{
+    min-width:52px;
+    height:52px;
+    border-radius:16px;
+    background:#eef2ff;
+    color:#4338ca;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+}
+
+.info-icon.blue{
+    background:#ecfeff;
+    color:#0891b2;
+}
+
+.info-icon.purple{
+    background:#f5f3ff;
+    color:#7c3aed;
+}
+
+.info-box h4{
+    color:#0f172a;
+    margin-bottom:8px;
+    font-size:17px;
+}
+
+.info-box p{
+    color:#64748b;
+    line-height:1.6;
+    font-size:14px;
+}
+
+/* =======================
+   AGENT BOX
+======================= */
+
+.agent-box{
+    margin-top:35px;
+    padding:20px;
+    border-radius:20px;
+    background:linear-gradient(135deg,#4338ca,#6366f1);
+    color:white;
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.agent-avatar{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:rgba(255,255,255,.2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+.agent-box h5{
+    font-size:17px;
+    margin-bottom:5px;
+}
+
+.agent-box span{
+    font-size:13px;
+    opacity:.9;
+}
+
+/* =======================
+   FORM CARD
+======================= */
+
+.form-card{
+    padding:40px;
+}
+
+.form-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:35px;
+}
+
+.form-header h2{
+    font-size:30px;
+    color:#0f172a;
+    margin-bottom:6px;
+}
+
+.form-header p{
+    color:#64748b;
+}
+
+.mail-icon{
+    width:70px;
+    height:70px;
+    border-radius:22px;
+    background:linear-gradient(135deg,#06b6d4,#2563eb);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:28px;
+    animation:rotateFloat 5s infinite ease-in-out;
+}
+
+@keyframes rotateFloat{
+    0%,100%{
+        transform:translateY(0px) rotate(0deg);
+    }
+    50%{
+        transform:translateY(-8px) rotate(6deg);
+    }
+}
+
+/* =======================
+   INPUTS
+======================= */
+
+.input-group{
+    margin-bottom:28px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:12px;
+    color:#334155;
+    font-weight:600;
+    font-size:15px;
+}
+
+.input-box,
+.textarea-box{
+    position:relative;
+}
+
+.input-box i,
+.textarea-box i{
+    position:absolute;
+    top:18px;
+    left:18px;
+    color:#94a3b8;
+    font-size:16px;
+}
+
+.input-box input,
+.textarea-box textarea{
+    width:100%;
+    border:none;
+    outline:none;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:18px;
+    padding-left:52px;
+    transition:.3s;
+    font-size:15px;
+}
+
+.input-box input{
+    height:60px;
+}
+
+.textarea-box textarea{
+    min-height:220px;
+    resize:vertical;
+    padding-top:18px;
+}
+
+.input-box input:focus,
+.textarea-box textarea:focus{
+    border-color:#6366f1;
+    background:white;
+    box-shadow:0 0 0 5px rgba(99,102,241,.12);
+    transform:translateY(-2px);
+}
+
+/* =======================
+   BUTTON
+======================= */
+
+.submit-btn{
+    width:100%;
+    height:65px;
+    border:none;
+    border-radius:20px;
+    background:linear-gradient(135deg,#6366f1,#4338ca);
+    color:white;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition:.4s;
+    box-shadow:0 15px 30px rgba(99,102,241,.25);
+}
+
+.submit-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 20px 40px rgba(99,102,241,.35);
+}
+
+.submit-btn::before{
+    content:'';
+    position:absolute;
+    width:120px;
+    height:120px;
+    background:rgba(255,255,255,.2);
+    border-radius:50%;
+    top:-20px;
+    left:-40px;
+    transition:.5s;
+}
+
+.submit-btn:hover::before{
+    transform:scale(4);
+    opacity:0;
+}
+
+/* =======================
+   ALERT
+======================= */
+
+.alert-box{
+    padding:16px;
+    border-radius:16px;
+    background:#dcfce7;
+    color:#166534;
+    margin-bottom:25px;
+    font-weight:600;
+}
+
+/* =======================
+   ANIMATIONS
+======================= */
+
+.animate-top{
+    animation:slideTop .8s ease;
+}
+
+.animate-left{
+    animation:slideLeft 1s ease;
+}
+
+.animate-right{
+    animation:slideRight 1s ease;
+}
+
+@keyframes slideTop{
+    from{
+        opacity:0;
+        transform:translateY(-40px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes slideLeft{
+    from{
+        opacity:0;
+        transform:translateX(-60px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+@keyframes slideRight{
+    from{
+        opacity:0;
+        transform:translateX(60px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+/* =======================
+   RESPONSIVE
+======================= */
+
+@media(max-width:992px){
+
+    .main-grid{
+        grid-template-columns:1fr;
+    }
+
+    .top-header h1{
+        font-size:38px;
+    }
+
+}
+
+@media(max-width:600px){
+
+    .top-header h1{
+        font-size:30px;
+    }
+
+    .top-header p{
+        font-size:15px;
+    }
+
+    .form-card,
+    .info-card{
+        padding:25px;
+    }
+
+    .form-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:20px;
+    }
+
+}
+
+</style>
+
+<script>
+
+/* =========================
+   BUTTON LOADING EFFECT
+========================= */
+
+const form = document.getElementById('adminForm');
+const btn = document.querySelector('.submit-btn');
+
+form.addEventListener('submit', function(){
+
+    btn.innerHTML = `
+        <span style="display:flex;align-items:center;justify-content:center;gap:12px;">
+            <span class="spinner"></span>
+            Sending Request...
+        </span>
+    `;
+
+    btn.style.opacity = ".9";
+});
+
+/* =========================
+   PARALLAX EFFECT
+========================= */
+
+document.addEventListener('mousemove', (e)=>{
+
+    const moveX = (e.clientX * 0.01);
+    const moveY = (e.clientY * 0.01);
+
+    document.querySelectorAll('.floating').forEach((el,index)=>{
+
+        el.style.transform =
+        `translate(${moveX * (index+1)}px, ${moveY * (index+1)}px)`;
+
+    });
+
+});
+
+/* =========================
+   INPUT GLOW EFFECT
+========================= */
+
+const inputs = document.querySelectorAll('input, textarea');
+
+inputs.forEach(input=>{
+
+    input.addEventListener('focus', ()=>{
+
+        input.parentElement.style.transform = 'scale(1.01)';
+
+    });
+
+    input.addEventListener('blur', ()=>{
+
+        input.parentElement.style.transform = 'scale(1)';
+
+    });
+
+});
+
+</script>
+
+<style>
+
+.spinner{
+    width:20px;
+    height:20px;
+    border:3px solid rgba(255,255,255,.3);
+    border-top:3px solid white;
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
+    }
+}
+
+</style>
+
+{% endblock %}

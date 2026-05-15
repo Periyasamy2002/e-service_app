@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Service, ServiceRequest, Page
+from .models import User, Service, ServiceRequest, Page, ContactMessage
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -25,3 +25,8 @@ class ServiceRequestAdmin(admin.ModelAdmin):
 class PageAdmin(admin.ModelAdmin):
     list_display = ('title', 'created_at')
     search_fields = ('title',)
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'subject', 'created_at', 'is_read')
+    list_filter = ('is_read', 'created_at')

@@ -154,6 +154,10 @@
                                     <input type="text" name="full_name" value="{{ req.full_name }}" required style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
                                 </div>
                                 <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; font-size: 13px;">Date of Birth</label>
+                                    <input type="date" name="dob" value="{{ req.dob|date:'Y-m-d' }}" max="{% now 'Y-m-d' %}" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                                </div>
+                                <div>
                                     <label style="display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; font-size: 13px;">Mobile Number</label>
                                     <input type="text" name="mobile" value="{{ req.mobile }}" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
                                 </div>

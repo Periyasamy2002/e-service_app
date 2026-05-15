@@ -20,6 +20,7 @@ class Service(models.Model):
     documents_required = models.TextField(blank=True, help_text="List of required documents")
     tutorial_link = models.URLField(blank=True, help_text="YouTube or tutorial video link")
     apply_link = models.URLField(blank=True, help_text="Link to apply for this service")
+    minimum_age = models.PositiveSmallIntegerField(default=0, help_text="Minimum age required to apply for this service")
     page = models.ForeignKey('Page', on_delete=models.SET_NULL, null=True, blank=True, related_name='services', help_text="Assign to a specific page")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -33,6 +34,29 @@ class Page(models.Model):
 
     def __str__(self):
         return self.title
+
+class ContactMessage(models.Model):
+    ROLE_CHOICES = [
+        ('USER', 'User'),
+        ('AGENT1', 'Agent 1'),
+        ('AGENT2', 'Agent 2'),
+    ]
+    
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    sender_role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='USER')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.name} ({self.sender_role}) - {self.subject}"
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Contact Messages"
+
 class ServiceRequest(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),

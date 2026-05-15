@@ -13,7 +13,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
             <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
                 <small style="color: #64748b; font-weight: 600;">USER</small>
-                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600;">{{ request.user.get_full_name|default:request.user.username }}</p>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600;">{{ request.full_name|default:request.user.get_full_name|default:request.user.username }}</p>
             </div>
             <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
                 <small style="color: #64748b; font-weight: 600;">SERVICE</small>
@@ -34,6 +34,10 @@
             <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
                 <small style="color: #64748b; font-weight: 600;">ADDRESS</small>
                 <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600; font-size: 0.9rem;">{{ request.address|truncatewords:5 }}</p>
+            </div>
+            <div style="padding: 10px; background: #f8fafc; border-radius: 6px;">
+                <small style="color: #64748b; font-weight: 600;">Data of Birth</small>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600; font-size: 0.9rem;">{{ request.dob|date:"d M Y" }}</p>
             </div>
         </div>
     </div>

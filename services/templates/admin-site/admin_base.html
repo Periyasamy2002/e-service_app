@@ -591,9 +591,10 @@
         <a href="{% url 'admin_dashboard' %}">Dashboard</a>
         <a href="{% url 'apply_details' %}">Applications</a>
         <a href="{% url 'user_details' %}">Users</a>
+        <a href="{% url 'admin_contact_messages' %}">Contact Details</a>
         <button class="btn btn-small" onclick="openAddPageModal()">+ Page</button>
         <a href="{% url 'add_service' %}" class="btn btn-add-service btn-small">+ Service</a>
-        <a href="{% url 'admin_login' %}">Logout</a>
+        <a href="{% url 'logout' %}">Logout</a>
     </div>
 
     <div class="navbar-right">
@@ -645,6 +646,15 @@
             <a href="{% url 'user_details' %}?role=AGENT1">🤖 Agent 1</a>
             <a href="{% url 'user_details' %}?role=AGENT2">🤖 Agent 2</a>
             <a href="{% url 'user_details' %}?role=USER">👤 Users</a>
+        </div>
+        {% endif %}
+
+        <!-- CONTACT MESSAGES MENU -->
+        {% if request.resolver_match.url_name == 'admin_contact_messages' %}
+        <div class="sidebar-menu">
+            <h4>📬 Messages</h4>
+            <a href="{% url 'admin_contact_messages' %}">💬 All Messages</a>
+            <a href="{% url 'admin_contact_messages' %}?filter=unread">🔔 New Messages</a>
         </div>
         {% endif %}
 

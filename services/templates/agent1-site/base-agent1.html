@@ -525,6 +525,7 @@ table tbody tr:hover {
         <a href="{% url 'agent1_dashboard' %}">Dashboard</a>
         <a href="{% url 'apply_details' %}">Applications</a>
         <a href="{% url 'agent1_completed' %}">History</a>
+        <a href="{% url 'agent1_contact' %}">Support</a>
     </div>
 
     <div class="nav-right">
@@ -560,6 +561,11 @@ table tbody tr:hover {
             {% endif %}
         </div>
         
+        <div class="sidebar-section">
+            <span class="sidebar-title">💬 Support</span>
+            <a href="{% url 'agent1_contact' %}">Contact Admin</a>
+        </div>
+
         <a href="{% url 'agent1_login' %}" class="logout">🚪 Logout</a>
     </div>
 

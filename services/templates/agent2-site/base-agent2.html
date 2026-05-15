@@ -69,7 +69,8 @@
             <li><a href="{% url 'agent2_apply_details' %}" class="{% if request.resolver_match.url_name == 'agent2_apply_details' %}active-link{% endif %}">📋 Apply Details</a></li>
             <li><a href="{% url 'agent2_complete_details' %}" class="{% if request.resolver_match.url_name == 'agent2_complete_details' %}active-link{% endif %}">✅ Complete Details</a></li>
             <li><a href="{% url 'agent2_service' %}" class="{% if request.resolver_match.url_name == 'agent2_service' %}active-link{% endif %}">🛠️ View Services</a></li>
-            <li><a href="{% url 'agent2_upload' %}">📤 Upload Tools</a></li>
+            <li><a href="{% url 'agent2_contact' %}" class="{% if request.resolver_match.url_name == 'agent2_contact' %}active-link{% endif %}">💬 Contact Admin</a></li>
+            <!-- <li><a href="{% url 'agent2_upload' %}">📤 Upload Tools</a></li> -->
             <li><a href="{% url 'agent2_login' %}">🚪 Logout</a></li>
         </ul>
         <div class="user-info">

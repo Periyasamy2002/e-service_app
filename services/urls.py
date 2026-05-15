@@ -27,6 +27,9 @@ urlpatterns = [
     path('adminsite/delete-service/<int:service_id>/', views.delete_service, name='delete_service'),
     path('adminsite/assign-request/<int:request_id>/', views.assign_request, name='assign_request'),
     path('adminsite/update-status/<int:request_id>/', views.update_request_status, name='update_request_status'),
+    path('adminsite/messages/', views.admin_contact_messages, name='admin_contact_messages'),
+    path('adminsite/messages/delete/<int:message_id>/', views.delete_contact_message, name='delete_contact_message'),
+    path('adminsite/messages/read/<int:message_id>/', views.mark_message_read, name='mark_message_read'),
     path('download-all-docs/<int:req_id>/', views.download_all_docs, name='download_all_docs'),
 
     # User URLs
@@ -42,11 +45,12 @@ urlpatterns = [
     path('agent2/completed/', views.agent2_completed, name='agent2_completed'),
     path('agent2/request/<int:request_id>/', views.agent2_request_detail, name='agent2_request_detail'),
     path('agent2/forward/<int:request_id>/', views.agent2_forward, name='agent2_forward'),
-    path('agent2/service/', views.agent2_service, name='agent2_service'), # Ensure this line is present
+    path('agent2/service/', views.agent2_service, name='agent2_service'),
     path('agent2/apply/<int:service_id>/', views.agent2_apply, name='agent2_apply'),
     path('agent2/upload/', views.agent2_upload, name='agent2_upload'),
     path('agent2/apply-details/', views.agent2_apply_details, name='agent2_apply_details'),
     path('agent2/complete-details/', views.agent2_complete_details, name='agent2_complete_details'),
+    path('agent2/contact/', views.agent2_contact, name='agent2_contact'),
 
     # Agent1 URLs
     path('agent1-login/', views.agent1_login, name='agent1_login'),
@@ -59,6 +63,7 @@ urlpatterns = [
     path('agent1/complete/<int:request_id>/', views.agent1_complete, name='agent1_complete'),
     path('agent1/download-report/<int:request_id>/', views.agent1_download_report, name='agent1_download_report'),
     path('agent1/take-request/<int:request_id>/', views.take_request, name='take_request'),
+    path('agent1/contact/', views.agent1_contact, name='agent1_contact'),
     
     # Agent1 Apply Details & Actions
     path('agent1/apply-details/', views.agent1_apply_details, name='agent1_apply_details'),

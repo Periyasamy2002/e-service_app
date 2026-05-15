@@ -71,7 +71,7 @@
                 <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#fcfcfc'" onmouseout="this.style.background='transparent'">
                     <td style="padding: 15px; font-weight: 700; color: #334155;">#REQ-{{ req.id }}</td>
                     <td style="padding: 15px; font-weight: 600;">{{ req.service.name }}</td>
-                    <td style="padding: 15px;">{{ req.user.username }}</td>
+                    <td style="padding: 15px;">{{ req.full_name|default:req.user.get_full_name|default:req.user.username }}</td>
                     <td style="padding: 15px; font-size: 0.9rem; color: #64748b;">
                         {{ req.mobile }}<br>
                         <small>{{ req.email }}</small>
@@ -104,7 +104,7 @@
                             </form>
                             
                             <!-- ASSIGN Button (Opens Modal) -->
-                            <button type="button" onclick="openAssignModal({{ req.id }}, '{{ req.user.username }}')" style="background: #10b981; color: white; padding: 6px 12px; border: none; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 600; cursor: pointer;">👥 ASSIGN</button>
+                            <button type="button" onclick="openAssignModal({{ req.id }}, '{{ req.full_name|default:req.user.get_full_name|default:req.user.username }}')" style="background: #10b981; color: white; padding: 6px 12px; border: none; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 600; cursor: pointer;">👥 ASSIGN</button>
                         {% else %}
                             <!-- View/Take Button for unassigned -->
                             <a href="{% url 'agent1_request_detail' req.id %}" style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 600;">👁️ VIEW</a>

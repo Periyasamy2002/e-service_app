@@ -10,9 +10,10 @@ from django.http import Http404, HttpResponse
 from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.db.models import Q
+from datetime import date, datetime
 from functools import wraps
 from .forms import ServiceRequestForm
-from .models import User, Service, ServiceRequest, Page
+from .models import User, Service, ServiceRequest, Page, ContactMessage
 
 def role_required(allowed_roles):
     """Decorator to restrict access based on user role."""
@@ -45,6 +46,21 @@ def role_required(allowed_roles):
         return _wrapped_view
     return decorator
 
+
+def calculate_age(dob):
+    """Return age in years for the given date of birth."""
+    today = date.today()
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+
+def parse_dob(dob_str):
+    """Parse a YYYY-MM-DD string into a date object, or return None."""
+    try:
+        return datetime.strptime(dob_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        return None
+
+
 def index(request):
     pages = Page.objects.all()
     services = Service.objects.all()[:3]  # Show featured services
@@ -54,9 +70,100 @@ def about(request):
     pages = Page.objects.all()
     return render(request, 'about.html', {'pages': pages})
 
+
+
+def _save_contact_message(name, email, subject, message, sender_role='USER'):
+    return ContactMessage.objects.create(
+        name=name,
+        email=email,
+        subject=subject,
+        message=message,
+        sender_role=sender_role
+    )
+
+
 def contact(request):
     pages = Page.objects.all()
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        subject = request.POST.get('subject', '').strip()
+        message_text = request.POST.get('message', '').strip()
+        sender_role = request.POST.get('role', 'USER') if request.POST.get('role') else 'USER'
+
+        if not name or not email or not subject or not message_text:
+            messages.error(request, 'Please fill in all required fields.')
+        else:
+            _save_contact_message(name, email, subject, message_text, sender_role)
+            messages.success(request, 'Your message has been submitted successfully. We will get back to you soon.')
+            return redirect('contact')
+
     return render(request, 'contact.html', {'pages': pages})
+
+
+@login_required
+@role_required(['AGENT1'])
+def agent1_contact(request):
+    """Agent 1 specific contact form."""
+    pages = Page.objects.all()
+    if request.method == 'POST':
+        subject = request.POST.get('subject', '').strip()
+        message_text = request.POST.get('message', '').strip()
+
+        if not subject or not message_text:
+            messages.error(request, 'Please fill in all required fields.')
+        else:
+            name = request.user.get_full_name() or request.user.username
+            email = request.user.email or f'{request.user.username}@example.com'
+            _save_contact_message(name, email, subject, message_text, sender_role='AGENT1')
+            messages.success(request, 'Your message has been sent to administration successfully.')
+            return redirect('agent1_contact')
+
+    return render(request, 'agent1-site/agent1_contact.html', {'pages': pages})
+
+
+@login_required
+@role_required(['AGENT2'])
+def agent2_contact(request):
+    """Agent 2 specific contact form."""
+    pages = Page.objects.all()
+    if request.method == 'POST':
+        subject = request.POST.get('subject', '').strip()
+        message_text = request.POST.get('message', '').strip()
+
+        if not subject or not message_text:
+            messages.error(request, 'Please fill in all required fields.')
+        else:
+            name = request.user.get_full_name() or request.user.username
+            email = request.user.email or f'{request.user.username}@example.com'
+            _save_contact_message(name, email, subject, message_text, sender_role='AGENT2')
+            messages.success(request, 'Your message has been sent to administration successfully.')
+            return redirect('agent2_contact')
+
+    return render(request, 'agent2-site/agent2_contact.html', {
+        'pages': pages,
+        'sidebar_counts': get_agent2_sidebar_counts(request.user)
+    })
+
+@login_required
+@role_required(['ADMIN'])
+def delete_contact_message(request, message_id):
+    """Admin-only: Delete a contact message."""
+    message = get_object_or_404(ContactMessage, id=message_id)
+    message.delete()
+    messages.success(request, f"✅ Message from {message.name} has been deleted.")
+    return redirect('admin_contact_messages')
+
+@login_required
+@role_required(['ADMIN'])
+def mark_message_read(request, message_id):
+    """Admin-only: Mark message as read."""
+    message = get_object_or_404(ContactMessage, id=message_id)
+    message.is_read = True
+    message.save()
+    messages.success(request, "✅ Message marked as read.")
+    return redirect('admin_contact_messages')
 
 def user_login(request):
     if request.user.is_authenticated:
@@ -223,6 +330,10 @@ def apply_details(request):
         all_requests = all_requests.filter(assigned_to__isnull=False)
     elif filter_type == 'unassigned':
         all_requests = all_requests.filter(assigned_to__isnull=True)
+    elif request.user.role != 'ADMIN' and filter_type == 'all':
+        # Default behavior for non-admins if no specific filter is selected
+        all_requests = all_requests.filter(assigned_to__isnull=True)
+
     # Apply filters
     status_filter = request.GET.get('status')
     service_filter = request.GET.get('service')
@@ -511,6 +622,31 @@ def user_dashboard(request):
 def user_request_detail(request, request_id):
     """Display user's service request details with download option for completed file"""
     service_request = get_object_or_404(ServiceRequest, id=request_id, user=request.user)
+
+    if request.method == 'POST' and request.POST.get('edit_details') == '1':
+        full_name = request.POST.get('full_name', '').strip()
+        dob = request.POST.get('dob', '').strip()
+        email = request.POST.get('email', '').strip()
+        mobile = request.POST.get('mobile', '').strip()
+        address = request.POST.get('address', '').strip()
+
+        if full_name:
+            service_request.full_name = full_name
+        if dob:
+            parsed_dob = parse_dob(dob)
+            if parsed_dob:
+                service_request.dob = parsed_dob
+        if email:
+            service_request.email = email
+        if mobile and len(mobile) == 10 and mobile.isdigit():
+            service_request.mobile = mobile
+        if address:
+            service_request.address = address
+
+        service_request.save()
+        messages.success(request, 'Your request details have been updated successfully.')
+        return redirect('user_request_detail', request_id=request_id)
+
     return render(request, 'details.html', {'request': service_request})
 
 @login_required
@@ -993,6 +1129,11 @@ def agent2_apply_details(request):
         )
 
         service_request.full_name = request.POST.get('full_name')
+        dob_value = request.POST.get('dob')
+        if dob_value:
+            parsed_dob = parse_dob(dob_value)
+            if parsed_dob:
+                service_request.dob = parsed_dob
         service_request.mobile = request.POST.get('mobile')
         service_request.aadhaar_number = request.POST.get('aadhaar_number')
         service_request.email = request.POST.get('email')
@@ -1136,13 +1277,22 @@ def agent2_login(request):
 @role_required(['AGENT1'])
 def agent1_dashboard(request):
     """Agent1 main dashboard with status and service filtering."""
-    # Base queryset for the assigned agent
-    all_assigned = ServiceRequest.objects.filter(assigned_to=request.user).order_by('-created_at')
+    # Base queryset for the assigned agent to calculate stats
+    agent_requests = ServiceRequest.objects.filter(assigned_to=request.user)
     
+    # Calculate real live results/stats
+    stats = {
+        'total': agent_requests.count(),
+        'under_review': agent_requests.filter(status='Under Review').count(),
+        'in_progress': agent_requests.filter(status='In Progress').count(),
+        'completed': agent_requests.filter(status='Completed').count(),
+    }
+
     # Filters
     status_filter = request.GET.get('status')
     service_filter = request.GET.get('service')
 
+    all_assigned = agent_requests.order_by('-created_at')
     if status_filter:
         all_assigned = all_assigned.filter(status=status_filter)
     if service_filter:
@@ -1157,8 +1307,9 @@ def agent1_dashboard(request):
         'services': available_services,
         'status_filter': status_filter,
         'service_filter': service_filter,
+        'stats': stats,
     }
-    return render(request, 'agent1-site/base-agent1.html', context)
+    return render(request, 'agent1-site/agent1-dashbord.html', context)
 
 @login_required
 @role_required(['AGENT1'])
@@ -1503,12 +1654,12 @@ def agent1_apply_details(request):
     elif filter_type == 'history':
         # Show completed requests that were assigned to this Agent1
         requests_list = ServiceRequest.objects.filter(
-            assigned_to=request.user, 
+            assigned_to=request.user,
             status='Completed'
         ).order_by('-created_at')
     else:  # 'all'
-        # Show all requests
-        requests_list = ServiceRequest.objects.all().order_by('-created_at')
+        # Default/Clear Filter: Show only unassigned requests for Agent 1 as requested
+        requests_list = ServiceRequest.objects.filter(assigned_to__isnull=True).order_by('-created_at')
     
     # Apply additional filters
     status_filter = request.GET.get('status')
@@ -1703,3 +1854,71 @@ def admin_agent_workload(request):
         'total_completed': total_completed_all,
     }
     return render(request, 'admin-site/agent_workload.html', context)
+
+@login_required
+@role_required(['ADMIN'])
+def admin_contact_messages(request):
+    """
+    Admin-only contact message management dashboard.
+    Features:
+    - View all messages from Users, Agent1, Agent2
+    - Filter by role and read status
+    - Search by name, email, subject
+    - Message statistics
+    - Delete and reply functionality
+    """
+    pages = Page.objects.all()
+    
+    # Get filter parameters
+    role_filter = request.GET.get('role', '')
+    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
+    
+    # Start with all messages
+    messages_list = ContactMessage.objects.all()
+    
+    # Apply role filter
+    if role_filter and role_filter in ['USER', 'AGENT1', 'AGENT2']:
+        messages_list = messages_list.filter(sender_role=role_filter)
+    
+    # Apply read status filter
+    if status_filter == 'read':
+        messages_list = messages_list.filter(is_read=True)
+    elif status_filter == 'unread':
+        messages_list = messages_list.filter(is_read=False)
+    
+    # Apply search filter
+    if search_query:
+        messages_list = messages_list.filter(
+            Q(name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(subject__icontains=search_query) |
+            Q(message__icontains=search_query)
+        )
+    
+    # Sort by newest first
+    messages_list = messages_list.order_by('-created_at')
+    
+    # Calculate statistics
+    total_messages = ContactMessage.objects.count()
+    user_messages = ContactMessage.objects.filter(sender_role='USER').count()
+    agent1_messages = ContactMessage.objects.filter(sender_role='AGENT1').count()
+    agent2_messages = ContactMessage.objects.filter(sender_role='AGENT2').count()
+    unread_count = ContactMessage.objects.filter(is_read=False).count()
+    read_count = ContactMessage.objects.filter(is_read=True).count()
+    
+    context = {
+        'contact_messages': messages_list,
+        'pages': pages,
+        'total_messages': total_messages,
+        'user_messages': user_messages,
+        'agent1_messages': agent1_messages,
+        'agent2_messages': agent2_messages,
+        'unread_count': unread_count,
+        'read_count': read_count,
+        'active_role_filter': role_filter,
+        'active_status_filter': status_filter,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'admin-site/contact_messages.html', context)
