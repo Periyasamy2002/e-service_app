@@ -224,8 +224,23 @@ def user_login(request):
     return render(request, 'user-login.html')
 
 def user_logout(request):
+    """
+    Logs out the user and redirects to the appropriate login page based on their role.
+    """
+    user_role = None
+    if request.user.is_authenticated:
+        user_role = getattr(request.user, 'role', None)
+    
     logout(request)
-    return redirect('/')
+    
+    if user_role == 'ADMIN':
+        return redirect('admin_login')
+    elif user_role == 'AGENT1':
+        return redirect('agent1_login')
+    elif user_role == 'AGENT2':
+        return redirect('agent2_login')
+    else:
+        return redirect('login')
 
 def register(request):
     # Redirect to combined login/register page
@@ -348,7 +363,6 @@ def apply_details(request):
         all_requests = all_requests.filter(
             Q(full_name__icontains=search_query) |
             Q(mobile__icontains=search_query) |
-            Q(aadhaar_number__icontains=search_query) |
             Q(email__icontains=search_query)
         )
     if agent_filter and request.user.role == 'ADMIN':
@@ -670,7 +684,6 @@ def apply_service(request, service_id):
         dob = request.POST.get('dob', '').strip()
         email = request.POST.get('email', '').strip()
         mobile = request.POST.get('mobile', '').strip()
-        aadhaar_number = request.POST.get('aadhaar_number', '').strip()
         address = request.POST.get('address', '').strip()
         
         if not full_name:
@@ -681,8 +694,6 @@ def apply_service(request, service_id):
             errors.append('Email is required')
         if not mobile or len(mobile) != 10 or not mobile.isdigit():
             errors.append('Mobile must be 10 digits')
-        if not aadhaar_number or len(aadhaar_number.replace(' ', '')) != 12:
-            errors.append('Aadhaar number must be 12 digits')
         if not address:
             errors.append('Address is required')
         
@@ -717,7 +728,6 @@ def apply_service(request, service_id):
             service_request.dob = dob
             service_request.email = email
             service_request.mobile = mobile
-            service_request.aadhaar_number = aadhaar_number.replace(' ', '')
             service_request.address = address
             service_request.description = request.POST.get('description', '')
             service_request.status = 'Pending'
@@ -838,7 +848,6 @@ def agent2_dashboard(request):
     if search_query:
         all_assigned = all_assigned.filter(
             Q(full_name__icontains=search_query) | 
-            Q(aadhaar_number__icontains=search_query) |
             Q(mobile__icontains=search_query)
         )
 
@@ -895,7 +904,6 @@ def agent2_request_detail(request, request_id):
         service_request.dob = request.POST.get('dob', service_request.dob)
         service_request.mobile = request.POST.get('mobile', service_request.mobile)
         service_request.email = request.POST.get('email', service_request.email)
-        service_request.aadhaar_number = request.POST.get('aadhaar_number', service_request.aadhaar_number)
         service_request.address = request.POST.get('address', service_request.address)
         service_request.save()
         messages.success(request, "Application details updated successfully.")
@@ -957,7 +965,6 @@ def agent2_apply(request, service_id):
         dob = request.POST.get('dob', '').strip()
         email = request.POST.get('email', '').strip()
         mobile = request.POST.get('mobile', '').strip()
-        aadhaar_number = request.POST.get('aadhaar_number', '').strip()
         address = request.POST.get('address', '').strip()
         
         if not full_name:
@@ -968,8 +975,6 @@ def agent2_apply(request, service_id):
             errors.append('Email is required')
         if not mobile or len(mobile) != 10 or not mobile.isdigit():
             errors.append('Mobile must be 10 digits')
-        if not aadhaar_number or len(aadhaar_number.replace(' ', '')) != 12:
-            errors.append('Aadhaar number must be 12 digits')
         if not address:
             errors.append('Address is required')
         
@@ -1004,7 +1009,6 @@ def agent2_apply(request, service_id):
             service_request.dob = dob
             service_request.email = email
             service_request.mobile = mobile
-            service_request.aadhaar_number = aadhaar_number.replace(' ', '')
             service_request.address = address
             service_request.description = request.POST.get('description', '')
             service_request.status = 'Pending'
@@ -1135,7 +1139,6 @@ def agent2_apply_details(request):
             if parsed_dob:
                 service_request.dob = parsed_dob
         service_request.mobile = request.POST.get('mobile')
-        service_request.aadhaar_number = request.POST.get('aadhaar_number')
         service_request.email = request.POST.get('email')
         service_request.status = request.POST.get('status')
         service_request.remarks = request.POST.get('remarks')
@@ -1166,7 +1169,6 @@ def agent2_apply_details(request):
     if search_query:
         filtered_requests = filtered_requests.filter(
             Q(full_name__icontains=search_query) | 
-            Q(aadhaar_number__icontains=search_query) |
             Q(mobile__icontains=search_query)
         )
 
@@ -1221,7 +1223,6 @@ def agent2_complete_details(request):
     if search_query:
         all_requests = all_requests.filter(
             Q(full_name__icontains=search_query) | 
-            Q(aadhaar_number__icontains=search_query) |
             Q(mobile__icontains=search_query)
         )
 
@@ -1436,7 +1437,6 @@ def agent1_download_report(request, request_id):
         f"Service: {service_request.service.name}",
         f"Current Status: {service_request.status}",
         f"Applicant: {service_request.full_name}",
-        f"Aadhaar: {service_request.aadhaar_number}",
         f"Mobile: {service_request.mobile}",
         f"Email: {service_request.email}",
         f"Address: {service_request.address}",
@@ -1674,7 +1674,6 @@ def agent1_apply_details(request):
         requests_list = requests_list.filter(
             Q(full_name__icontains=search_query) |
             Q(mobile__icontains=search_query) |
-            Q(aadhaar_number__icontains=search_query) |
             Q(email__icontains=search_query)
         )
     

@@ -75,7 +75,6 @@ class ServiceRequest(models.Model):
     email = models.EmailField(blank=True)
     address = models.TextField(blank=True)
     mobile = models.CharField(max_length=15, blank=True)
-    aadhaar_number = models.CharField(max_length=12, blank=True)
 
     # Optional fixed fields (keep if needed)
     photo = models.FileField(upload_to='requests/photos/', null=True, blank=True)

@@ -17,7 +17,7 @@ class ServiceAdmin(admin.ModelAdmin):
 class ServiceRequestAdmin(admin.ModelAdmin):
     list_display = ('id', 'full_name', 'service', 'status', 'assigned_to', 'created_at')
     list_filter = ('status', 'service', 'assigned_to')
-    search_fields = ('full_name', 'aadhaar_number', 'mobile', 'email')
+    search_fields = ('full_name', 'mobile', 'email')
     readonly_fields = ('created_at', 'updated_at')
     readonly_fields = ('created_at',)
 
